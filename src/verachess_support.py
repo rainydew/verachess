@@ -50,19 +50,38 @@ def set_cell_values(narrow_fen: str):
                 j += int(char)    # if this errors, char is illegal
 
 
-def set_cell_colors(color_list: List[Tuple[List[Tuple[int, int]], str]] = None, flush_all = True):
+def set_cell_color(color_cell: Tuple[Tuple[int, int], str] = None, flush_all=False):
     """
-    :param color_list: [([(x, y) ...], colors) ...]
+    :param color_cell: [(x, y), colors]
     :param flush_all: flush other cells with black
     :return:
     """
     main = Globals.Main
     if flush_all:
-        [main.Cells[cell_x][cell_y].configure(foreground=Color.black) for cell_x in range(8) for cell_y in range(8)]
-    if color_list:
-        for cells, color in color_list:
-            for cell_x, cell_y in cells:
-                main.Cells[cell_x][cell_y].configure(foreground=color)
+        [main.Cells[cell_r][cell_c].configure(foreground=Color.black) for cell_r in range(8) for cell_c in range(8)]
+    if color_cell[0]:
+        (cell_r, cell_c), color = color_cell
+        main.Cells[cell_r][cell_c].configure(foreground=color)
+
+
+def set_cell_back_colors(active_color_list: List[Tuple[int, int]] = None, inactive_color_list: List[Tuple[int, int]] =
+        None, flush_all=False):
+    """
+    :param active_color_list: 
+    :param inactive_color_list: 
+    :param flush_all: 
+    :return: 
+    """
+    main = Globals.Main
+    if flush_all:
+        [main.Cells[r][c].configure(background=Color.lemon_dark if (r + c) % 2 else Color.lemon_light) for r in range(8)
+         for c in range(8)]
+    if inactive_color_list:     # deselect old first
+        for r, c in inactive_color_list:
+            main.Cells[r][c].configure(background=Color.lemon_dark if (r + c) % 2 else Color.lemon_light)
+    if active_color_list:
+        for r, c in active_color_list:
+            main.Cells[r][c].configure(background=Color.cell_sel_dark if (r + c) % 2 else Color.cell_sel_light)
 
 
 def exit():
@@ -74,16 +93,17 @@ def cell_click(event: CallWrapper) -> None:
     if Globals.Game_end:
         return
     place = Globals.Reverse_cell_names[str(event.widget)]
+    # todo: change color to background too
     if Globals.Selection == place:
         Globals.Selection = None
-        set_cell_colors(flush_all=True)
+        set_cell_color(color_cell=(place, Color.black))
+        events.refresh_highlights()
     else:
-        after = events.cell_click_handler(Globals.Selection, place)
-        Globals.Selection = after
+        after = events.cell_click_handler(Globals.Selection, place)     # the click place, except castle in c960
         if after is not None:
-            set_cell_colors([([after], Color.red)], flush_all=True)
-        else:
-            set_cell_colors(flush_all=True)
+            set_cell_color(color_cell=(place, Color.blue))
+        set_cell_color(color_cell=(Globals.Selection, Color.black))
+        Globals.Selection = after
 
 
 def init(top, gui, *args, **kwargs):

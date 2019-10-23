@@ -1,7 +1,7 @@
 # coding: utf-8
 import verachess_support
 from consts import Positions, Pieces, gen_empty_board, CastleCells
-from typing import Tuple, List, Union, Dict, Callable
+from typing import Tuple, List, Union, Dict, Callable, Optional
 from copy import deepcopy
 
 
@@ -37,7 +37,7 @@ class Fens:
             j = 0
             for char in row:
                 if char in Pieces:
-                    board[i][j] = Pieces[char]
+                    board[i][j] = char
                     j += 1
                 else:
                     j += int(char)    # if this errors, char is illegal
@@ -55,6 +55,14 @@ class Fens:
     def get_castle(fen: str) -> List[bool]:
         # todo: c960 support
         return [x in fen.split(" ")[2] for x in "KQkq"]
+
+    @staticmethod
+    def can_control(fen: str, place: Tuple[int, int]) -> bool:
+        r, c = place
+        piece = Fens.get_board_arrays(fen)[r][c]
+        if piece:
+            return piece.isupper() if Fens.get_mover(fen) == "w" else piece.islower()
+        return False
 
     @staticmethod
     def get_piece_move(fen: str, place: Tuple[int, int]) -> List[Tuple[int, int]]:  # main method
@@ -267,15 +275,9 @@ class Fens:
         return False
 
 
-Move_Func_Dict = {piece: Fens.__dict__["_{}_move".format(piece)] for piece in "pbnrqk"}   \
-# type: Dict[str, Callable[[List[List[str]], int, int], List[Tuple[int, int]]]]
+Move_Func_Dict = {piece: getattr(Fens, "_{}_move".format(piece)) for piece in "pbnrqk"}   \
+    # type: Dict[str, Callable[[List[List[str]], int, int], List[Tuple[int, int]]]]
 
 
 if __name__ == '__main__':
-    board = gen_empty_board()
-    r, c = 6, 1
-    board[r][c] = "P"
-    board[5][0] = "Q"
-    board[5][2] = "r"
-    res = Fens._p_move(board, r, c)
-    print(res)
+    pass

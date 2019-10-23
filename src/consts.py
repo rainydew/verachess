@@ -35,6 +35,9 @@ class Color:
     lemon_light = "#bbd66f"
     black = "#000000"
     red = "#ff0000"
+    blue = '#0000ff'
+    cell_sel_light = "#f7f786"
+    cell_sel_dark = "#f0d58c"
 
 
 class Font:

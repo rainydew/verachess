@@ -8,12 +8,12 @@ if (lambda: None)():
 
 
 class Globals:
-    if (lambda: None)():    # interfaces
-        Cell_names = None  # type: List[List[str]]  # r, c -> tk cell name
-        Main = None  # type: verachess.MainWindow
-        Reverse_cell_names = None  # type: Dict[str, Tuple[int, int]]   # tk cell name -> r, c
-        Selection = None  # type: Tuple[int, int]  # place, None shows no selection
-        Game_fen = Positions.common_startpos + " " + Stats.common_stats # type: str  # ep and so on
-        Game_role = {"w": Role.human, "b": Role.human}  # false if human can click
-        Game_end = False    # true if board lock
+    Cell_names = None  # type: List[List[str]]  # r, c -> tk cell name
+    Main = None  # type: verachess.MainWindow
+    Reverse_cell_names = None  # type: Dict[str, Tuple[int, int]]   # tk cell name -> r, c
+    Selection = None  # type: Tuple[int, int]  # place, None shows no selection
+    Highlights = []  # type: List[Tuple[int, int]]  # place, None shows no selection
+    Game_fen = Positions.common_startpos + " " + Stats.common_stats # type: str  # ep and so on
+    Game_role = {"w": Role.human, "b": Role.human}  # false if human can click
+    Game_end = False    # true if board lock
 
