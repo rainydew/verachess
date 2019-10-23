@@ -1,5 +1,6 @@
 # coding: utf-8
 import verachess_support
+from verachess_global import Globals
 from consts import Positions, Pieces, gen_empty_board, CastleCells
 from typing import Tuple, List, Union, Dict, Callable, Optional
 from copy import deepcopy
@@ -13,12 +14,8 @@ def init_cells(c960: int = None):
         raise NotImplementedError("ToDo")
 
 
-def cellname_to_place(name: str) -> Tuple[int, int]:
-    return 8 - int(name[1]), ord(name[0]) - 97
-
-
-def place_to_cellname(place: Tuple[int, int]) -> str:
-    return chr(place[1] + 97) + str(8 - place[0])
+def refresh_cells():
+    verachess_support.set_cell_values(Fens.get_narrow_fen(Globals.Game_fen))
 
 
 class Fens:
@@ -26,12 +23,128 @@ class Fens:
         raise RuntimeError("this class only provides static methods")
 
     @staticmethod
-    def get_board_str(fen: str):
+    def cellname_to_place(name: str) -> Tuple[int, int]:
+        return 8 - int(name[1]), ord(name[0]) - 97
+
+    @staticmethod
+    def place_to_cellname(place: Tuple[int, int]) -> str:
+        return chr(place[1] + 97) + str(8 - place[0])
+
+    @staticmethod
+    def get_narrow_fen(fen: str):
         return fen.split(" ")[0]
 
     @staticmethod
+    def calc_move(fen: str, move: str):
+        # no verify
+        # print("debug", move, fen)
+        board = Fens.get_board_arrays(fen)
+        start = Fens.cellname_to_place(move[:2])
+        sr, sc = start
+        end = Fens.cellname_to_place(move[2:4])
+        er, ec = end
+        piece = board[sr][sc]
+        castle = Fens.get_castle(fen)
+        count = Fens.get_draw_count(fen)
+        total_move = Fens.get_full_move(fen)
+        mover = Fens.get_mover(fen)
+
+        if piece.lower() in "qrnb":
+            if not board[er][ec]:
+                count += 1
+            else:
+                count = 0
+
+            board[er][ec] = piece
+            board[sr][sc] = None
+            ep = "-"
+            influence = [start, end]
+            if (7, 7) in influence:
+                castle[0] = False   # K
+            if (7, 0) in influence:
+                castle[1] = False   # Q
+            if (0, 7) in influence:
+                castle[2] = False   # k
+            if (0, 0) in influence:
+                castle[3] = False   # q
+        elif piece.lower() == "k":
+            ep = "-"
+            if mover == "w":
+                castle[0] = castle[1] = False
+            else:
+                castle[2] = castle[3] = False
+            if abs(ec - sc) > 1 or (board[er][ec] and board[er][ec].isupper() == piece.isupper()):
+                # c960 supported here, but castle function need adaption
+                board[sr][sc] = None
+                if ec > sc:  # short
+                    if board[er][ec]:
+                        board[er][ec] = None
+                    else:
+                        board[er][7] = None
+                    board[er][6] = "K" if sr != 0 else "k"
+                    board[er][5] = "R" if sr != 0 else "r"
+                else:
+                    if board[er][ec]:
+                        board[er][ec] = None
+                    else:
+                        board[er][0] = None
+                    board[er][2] = "K" if sr != 0 else "k"
+                    board[er][3] = "R" if sr != 0 else "r"
+                count += 1  # castling
+            else:
+                if not board[er][ec]:   # normal move
+                    count += 1
+                else:
+                    count = 0
+                board[er][ec] = piece
+                board[sr][sc] = None
+        else:   # pawn
+            count = 0
+            if abs(er - sr) == 2:
+                ep = Fens.place_to_cellname(((er + sr) // 2, sc))   # make sure it's int, not float.0
+            else:
+                ep = "-"
+            if len(move) == 5:
+                to_piece = move[-1].upper() if mover == "w" else move[-1]
+                board[er][ec] = to_piece
+            else:
+                if abs(ec - sc) == 1 and board[er][ec] is None:     # en passent
+                    board[sr][ec] = None
+                board[er][ec] = piece
+            board[sr][sc] = None
+
+        if mover == "w":
+            mover = "b"
+        else:
+            mover = "w"
+            total_move += 1
+
+        new_fen_list = [Fens.get_narrow_fen_from_board(board), mover, Fens.transfer_castle(castle), ep, str(count),
+                        str(total_move)]
+        return " ".join(new_fen_list)
+
+    @staticmethod
+    def get_narrow_fen_from_board(board: List[List[Union[str, None]]]) -> str:
+        fen_rows = []
+        for row in board:
+            fen_row = []
+            number_now = False
+            for col in row:
+                if col:
+                    fen_row.append(col)
+                    number_now = False
+                else:
+                    if number_now:
+                        fen_row[-1] += 1
+                    else:
+                        fen_row.append(1)
+                    number_now = True
+            fen_rows.append("".join([str(x) for x in fen_row]))
+        return "/".join(fen_rows)
+
+    @staticmethod
     def get_board_arrays(fen: str) -> List[List[Union[str, None]]]:     # better perfomance
-        rows = Fens.get_board_str(fen).split("/")
+        rows = Fens.get_narrow_fen(fen).split("/")
         board = gen_empty_board()
         for i, row in enumerate(rows):
             j = 0
@@ -57,12 +170,32 @@ class Fens:
         return [x in fen.split(" ")[2] for x in "KQkq"]
 
     @staticmethod
+    def transfer_castle(castle_list: List[bool]):
+        # todo: c960 support
+        return "".join(["KQkq"[i] for i, v in enumerate(castle_list) if v]) or "-"
+
+    @staticmethod
+    def get_draw_count(fen: str) -> int:
+        return int(fen.split(" ")[4])
+
+    @staticmethod
+    def get_full_move(fen: str) -> int:
+        return int(fen.split(" ")[5])
+
+    @staticmethod
     def can_control(fen: str, place: Tuple[int, int]) -> bool:
         r, c = place
         piece = Fens.get_board_arrays(fen)[r][c]
         if piece:
             return piece.isupper() if Fens.get_mover(fen) == "w" else piece.islower()
         return False
+
+    @staticmethod
+    def is_promotion(fen: str, selection: Tuple[int, int], place: Tuple[int, int]) -> bool:
+        sr, sc = selection
+        er, ec = place
+        piece = Fens.get_board_arrays(fen)[sr][sc]
+        return piece and piece in "Pp" and er in [0, 7]
 
     @staticmethod
     def get_piece_move(fen: str, place: Tuple[int, int]) -> List[Tuple[int, int]]:  # main method
@@ -72,15 +205,16 @@ class Fens:
         assert piece, "no piece in this place to move"
         first_moves = Move_Func_Dict[piece.lower()](board, r, c)    # type: List[Tuple[int, int]]
         secure_moves = Fens._remove_pinned_move(first_moves, board, r, c)
-        if piece in ["K", "k"]:
+        if piece in "Kk":
             secure_moves += Fens._castle_move(Fens.get_castle(fen), board, piece == "K")     # secure check in method
-        if piece in ["P", "p"]:
+        if piece in "Pp":
             secure_moves += Fens._ep_move(Fens.get_ep(fen), board, r, c)     # secure check in method too
         return secure_moves
 
     @staticmethod
     def _remove_pinned_move(moves: List[Tuple[int, int]], board: List[List[Union[str, None]]], r: int, c: int
                             ) -> List[Tuple[int, int]]:
+        # fixme: bugs here
         after_board = deepcopy(board)
         after_movelist = []
         white = after_board[r][c].isupper()

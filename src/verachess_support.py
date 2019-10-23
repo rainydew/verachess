@@ -11,6 +11,7 @@ from typing import List, Tuple
 from verachess import Color
 from consts import Pieces
 from tkinter import CallWrapper
+from decos import check_model
 import events
 
 
@@ -50,18 +51,13 @@ def set_cell_values(narrow_fen: str):
                 j += int(char)    # if this errors, char is illegal
 
 
-def set_cell_color(color_cell: Tuple[Tuple[int, int], str] = None, flush_all=False):
-    """
-    :param color_cell: [(x, y), colors]
-    :param flush_all: flush other cells with black
-    :return:
-    """
+def set_cell_color(cell: Tuple[int, int] = None, color=Color.black, flush_all=False):
     main = Globals.Main
     if flush_all:
         [main.Cells[cell_r][cell_c].configure(foreground=Color.black) for cell_r in range(8) for cell_c in range(8)]
-    if color_cell[0]:
-        (cell_r, cell_c), color = color_cell
-        main.Cells[cell_r][cell_c].configure(foreground=color)
+    if cell:
+        r, c = cell
+        main.Cells[r][c].configure(foreground=color)
 
 
 def set_cell_back_colors(active_color_list: List[Tuple[int, int]] = None, inactive_color_list: List[Tuple[int, int]] =
@@ -89,21 +85,12 @@ def exit():
     sys.stdout.flush()
 
 
+@check_model
 def cell_click(event: CallWrapper) -> None:
     if Globals.Game_end:
         return
     place = Globals.Reverse_cell_names[str(event.widget)]
-    # todo: change color to background too
-    if Globals.Selection == place:
-        Globals.Selection = None
-        set_cell_color(color_cell=(place, Color.black))
-        events.refresh_highlights()
-    else:
-        after = events.cell_click_handler(Globals.Selection, place)     # the click place, except castle in c960
-        if after is not None:
-            set_cell_color(color_cell=(place, Color.blue))
-        set_cell_color(color_cell=(Globals.Selection, Color.black))
-        Globals.Selection = after
+    events.click_handler(place)
 
 
 def init(top, gui, *args, **kwargs):

@@ -17,6 +17,13 @@ Pieces = {
 }
 
 
+class Promotions:
+    white = [Pieces[x] for x in "QRNB"]
+    black = [Pieces[x] for x in "qrnb"]
+    white_rev = {Pieces[c]: c for c in "QRNB"}
+    black_rev = {Pieces[c]: c for c in "qrnb"}
+
+
 class Positions:
     common_startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
     blank = "8/8/8/8/8/8/8/8"

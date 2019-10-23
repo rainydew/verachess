@@ -16,4 +16,13 @@ class Globals:
     Game_fen = Positions.common_startpos + " " + Stats.common_stats # type: str  # ep and so on
     Game_role = {"w": Role.human, "b": Role.human}  # false if human can click
     Game_end = False    # true if board lock
+    LastMove = None  # type: Tuple[int, int]  # place, None shows no lastmove
+    Models = False  # true when promotions and so on, all the main window will block
 
+
+class ModelLock:
+    def __enter__(self):
+        Globals.Models = True
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        Globals.Models = False
