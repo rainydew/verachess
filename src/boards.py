@@ -215,11 +215,11 @@ class Fens:
     def _remove_pinned_move(moves: List[Tuple[int, int]], board: List[List[Union[str, None]]], r: int, c: int
                             ) -> List[Tuple[int, int]]:
         # fixme: bugs here
-        after_board = deepcopy(board)
         after_movelist = []
-        white = after_board[r][c].isupper()
+        white = board[r][c].isupper()
         for move in moves:
             to_r, to_c = move
+            after_board = deepcopy(board)
             after_board[to_r][to_c] = after_board[r][c]
             after_board[r][c] = None
             if not Fens.can_capture_opp_king_or_cell(after_board, not white):
@@ -399,12 +399,16 @@ class Fens:
     def can_capture_opp_king_or_cell(board: List[List[Union[str, None]]], white_now: bool, spec_cell: Tuple[int, int] =
     None) -> bool:
         opp_king = Fens.get_king_place(board, not white_now) if spec_cell is None else spec_cell   # check castle cells
+        # print(" opp_king", opp_king)
         for r in range(8):
             for c in range(8):
                 cell = board[r][c]
                 if cell and cell.isupper() == white_now:
                     movelist = Move_Func_Dict[cell.lower()](board, r, c)    # type: List[Tuple[int, int]]
+
+                    # print(" movelist", r, c, movelist)
                     if opp_king in movelist:
+                        # print(" hit")
                         return True
         return False
 

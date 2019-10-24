@@ -9,8 +9,10 @@ if (lambda: None)():
 
 class Globals:
     Cell_names = None  # type: List[List[str]]  # r, c -> tk cell name
-    Main = None  # type: verachess.MainWindow
     Reverse_cell_names = None  # type: Dict[str, Tuple[int, int]]   # tk cell name -> r, c
+    Row_names = []  # type: List[str]  # r -> tk row name
+    Column_names = []  # type: List[str]  # c -> tk row name
+    Main = None  # type: verachess.MainWindow
     Selection = None  # type: Tuple[int, int]  # place, None shows no selection
     Highlights = []  # type: List[Tuple[int, int]]  # place, None shows no selection
     Game_fen = Positions.common_startpos + " " + Stats.common_stats # type: str  # ep and so on

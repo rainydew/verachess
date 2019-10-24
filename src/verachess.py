@@ -56,9 +56,8 @@ def create_MainWindow(root, *args, **kwargs):
 
 
 def destroy_MainWindow():
-    global w
-    w.destroy()
-    w = None
+    Globals.Main.Top.destroy()  # safe import
+    sys.exit()
 
 
 class MainWindow:
@@ -74,6 +73,8 @@ class MainWindow:
         top.geometry("885x700+350+200")
         top.title("Verachess 5.0")
         top.configure(background="#d9d9d9")
+
+        self.Top = top
 
         self.ChessBoard = tk.Frame(top)
         self.ChessBoard.place(relx=0.0, rely=0.0, height=385
@@ -129,6 +130,8 @@ def create_columns(main: MainWindow, top: tk.Tk):
         column.configure(text=chr(65 + i))
         main.Columns.append(column)
 
+        Globals.Column_names.append(str(column))
+
 
 def create_rows(main: MainWindow, top: tk.Tk):
     main.Rows = []
@@ -138,6 +141,8 @@ def create_rows(main: MainWindow, top: tk.Tk):
         row.configure(background=Color.pink_light if i % 2 else Color.pink_dark)
         row.configure(text=str(8 - i))
         main.Rows.append(row)
+
+        Globals.Row_names.append(str(row))
 
 
 def create_cells(main: MainWindow, top: tk.Frame):

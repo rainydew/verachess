@@ -6,9 +6,10 @@
 #    Oct 06, 2019 11:52:10 PM CST  platform: Windows NT
 
 import sys
+import easygui
 from verachess_global import Globals
 from typing import List, Tuple
-from verachess import Color
+from verachess import Color, destroy_MainWindow
 from consts import Pieces
 from tkinter import CallWrapper
 from decos import check_model
@@ -81,8 +82,8 @@ def set_cell_back_colors(active_color_list: List[Tuple[int, int]] = None, inacti
 
 
 def exit():
-    print('verachess_support.exit')
-    sys.stdout.flush()
+    if easygui.ynbox("你确定要退出吗？", "verachess 5.0", ["是", "否"]):
+        destroy_MainWindow()
 
 
 @check_model
