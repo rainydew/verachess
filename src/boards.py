@@ -2,7 +2,7 @@
 import verachess_support
 from verachess_global import Globals
 from consts import Positions, Pieces, gen_empty_board, CastleCells
-from typing import Tuple, List, Union, Dict, Callable, Optional
+from typing import Tuple, List, Union, Dict, Callable
 from copy import deepcopy
 
 
@@ -15,7 +15,9 @@ def init_cells(c960: int = None):
 
 
 def refresh_cells():
-    verachess_support.set_cell_values(Fens.get_narrow_fen(Globals.Game_fen))
+    fen = Globals.Game_fen
+    verachess_support.set_cell_values(Fens.get_narrow_fen(fen))
+    verachess_support.set_player_color(Fens.get_mover(fen) == "w")
 
 
 class Fens:

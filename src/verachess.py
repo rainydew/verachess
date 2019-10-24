@@ -24,7 +24,7 @@ except ImportError:
 import verachess_support
 from verachess_global import Globals
 
-from typing import List
+from typing import List, Dict, Callable
 from consts import Color, Font, gen_empty_board
 
 
@@ -76,6 +76,9 @@ class MainWindow:
 
         self.Top = top
 
+        self.Holder = None  # type: tk.Label
+        create_colorhodler(self, top)
+
         self.ChessBoard = tk.Frame(top)
         self.ChessBoard.place(relx=0.0, rely=0.0, height=385
                               , width=385)
@@ -90,24 +93,10 @@ class MainWindow:
         self.menubar = tk.Menu(top, font="TkMenuFont", bg=_bgcolor, fg=_fgcolor)
         top.configure(menu=self.menubar)
 
-        self.sub_menu = tk.Menu(top, tearoff=0)
-        self.menubar.add_cascade(menu=self.sub_menu,
-                                 activebackground="#ececec",
-                                 activeforeground="#000000",
-                                 background="#d9d9d9",
-                                 compound="left",
-                                 font="TkMenuFont",
-                                 foreground="#000000",
-                                 label="File")
-        self.sub_menu.add_command(
-            activebackground="#ececec",
-            activeforeground="#000000",
-            background="#d9d9d9",
-            command=verachess_support.exit,
-            compound="left",
-            font="TkMenuFont",
-            foreground="#000000",
-            label="Exit")
+        self.Menus = {}     # type: Dict[str, List[tk.Menu, int]]  # name, instance, sub_menu length
+        self.Sub_menus = {}     # type: Dict[str, List[int, str]]   # name, index, parent name
+
+        create_menus(self, top)
 
         self.Rows = self.Columns = None  # type: List[tk.Label]
         self.Cells = None  # type: List[List[tk.Label]]
@@ -162,6 +151,39 @@ def create_cells(main: MainWindow, top: tk.Frame):
             Globals.Cell_names[r][c] = str(box)
             Globals.Reverse_cell_names[str(box)] = (r, c)
             main.Cells[r][c] = box
+
+
+def create_colorhodler(main: MainWindow, top: tk.Tk):   # 右下角行棋方指示
+    holder = tk.Label(top)
+
+    holder.place(x=384, y=384, height=17, width=17)
+    holder.configure(background=Color.green_dark)
+    holder.configure(font=Font.font_14)
+    holder.configure(text="●")
+    holder.configure(foreground=Color.white)
+
+    main.Holder = holder
+
+
+def create_menus(main: MainWindow, top: tk.Tk):
+    m_file = add_menu(main, top, "文件")
+    add_command(main, m_file, "重新开始(普通)", verachess_support.new_normal)
+    add_command(main, m_file, "退出", verachess_support.exit)
+
+
+def add_menu(main: MainWindow, top: tk.Tk, name: str) -> str:
+    controller = tk.Menu(top, tearoff=0)
+    main.Menus[name] = [controller, 0]     # init sub length = 0
+    main.menubar.add_cascade(menu=controller, label=name)
+    return name
+
+
+def add_command(main: MainWindow, parent_name: str, name: str, command: Callable[[], None]):
+    parent, length = main.Menus[parent_name]
+    main.Menus[parent_name][1] += 1     # can't use length because it won't set to the pointer
+    parent.add_command(command=command, label=name)
+    assert name not in main.Sub_menus, "sub menu names conflict"
+    main.Sub_menus[name] = [length, parent_name]
 
 
 if __name__ == '__main__':

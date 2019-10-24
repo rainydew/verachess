@@ -21,6 +21,11 @@ def clear_sel_highs():
     Globals.Selection = None
 
 
+def refresh_whole_board():  # recommand
+    boards.refresh_cells()
+    clear_sel_highs()
+
+
 def click_handler(place: Tuple[int, int]) -> None:
     fen = Globals.Game_fen
     if Globals.Game_role[bd.get_mover(fen)]:   # not occupied by human, need fen calc so it placed here
@@ -52,7 +57,6 @@ def click_handler(place: Tuple[int, int]) -> None:
         # make a move, will move to another funtion in the future to handle clock and pgn
         vs.set_cell_color(Globals.LastMove)
         Globals.Game_fen = bd.calc_move(Globals.Game_fen, move)
-        boards.refresh_cells()
-        clear_sel_highs()
+        refresh_whole_board()
         vs.set_cell_color(place, Color.red)
         Globals.LastMove = place

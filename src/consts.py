@@ -24,13 +24,14 @@ class Promotions:
     black_rev = {Pieces[c]: c for c in "qrnb"}
 
 
-class Positions:
-    common_startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
-    blank = "8/8/8/8/8/8/8/8"
-
-
 class Stats:
     common_stats = "w KQkq - 0 1"
+
+
+class Positions:
+    common_startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+    common_start_fen = common_startpos + " " + Stats.common_stats
+    blank = "8/8/8/8/8/8/8/8"
 
 
 class Color:
@@ -41,14 +42,17 @@ class Color:
     lemon_dark = "#88d600"
     lemon_light = "#bbd66f"
     black = "#000000"
+    white = "#ffffff"
     red = "#ff0000"
-    blue = '#0000ff'
+    blue = "#0000ff"
+    green_dark = "#00d100"
     cell_sel_light = "#f7f786"
     cell_sel_dark = "#f0d58c"
 
 
 class Font:
     font_24 = "-family {Times New Roman} -size 24 -weight normal -slant roman -underline 0 -overstrike 0"
+    font_14 = "-family {Times New Roman} -size 14 -weight normal -slant roman -underline 0 -overstrike 0"
 
 
 class Role:
@@ -67,6 +71,10 @@ class CastleCells:
     white_l_arrive, white_s_arrive, black_l_arrive, black_s_arrive = map(lambda x: x[-1], (
         white_long, white_short, black_long, black_short))  # type: Tuple[int, int]
     # todo: c960 support
+
+
+class MenuStatNames:
+    flip = "Flip"
 
 
 def gen_empty_board(init_value=None) -> List[List[Any]]:

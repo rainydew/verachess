@@ -1,7 +1,8 @@
 # coding: utf-8
 # 只有这里的全局变量，被其他模块导入，才能有共同的id，才可以共享通信
 from typing import List, Dict, Tuple
-from consts import Positions, Stats, Role
+from consts import Positions, Role
+from time import sleep
 
 if (lambda: None)():
     import verachess
@@ -15,7 +16,7 @@ class Globals:
     Main = None  # type: verachess.MainWindow
     Selection = None  # type: Tuple[int, int]  # place, None shows no selection
     Highlights = []  # type: List[Tuple[int, int]]  # place, None shows no selection
-    Game_fen = Positions.common_startpos + " " + Stats.common_stats # type: str  # ep and so on
+    Game_fen = Positions.common_start_fen # type: str  # ep and so on
     Game_role = {"w": Role.human, "b": Role.human}  # false if human can click
     Game_end = False    # true if board lock
     LastMove = None  # type: Tuple[int, int]  # place, None shows no lastmove
