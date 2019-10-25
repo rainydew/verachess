@@ -1,9 +1,10 @@
 # coding: utf-8
 import verachess_support
 from verachess_global import Globals
-from consts import Positions, Pieces, gen_empty_board, CastleCells
-from typing import Tuple, List, Union, Dict, Callable
+from consts import Positions, Pieces, gen_empty_board, CastleCells, EndType, Winner
+from typing import Tuple, List, Union, Dict, Callable, Optional
 from copy import deepcopy
+from collections import Counter
 
 
 def init_cells(c960: int = None):
@@ -145,8 +146,8 @@ class Fens:
         return "/".join(fen_rows)
 
     @staticmethod
-    def get_board_arrays(fen: str) -> List[List[Union[str, None]]]:     # better perfomance
-        rows = Fens.get_narrow_fen(fen).split("/")
+    def get_board_arrays(narrow_fen: str) -> List[List[Union[str, None]]]:     # better perfomance
+        rows = Fens.get_narrow_fen(narrow_fen).split("/")
         board = gen_empty_board()
         for i, row in enumerate(rows):
             j = 0
@@ -397,8 +398,79 @@ class Fens:
         raise IndexError("king not found")
 
     @staticmethod
+    def checked_place(fen: str) -> Optional[Tuple[int, int]]:
+        board = Fens.get_board_arrays(Fens.get_narrow_fen(fen))
+        white = Fens.get_mover(fen) != "w"
+        # print("fen", fen)
+        if Fens.can_capture_opp_king_or_cell(board, white):
+            return Fens.get_king_place(board, not white)
+        return None
+
+    @staticmethod
+    def check_wdl(fen: str, history_hash: List[int]) -> int:
+        Globals.Winner = Winner.draw
+        if not Fens.has_legal_move(fen):
+            if Fens.checked_place(fen):
+                if Fens.get_mover(fen) == "w":
+                    Globals.Winner = Winner.black
+                else:
+                    Globals.Winner = Winner.white
+                return EndType.checkmate
+            else:
+                return EndType.stalemate
+        if Fens.get_draw_count(fen) >= 100:
+            return EndType.fifty_rule
+        if Fens.has_not_enough_material(fen):
+            return EndType.insufficient_material
+        if Counter(history_hash).most_common(1)[0][1] > 2:
+            return EndType.three_fold
+        Globals.Winner = Winner.unknown
+        return EndType.unterminated
+
+    @staticmethod
+    def has_legal_move(fen: str) -> bool:
+        board = Fens.get_board_arrays(Fens.get_narrow_fen(fen))
+        white = Fens.get_mover(fen) == "w"
+        for r in range(8):
+            for c in range(8):
+                piece = board[r][c]
+                if piece and piece.isupper() == white:
+                    first_moves = Move_Func_Dict[piece.lower()](board, r, c)    # type: List[Tuple[int, int]]
+                    secure_moves = Fens._remove_pinned_move(first_moves, board, r, c)
+                    if piece in "Kk":
+                        secure_moves += Fens._castle_move(Fens.get_castle(fen), board, piece == "K")     # secure check in method
+                    if piece in "Pp":
+                        secure_moves += Fens._ep_move(Fens.get_ep(fen), board, r, c)     # secure check in method too
+                    if secure_moves:
+                        return True
+        return False
+
+    @staticmethod
+    def has_not_enough_material(fen: str) -> bool:  # BKNbkn
+        narrow_fen = Fens.get_narrow_fen(fen)
+        material = narrow_fen.replace("/", "")
+        for i in range(1, 9):
+            material = material.replace(str(i), "")
+        material = "".join(sorted(material))
+        if material in ["Kk", "BKk", "Kbk", "KNk", "Kkn"]:
+            return True
+        if material == ["BKbk"]:
+            board = Fens.get_board_arrays(narrow_fen)
+            for r in range(8):
+                for c in range(8):
+                    piece = board[r][c]
+                    if not piece or piece not in ["B", "b"]:
+                        continue
+                    if piece == "B":
+                        wb = (r + c) % 2    # odd: dark, even: light
+                    else:
+                        bb = (r + c) % 2
+            return wb == bb     # same odd/even means same color => draw
+        return False
+
+    @staticmethod
     def can_capture_opp_king_or_cell(board: List[List[Union[str, None]]], white_now: bool, spec_cell: Tuple[int, int] =
-    None) -> bool:
+    None) -> bool:  # white_now means this players check may be threaten
         opp_king = Fens.get_king_place(board, not white_now) if spec_cell is None else spec_cell   # check castle cells
         # print(" opp_king", opp_king)
         for r in range(8):

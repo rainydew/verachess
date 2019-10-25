@@ -10,7 +10,7 @@ import easygui
 from verachess_global import Globals
 from typing import List, Tuple, Dict
 from verachess import Color, destroy_MainWindow
-from consts import Pieces, Positions, MenuStatNames
+from consts import Pieces, Positions, MenuStatNames, EndType, Winner
 from tkinter import CallWrapper
 from decos import check_model, model_locked
 import events
@@ -32,13 +32,12 @@ except ImportError:
 
 
 CellValues = None    # type: List[List[tk.StringVar]]
-MenuStats = None    # type: Dict[str, tk.BooleanVar]
+MenuStats = {}    # type: Dict[str, tk.BooleanVar]
 
 
 def set_Tk_var():
     global CellValues, MenuStats
     CellValues = [[tk.StringVar(value="") for _ in range(8)] for _ in range(8)]
-    MenuStats = {}
     MenuStats[MenuStatNames.flip] = tk.BooleanVar(value=False)
 
 
@@ -90,7 +89,28 @@ def set_cell_back_colors(active_color_list: List[Tuple[int, int]] = None, inacti
             main.Cells[r][c].configure(background=Color.cell_sel_dark if (r + c) % 2 else Color.cell_sel_light)
 
 
-def exit():
+def refresh_flip():
+    arg = MenuStats[MenuStatNames.flip].get()
+    main = Globals.Main
+    now_flip = main.Rows[0].cget("text") == "1"
+    if arg != now_flip:
+        for i in range(8):
+            before_text = main.Rows[i].cget("text")
+            main.Rows[i].configure(text=str(9 - int(before_text)))
+            before_text = main.Columns[i].cget("text")
+            main.Columns[i].configure(text=chr(137 - ord(before_text)))
+        if not arg:
+            for r in range(8):
+                for c in range(8):
+                    main.Cells[r][c].place(x=c * 48, y=r * 48)
+        else:
+            for r in range(8):
+                for c in range(8):
+                    main.Cells[7 - r][7 - c].place(x=c * 48, y=r * 48)
+
+
+# events
+def exit_game():
     if easygui.ynbox("你确定要退出吗？", "verachess 5.0", ["是", "否"]):
         destroy_MainWindow()
         sys.exit()
@@ -100,7 +120,19 @@ def exit():
 def new_normal():
     if easygui.ynbox("这将重置当前棋局信息，确认重新开始棋局吗？", "verachess 5.0", ["是", "否"]):
         Globals.Game_fen = Positions.common_start_fen
+        Globals.History = [Positions.common_start_fen]
+        Globals.History_hash = [hash(" ".join(Globals.Game_fen.split(" ")[:4]))]
+        Globals.Game_end = EndType.unterminated
+        Globals.Winner = Winner.unknown
+        events.clear_check_cell()
         events.refresh_whole_board()
+        MenuStats[MenuStatNames.flip].set(False)
+        refresh_flip()
+
+
+def flip():
+    # this is event for flip click
+    refresh_flip()
 
 
 @check_model
@@ -111,6 +143,7 @@ def cell_click(event: CallWrapper) -> None:
     events.click_handler(place)
 
 
+# event end
 def init(top, gui, *args, **kwargs):
     global w, top_level, root
     w = gui

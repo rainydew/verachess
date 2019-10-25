@@ -1,8 +1,8 @@
 # coding: utf-8
 # event handlers
-from verachess_global import Globals, ModelLock
+from verachess_global import Globals, ModelLock, calc_fen_hash
 from typing import Tuple, Optional, List
-from consts import Color, Promotions
+from consts import Color, Promotions, EndType, Winner
 import easygui
 import boards
 import verachess_support as vs
@@ -21,9 +21,46 @@ def clear_sel_highs():
     Globals.Selection = None
 
 
+def set_check_cell(place: Tuple[int, int]):
+    vs.set_cell_color(place, Color.magenta)
+    Globals.Check = place
+
+
+def clear_check_cell():
+    vs.set_cell_color(Globals.Check)
+    Globals.Check = None
+
+
+def refresh_opp_check():
+    fen = Globals.Game_fen
+    cell = bd.checked_place(fen)
+    if cell:
+        set_check_cell(cell)
+
+
 def refresh_whole_board():  # recommand
     boards.refresh_cells()
     clear_sel_highs()
+    refresh_opp_check()
+
+
+def check_wdl(silent: bool = False):
+    res = bd.check_wdl(Globals.Game_fen, Globals.History_hash)
+    if res and not Globals.Game_end:    # prevent overwrite
+        Globals.Game_end = res
+        if res == EndType.checkmate:
+            message = "{}方将死了对手，获得胜利".format("白" if Globals.Winner == Winner.white else "黑")
+        elif res == EndType.three_fold:
+            message = "三次重复局面，和棋"
+        elif res == EndType.fifty_rule:
+            message = "五十回合内没有吃子和动兵，和棋"
+        elif res == EndType.stalemate:
+            message = "行棋方无子可动且未被将军，逼和"
+        elif res == EndType.insufficient_material:
+            message = "双方剩余子力均不能将死对方，和棋"
+        if not silent:
+            with ModelLock():
+                easygui.msgbox(message, "棋局结束", "确认")
 
 
 def click_handler(place: Tuple[int, int]) -> None:
@@ -39,6 +76,7 @@ def click_handler(place: Tuple[int, int]) -> None:
         clear_sel_highs()
     if Globals.Selection is None:
         if bd.can_control(fen, place):
+            clear_check_cell()      # unlink check magenta
             move_list = bd.get_piece_move(fen, place) + [place]
             refresh_highlights(move_list)
             vs.set_cell_color(place, Color.blue)
@@ -56,7 +94,11 @@ def click_handler(place: Tuple[int, int]) -> None:
 
         # make a move, will move to another funtion in the future to handle clock and pgn
         vs.set_cell_color(Globals.LastMove)
-        Globals.Game_fen = bd.calc_move(Globals.Game_fen, move)
+        new_fen = bd.calc_move(Globals.Game_fen, move)
+        Globals.Game_fen = new_fen
+        Globals.History.append(new_fen)
+        Globals.History_hash.append(calc_fen_hash(new_fen))
         refresh_whole_board()
         vs.set_cell_color(place, Color.red)
         Globals.LastMove = place
+        check_wdl()

@@ -48,6 +48,7 @@ class Color:
     green_dark = "#00d100"
     cell_sel_light = "#f7f786"
     cell_sel_dark = "#f0d58c"
+    magenta = "#ff00ff"     # check
 
 
 class Font:
@@ -75,6 +76,45 @@ class CastleCells:
 
 class MenuStatNames:
     flip = "Flip"
+
+
+class Winner:
+    white = 1.0
+    black = 0.0
+    draw = 0.5
+    unknown = -1.0
+
+
+Winner_Dict = {Winner.white: "1-0", Winner.draw: "1/2-1/2", Winner.black: "0-1"}
+
+
+class EndType:
+    unterminated = 0
+    checkmate = -1
+    resign = -2
+    time_forfeit = -3
+    engine_stall = -4
+    adjunction_win = -5  # by user or FICS
+    table_base_win = -6
+    score_rule_win = -7
+    illegal_move = -8
+    break_rule = -9  # e.g. memory overflow
+    skip_win = -15
+    other_win = -16
+    stalemate = 1
+    three_fold = 2
+    fifty_rule = 3
+    insufficient_material = 4
+    adjunction_draw = 5
+    table_base_draw = 6
+    score_rule_draw = 7
+    mutual_agreement = 8
+    tournament_cancel = 14
+    skip_draw = 15
+    other_draw = 16
+
+
+
 
 
 def gen_empty_board(init_value=None) -> List[List[Any]]:
