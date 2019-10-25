@@ -214,7 +214,6 @@ class Fens:
     @staticmethod
     def _remove_pinned_move(moves: List[Tuple[int, int]], board: List[List[Union[str, None]]], r: int, c: int
                             ) -> List[Tuple[int, int]]:
-        # fixme: bugs here
         after_movelist = []
         white = board[r][c].isupper()
         for move in moves:
