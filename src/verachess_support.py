@@ -8,11 +8,11 @@
 import sys
 import easygui
 from verachess_global import Globals
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from verachess import Color, destroy_MainWindow
-from consts import Pieces
+from consts import Pieces, Positions, MenuStatNames
 from tkinter import CallWrapper
-from decos import check_model
+from decos import check_model, model_locked
 import events
 
 
@@ -30,12 +30,16 @@ except ImportError:
 
     py3 = True
 
+
 CellValues = None    # type: List[List[tk.StringVar]]
+MenuStats = None    # type: Dict[str, tk.BooleanVar]
 
 
 def set_Tk_var():
-    global CellValues
+    global CellValues, MenuStats
     CellValues = [[tk.StringVar(value="") for _ in range(8)] for _ in range(8)]
+    MenuStats = {}
+    MenuStats[MenuStatNames.flip] = tk.BooleanVar(value=False)
 
 
 def set_cell_values(narrow_fen: str):
@@ -61,6 +65,11 @@ def set_cell_color(cell: Tuple[int, int] = None, color=Color.black, flush_all=Fa
         main.Cells[r][c].configure(foreground=color)
 
 
+def set_player_color(white: bool):
+    main = Globals.Main
+    main.Holder.configure(foreground=Color.white if white else Color.black)
+
+
 def set_cell_back_colors(active_color_list: List[Tuple[int, int]] = None, inactive_color_list: List[Tuple[int, int]] =
         None, flush_all=False):
     """
@@ -84,6 +93,14 @@ def set_cell_back_colors(active_color_list: List[Tuple[int, int]] = None, inacti
 def exit():
     if easygui.ynbox("你确定要退出吗？", "verachess 5.0", ["是", "否"]):
         destroy_MainWindow()
+        sys.exit()
+
+
+@model_locked
+def new_normal():
+    if easygui.ynbox("这将重置当前棋局信息，确认重新开始棋局吗？", "verachess 5.0", ["是", "否"]):
+        Globals.Game_fen = Positions.common_start_fen
+        events.refresh_whole_board()
 
 
 @check_model
