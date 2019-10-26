@@ -23,10 +23,12 @@ class Globals:
     Game_fen = Positions.common_start_fen # type: str  # ep and so on
     Game_role = {"w": Role.human, "b": Role.human}  # false if human can click
     Game_end = EndType.unterminated    # type: int  # !0 to lock board, >0 means draw, <0 means win/lose
+    Chess_960_Columns = (None, None, None)  # type: Tuple[int, int, int]
     LastMove = None  # type: Tuple[int, int]  # place, None shows no lastmove
     Models = False  # true when promotions and so on, all the main window will block
     History = [Game_fen]    # type: List[str]   # fen history
     History_hash = [hash(calc_fen_hash(Game_fen))]    # type: List[int]
+    SunkenCell = None  # type: Tuple[int, int]  # place to record which
     Winner = -1.0   # type: float
 
 
@@ -36,3 +38,7 @@ class ModelLock:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         Globals.Models = False
+
+
+def release_model_lock():
+    Globals.Models = False

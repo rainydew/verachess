@@ -39,15 +39,15 @@ class Color:
     cyan_dark = "#9ee4ef"
     pink_light = "#f0b3ff"
     pink_dark = "#efa1ff"
-    lemon_dark = "#88d600"
-    lemon_light = "#bbd66f"
+    cell_sel_light = "#bbd66f"
+    cell_sel_dark = "#6aa800"
     black = "#000000"
     white = "#ffffff"
     red = "#ff0000"
     blue = "#0000ff"
     green_dark = "#00d100"
-    cell_sel_light = "#f7f786"
-    cell_sel_dark = "#f0d58c"
+    lemon_light = "#ffefad"
+    lemon_dark = "#dbc27f"
     magenta = "#ff00ff"     # check
 
 
@@ -99,6 +99,7 @@ class EndType:
     score_rule_win = -7
     illegal_move = -8
     break_rule = -9  # e.g. memory overflow
+    withdraw = -14
     skip_win = -15
     other_win = -16
     stalemate = 1
@@ -109,6 +110,7 @@ class EndType:
     table_base_draw = 6
     score_rule_draw = 7
     mutual_agreement = 8
+    single_king_with_opp_violate = 9
     tournament_cancel = 14
     skip_draw = 15
     other_draw = 16

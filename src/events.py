@@ -63,6 +63,41 @@ def check_wdl(silent: bool = False):
                 easygui.msgbox(message, "棋局结束", "确认")
 
 
+def check_fen_format_valid(fen: str) -> Tuple[bool, str]:
+    # 只检查格式，调用后面的函数来检查局面合理性
+    # todo: c960 support
+    try:
+        f_list = fen.strip().split(" ")
+        msg = "FEN格式不正确。FEN应包含六段信息：局面 行棋方 易位权 过路兵格 和棋计数 当前回合数\n" \
+              "每一步棋如是动兵或吃子，则和棋计数重置为0，反之计数加1。如这个数达到100(即50回合)时仍不能将死，会判和棋"
+        assert len(f_list) == 6
+        narrow_fen, mover, castle, ep, drawcount, movecount = f_list    # type: str
+        msg = "和棋计数或当前回合数不正确"
+        assert int(drawcount) >= 0 and int(movecount) >= 1
+        msg = "易位信息不正确。易位权由这些字符组成：K=白方王翼易位，Q=白方后翼易位，k=黑方王翼易位，q=黑方后翼易位\n" \
+              "如果双方均无易位权，填-"
+        assert castle in ["".join([s if i & p else "" for p, s in {8: "K", 4:"Q", 2:"k", 1:"q"}.items()]) if i != 0 else
+                          "-" for i in range(16)]
+        msg = "过路兵格的值不正确。过路兵格是兵直进两格时，通过中间格的坐标。如果上一步没有兵直进两格，则填-"
+        assert ep == "-" or (len(ep) == 2 and ep[1] in "36" and ord(ep[0]) in range(97, 105))
+        msg = "行棋方不正确。必须为w (白放) 或 b (黑方)"
+        assert mover in list("wb")  # other wise wb and '' returns True
+        msg = "局面内有非法字符。斜杠/用来隔开局面的每一行，记录顺序是从黑方的第8行到白方的第1行\n" \
+              "每一行中要么为数字1-8，代表连续的空位个数；要么为棋子字母 k=王 q=后 r=车 b=象 n=马 p=兵\n" \
+              "大写字母表示白棋，小写字母表示黑棋"
+        assert all([char in "12345678KkQqBbNnRrPp/" for char in narrow_fen])
+        rows = narrow_fen.split("/")
+        msg = "局面的行数不是8行"
+        assert len(rows) == 8
+        for row in rows:
+            msg = "行{}的格子数不是8个".format(row)
+            assert sum([int(char) if char in "12345678" else 1 for char in row]) == 8
+    except:
+        return False, msg
+    else:
+        return bd.check_fen_legal(fen)
+
+
 def click_handler(place: Tuple[int, int]) -> None:
     fen = Globals.Game_fen
     if Globals.Game_role[bd.get_mover(fen)]:   # not occupied by human, need fen calc so it placed here
@@ -71,6 +106,7 @@ def click_handler(place: Tuple[int, int]) -> None:
         # click twice to unselect
         clear_sel_highs()
         return
+    vs.clear_sunken_cell()
     if place not in Globals.Highlights:
         # change other place to click, no return because it may be my another piece
         clear_sel_highs()
@@ -98,6 +134,8 @@ def click_handler(place: Tuple[int, int]) -> None:
         Globals.Game_fen = new_fen
         Globals.History.append(new_fen)
         Globals.History_hash.append(calc_fen_hash(new_fen))
+        vs.set_sunken_cell(Globals.Selection)
+        Globals.Selection = None
         refresh_whole_board()
         vs.set_cell_color(place, Color.red)
         Globals.LastMove = place

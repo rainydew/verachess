@@ -38,6 +38,53 @@ class Fens:
         return fen.split(" ")[0]
 
     @staticmethod
+    def check_fen_legal(fen: str) -> Tuple[bool, str]:
+        # todo: c960 support
+        narrow_fen, mover, castle, ep, _, _ = fen.split(" ")    # type: str
+        board = Fens.get_board_arrays(narrow_fen)
+        if ep != "-":
+            r, c = Fens.cellname_to_place(ep)
+            if board[r][c] != None:
+                return False, "过路兵通过格被占用"
+            if r == 5:
+                if board[6][c] != None:
+                    return False, "过路兵始发格被占用"
+                if board[4][c] != "P":
+                    return False, "过路兵到达格不正确"
+            else:
+                if board[1][c] != None:
+                    return False, "过路兵始发格被占用"
+                if board[3][c] != "p":
+                    return False, "过路兵到达格不正确"
+        if castle != "-":
+            if "K" in castle:
+                if board[7][4] != "K" or board[7][7] != "R":
+                    return False, "白方王翼易位条件不满足"
+            if "Q" in castle:
+                if board[7][4] != "K" or board[7][0] != "R":
+                    return False, "白方后翼易位条件不满足"
+            if "k" in castle:
+                if board[0][4] != "k" or board[0][7] != "r":
+                    return False, "黑方王翼易位条件不满足"
+            if "q" in castle:
+                if board[0][4] != "k" or board[0][0] != "r":
+                    return False, "黑方后翼易位条件不满足"
+        if narrow_fen.count("K") != 1:
+            return False, "白王数量不对"
+        if narrow_fen.count("k") != 1:
+            return False, "黑王数量不对"
+        if len(tuple(filter(str.isupper, narrow_fen))) > 16:
+            return False, "白棋数量过多"
+        if len(tuple(filter(str.islower, narrow_fen))) > 16:
+            return False, "黑棋数量过多"
+        if "P" in board[0] + board[7] or "p" in board[0] + board[7]:
+            return False, "兵不能在底线"
+        if Fens.can_capture_opp_king_or_cell(board, mover == "w"):
+            return False, "不允许非行棋方的王送吃"
+        return True, ""
+
+
+    @staticmethod
     def calc_move(fen: str, move: str):
         # no verify
         # print("debug", move, fen)
@@ -401,7 +448,6 @@ class Fens:
     def checked_place(fen: str) -> Optional[Tuple[int, int]]:
         board = Fens.get_board_arrays(Fens.get_narrow_fen(fen))
         white = Fens.get_mover(fen) != "w"
-        # print("fen", fen)
         if Fens.can_capture_opp_king_or_cell(board, white):
             return Fens.get_king_place(board, not white)
         return None
@@ -470,18 +516,14 @@ class Fens:
 
     @staticmethod
     def can_capture_opp_king_or_cell(board: List[List[Union[str, None]]], white_now: bool, spec_cell: Tuple[int, int] =
-    None) -> bool:  # white_now means this players check may be threaten
+    None) -> bool:  # white_now means this player may kill opp's king at the next move
         opp_king = Fens.get_king_place(board, not white_now) if spec_cell is None else spec_cell   # check castle cells
-        # print(" opp_king", opp_king)
         for r in range(8):
             for c in range(8):
                 cell = board[r][c]
                 if cell and cell.isupper() == white_now:
                     movelist = Move_Func_Dict[cell.lower()](board, r, c)    # type: List[Tuple[int, int]]
-
-                    # print(" movelist", r, c, movelist)
                     if opp_king in movelist:
-                        # print(" hit")
                         return True
         return False
 

@@ -117,6 +117,7 @@ def create_columns(main: MainWindow, top: tk.Tk):
         column.place(x=i * 48, y=385, height=16, width=48)
         column.configure(background=Color.cyan_light if i % 2 else Color.cyan_dark)
         column.configure(text=chr(65 + i))
+        column.configure(relief="raised")
         main.Columns.append(column)
 
         Globals.Column_names.append(str(column))
@@ -129,6 +130,7 @@ def create_rows(main: MainWindow, top: tk.Tk):
         row.place(x=385, y=i * 48, height=48, width=16)
         row.configure(background=Color.pink_light if i % 2 else Color.pink_dark)
         row.configure(text=str(8 - i))
+        row.configure(relief="raised")
         main.Rows.append(row)
 
         Globals.Row_names.append(str(row))
@@ -143,6 +145,7 @@ def create_cells(main: MainWindow, top: tk.Frame):
             box = tk.Label(top)
             box.place(x=c * 48, y=r * 48, height=48, width=48)  # i行j列
             box.configure(background=Color.lemon_dark if (r + c) % 2 else Color.lemon_light)
+            box.configure(relief="groove")
             box.configure(font=Font.font_24)
 
             box.configure(textvariable=verachess_support.CellValues[r][c])
@@ -161,16 +164,20 @@ def create_colorhodler(main: MainWindow, top: tk.Tk):   # 右下角行棋方指�
     holder.configure(font=Font.font_14)
     holder.configure(text="●")
     holder.configure(foreground=Color.white)
+    holder.configure(relief="raised")
 
     main.Holder = holder
 
 
 def create_menus(main: MainWindow, top: tk.Tk):
     m_file = add_menu(main, top, "文件")
-    add_command(main, m_file, "重新开始(普通)", verachess_support.new_normal)
+    add_command(main, m_file, "重新开始棋局(普通)", verachess_support.new_normal)
+    add_command(main, m_file, "重新开始棋局(Chess960)", verachess_support.new_c960)
     add_command(main, m_file, "退出", verachess_support.exit_game)
     m_board = add_menu(main, top, "棋盘")
     add_checkbutton(main, m_board, "翻转视角", verachess_support.flip, verachess_support.MenuStats[MenuStatNames.flip])
+    add_command(main, m_board, "复制当前局面FEN", verachess_support.copy_fen)
+    add_command(main, m_board, "从剪贴板导入FEN", verachess_support.paste_fen)
 
 
 def add_menu(main: MainWindow, top: tk.Tk, name: str) -> str:
