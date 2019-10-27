@@ -1,7 +1,7 @@
 # coding: utf-8
 # 只有这里的全局变量，被其他模块导入，才能有共同的id，才可以共享通信
 from typing import List, Dict, Tuple
-from consts import Positions, Role, EndType
+from consts import Positions, Role, EndType, Winner as ConstWinner
 
 if (lambda: None)():
     import verachess
@@ -26,10 +26,12 @@ class Globals:
     Chess_960_Columns = (None, None, None)  # type: Tuple[int, int, int]
     LastMove = None  # type: Tuple[int, int]  # place, None shows no lastmove
     Models = False  # true when promotions and so on, all the main window will block
-    History = [Game_fen]    # type: List[str]   # fen history
+    History = [Game_fen]    # type: List[str]   # fen history, history[0] shows start position
+    AlphabetMovelist = []   # type: List[str]
+    PGNMovelist = []    # type: List[str]
     History_hash = [hash(calc_fen_hash(Game_fen))]    # type: List[int]
     SunkenCell = None  # type: Tuple[int, int]  # place to record which
-    Winner = -1.0   # type: float
+    Winner = ConstWinner.unknown   # type: float
 
 
 class ModelLock:

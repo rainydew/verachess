@@ -1,7 +1,6 @@
 # coding: utf-8
-from typing import List
+from typing import List, Tuple
 from itertools import combinations
-import verachess
 
 knight_place = tuple(combinations(range(5), 2))
 
@@ -43,9 +42,14 @@ def pos_to_num(pos: str) -> int:
     return num if num else 960
 
 
-def get_c960_cols(fen: str):
+def get_c960_cols(fen: str) -> Tuple[Tuple[int, ...], str]:
     fen = fen.split("/")[0]
-    return [fen.index("r"), fen.index("k"), fen.rindex("r")]
+    lr = fen.index("r")
+    rr = fen.rindex("r")
+    castle = chr(65 + rr) + chr(65 + lr) + chr(97 + rr) + chr(97 + lr)
+    return tuple([lr, fen.index("k"), rr]), "{}/pppppppp/8/8/8/8/PPPPPPPP/{} w {} - 0 1".format(
+        fen, fen.upper(), castle)
 
 
-
+if __name__ == '__main__':
+    print(get_c960_cols("rnbqkbnr"))

@@ -34,12 +34,15 @@ except ImportError:
 
 CellValues = None    # type: List[List[tk.StringVar]]
 MenuStats = {}    # type: Dict[str, tk.BooleanVar]
+Eco = None      # type: tk.StringVar
 
 
 def set_Tk_var():
-    global CellValues, MenuStats
+    global CellValues, MenuStats, Eco
     CellValues = [[tk.StringVar(value="") for _ in range(8)] for _ in range(8)]
     MenuStats[MenuStatNames.flip] = tk.BooleanVar(value=False)
+    Eco = tk.StringVar()
+    Eco.set('ECO - A00\nIrregular Opening')
 
 
 def set_cell_values(narrow_fen: str):
@@ -80,11 +83,11 @@ def set_cell_back_colors(active_color_list: List[Tuple[int, int]] = None, inacti
     """
     main = Globals.Main
     if flush_all:
-        [main.Cells[r][c].configure(background=Color.lemon_dark if (r + c) % 2 else Color.lemon_light) for r in range(8)
+        [main.Cells[r][c].configure(background=Color.yellow_dark if (r + c) % 2 else Color.yellow_light) for r in range(8)
          for c in range(8)]
     if inactive_color_list:     # deselect old first
         for r, c in inactive_color_list:
-            main.Cells[r][c].configure(background=Color.lemon_dark if (r + c) % 2 else Color.lemon_light)
+            main.Cells[r][c].configure(background=Color.yellow_dark if (r + c) % 2 else Color.yellow_light)
     if active_color_list:
         for r, c in active_color_list:
             main.Cells[r][c].configure(background=Color.cell_sel_dark if (r + c) % 2 else Color.cell_sel_light)
@@ -123,9 +126,23 @@ def set_sunken_cell(place: Tuple[int, int]):
     Globals.Main.Cells[r][c].configure(relief="sunken")
 
 
+def reformat_fen(fen: str):
+    li = fen.split(" ")
+    castle = li[2]
+    if castle == "-":
+        return fen
+    if "k" in castle.lower() or "q" in castle.lower():
+        li[2] = "".join(sorted(castle))
+    else:
+        li[2] = "".join(sorted(castle))[::-1].swapcase()
+    return " ".join(li)
+
+
 def set_game_fen(fen: str):
     Globals.Game_fen = fen
     Globals.History = [fen]
+    Globals.AlphabetMovelist = []
+    Globals.PGNMovelist = []
     Globals.History_hash = [hash(" ".join(fen.split(" ")[:4]))]
     Globals.Game_end = EndType.unterminated
     Globals.Winner = Winner.unknown
@@ -135,6 +152,19 @@ def set_game_fen(fen: str):
     clear_sunken_cell()
     if fen != Positions.common_start_fen:
         events.check_wdl()
+
+
+def redraw_c960_flags():
+    columns = Globals.Main.Columns
+    lr, k, rr = Globals.Chess_960_Columns
+    for column in columns:
+        column.configure(foreground=Color.black)
+    if lr is not None:  # pasted c960 fen may return None
+        columns[lr].configure(foreground=Color.orange)
+    if rr is not None:  # too
+        columns[rr].configure(foreground=Color.orange)
+    if k is not None:   # too
+        columns[k].configure(foreground=Color.magenta)
 
 
 # events
@@ -150,6 +180,8 @@ def new_normal():
         easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能重新开局。如需要")
         return
     if easygui.ynbox("这将重置当前棋局信息，确认重新开始棋局吗？", "verachess 5.0", ["是", "否"]):
+        Globals.Chess_960_Columns = (None, None, None)
+        redraw_c960_flags()
         set_game_fen(Positions.common_start_fen)
         MenuStats[MenuStatNames.flip].set(False)
         refresh_flip()
@@ -162,15 +194,20 @@ def new_c960():
         return
     if easygui.ynbox("这将重置当前棋局信息，确认重新开始棋局吗？", "verachess 5.0", ["是", "否"]):
         main_window = Globals.Main.Top
-        sub_window, _ = c960confirm.create_Toplevel1(root=main_window)
+        sub_window, confirm_widget = c960confirm.create_Toplevel1(root=main_window)
         sub_window.transient(main_window)   # show only one window in taskbar
         sub_window.grab_set()   # set as model window
         Globals.Main.Top.wait_window(sub_window)    # wait for window return, to get return value
-        print("done")
+        res = confirm_widget.Result
 
-        # set_game_fen(Positions.common_start_fen)
-        # MenuStats[MenuStatNames.flip].set(False)
-        # refresh_flip()
+        if res is None:
+            return
+        rkr, pos = res
+        Globals.Chess_960_Columns = rkr     # 新局面不走校验逻辑，必须手动设置chess960的易位列
+        redraw_c960_flags()
+        set_game_fen(pos)
+        MenuStats[MenuStatNames.flip].set(False)
+        refresh_flip()
 
 
 def flip():
@@ -192,14 +229,13 @@ def paste_fen():
     elif not easygui.ynbox("将会重置当前棋局的信息，你确认要导入局面吗？", "verachess 5.0", ["是", "否"]):
         return
     fen = pyperclip.paste()
-    # 校验格式
-    res, msg = events.check_fen_format_valid(fen)
+    res, msg = events.check_fen_format_valid(fen)   # 校验格式，如果chess960的局面校验通过，会设置chess960的易位列
     if not res:
         easygui.msgbox("FEN错误\n"+msg)
         return
     release_model_lock()    # very important, set fen require model lock
-    set_game_fen(fen)
-
+    set_game_fen(reformat_fen(fen))
+    redraw_c960_flags()
 
 
 @check_model

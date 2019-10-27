@@ -39,21 +39,24 @@ class Color:
     cyan_dark = "#9ee4ef"
     pink_light = "#f0b3ff"
     pink_dark = "#efa1ff"
-    cell_sel_light = "#bbd66f"
+    cell_sel_light = "#9eb55e"
     cell_sel_dark = "#6aa800"
     black = "#000000"
     white = "#ffffff"
     red = "#ff0000"
     blue = "#0000ff"
+    orange = "#ff3f00"
     green_dark = "#00d100"
-    lemon_light = "#ffefad"
-    lemon_dark = "#dbc27f"
+    yellow_light = "#ffefad"
+    yellow_dark = "#dbc27f"
     magenta = "#ff00ff"     # check
 
 
 class Font:
     font_24 = "-family {Times New Roman} -size 24 -weight normal -slant roman -underline 0 -overstrike 0"
     font_14 = "-family {Times New Roman} -size 14 -weight normal -slant roman -underline 0 -overstrike 0"
+    font_9 = "-family {Times New Roman} -size 9 -weight normal -slant roman -underline 0 -overstrike 0"
+    add_bold = "-weight bold"
 
 
 class Role:
@@ -71,7 +74,6 @@ class CastleCells:
         white_long, white_short, black_long, black_short))  # type: Tuple[Tuple[int, int]]
     white_l_arrive, white_s_arrive, black_l_arrive, black_s_arrive = map(lambda x: x[-1], (
         white_long, white_short, black_long, black_short))  # type: Tuple[int, int]
-    # todo: c960 support
 
 
 class MenuStatNames:

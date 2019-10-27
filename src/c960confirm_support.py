@@ -6,6 +6,10 @@
 #    Oct 27, 2019 12:17:59 AM CST  platform: Windows NT
 
 import sys
+import c960confirm
+from random import randint
+from chess960 import num_to_pos, pos_to_num, get_c960_cols
+from tkinter import Event
 
 try:
     import Tkinter as tk
@@ -14,38 +18,88 @@ except ImportError:
 
 try:
     import ttk
+
     py3 = False
 except ImportError:
     import tkinter.ttk as ttk
+
     py3 = True
 
-def set_Tk_var():
-    global c960value
-    c960value = tk.StringVar()
-    global c960pos
-    c960pos = tk.StringVar()
+c960value = None  # type: tk.StringVar
+c960pos = None  # type: tk.StringVar
+w = None    # type: c960confirm.ConfirmWindow
 
+
+def set_Tk_var():
+    global c960value, c960pos
+    c960value = tk.StringVar()
+    c960pos = tk.StringVar()
+    c960value.set("518")
+    c960pos.set("rnbqkbnr")
+
+
+def update_pos():
+    pos = num_to_pos(int(c960value.get()))
+    c960pos.set(pos)
+    w.Button1.configure(state="normal")
+
+
+def update_value():
+    value = str(pos_to_num(c960pos.get()))
+    c960value.set(value)
+    w.Button1.configure(state="normal")
+
+
+# events
 def Cancel():
-    print('c960confirm_support.Cancel')
-    sys.stdout.flush()
+    destroy_window()
+
+
+def Random():
+    c960value.set(randint(1, 960))
+    update_pos()
+
 
 def confirm():
-    print('c960confirm_support.confirm')
-    sys.stdout.flush()
+    if w.Button1.cget("state") == "disabled":
+        return    # to deal with enter key
+    w.Result = get_c960_cols(c960pos.get())
+    destroy_window()
+
 
 def scroll():
-    print('c960confirm_support.scroll')
-    sys.stdout.flush()
+    update_pos()
 
-def spin(p1):
-    print('c960confirm_support.spin')
-    print('p1 = {0}'.format(p1))
-    sys.stdout.flush()
 
-def text(p1):
-    print('c960confirm_support.text')
-    print('p1 = {0}'.format(p1))
-    sys.stdout.flush()
+def spin(event: Event):
+    value = c960value.get()
+    if not value:
+        w.Button1.configure(state="disabled")
+        return
+    value = min(int("".join(filter(lambda x: x.isdigit, value))[:3]), 960)  # 最大3位，最大960
+    c960value.set(value)
+    update_pos()
+
+
+def text(event: Event):
+    if event.keycode == 13:
+        return confirm()
+    w.Button1.configure(state="disabled")
+    pos = c960pos.get()
+    pos = "".join([x for x in pos.lower() if x in "kqrbn"][:8])
+    c960pos.set(pos)
+    if len(pos) == 8:
+        if sorted(pos) != list("bbknnqrr"):
+            c960pos.set("棋子个数不对")
+            return
+        if not pos.index("r") < pos.index("k") < pos.rindex("r"):
+            c960pos.set("车需要在王两边")
+            return
+        if not (pos.index("b") + pos.rindex("b")) % 2 == 1:
+            c960pos.set("两个象需要异色")
+            return
+        update_value()
+
 
 def init(top, gui, *args, **kwargs):
     global w, top_level, root
@@ -53,16 +107,9 @@ def init(top, gui, *args, **kwargs):
     top_level = top
     root = top
 
+
 def destroy_window():
     # Function which closes the window.
     global top_level
     top_level.destroy()
     top_level = None
-
-if __name__ == '__main__':
-    import c960confirm
-    c960confirm.vp_start_gui()
-
-
-
-

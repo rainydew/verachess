@@ -80,15 +80,28 @@ class MainWindow:
         create_colorhodler(self, top)
 
         self.ChessBoard = tk.Frame(top)
-        self.ChessBoard.place(relx=0.0, rely=0.0, height=385
-                              , width=385)
+        self.ChessBoard.place(x=0, y=0, height=385, width=385)
         self.ChessBoard.configure(relief='ridge')
         self.ChessBoard.configure(borderwidth="1")
-        self.ChessBoard.configure(relief='ridge')
-        self.ChessBoard.configure(background="#d9d9d9")
-        self.ChessBoard.configure(highlightbackground="#ffffff")
-        self.ChessBoard.configure(highlightcolor="#ffffff")
-        self.ChessBoard.configure(width=385)
+
+        self.ClockBoard = tk.Frame(top)
+        self.ClockBoard.place(x=402, y=0, height=96, width=375)
+        self.ClockBoard.configure(borderwidth="1")
+        self.ClockBoard.configure(relief='ridge')
+
+        self.EcoBoard = tk.Frame(top)
+        self.EcoBoard.place(x=778, y=0, height=96, width=105)
+        self.EcoBoard.configure(relief='ridge')
+        self.EcoBoard.configure(borderwidth="1")
+
+        self.ECO = tk.Label(self.EcoBoard)
+        self.ECO.place(x=-2, y=-2, height=96, width=105)
+        self.ECO.configure(anchor='nw')
+        self.ECO.configure(background="#ffffab")
+        self.ECO.configure(justify='left')
+        self.ECO.configure(wraplength=105)
+        self.ECO.configure(textvariable=verachess_support.Eco)
+        self.ECO.configure(font=Font.font_9)
 
         self.menubar = tk.Menu(top, font="TkMenuFont", bg=_bgcolor, fg=_fgcolor)
         top.configure(menu=self.menubar)
@@ -118,6 +131,7 @@ def create_columns(main: MainWindow, top: tk.Tk):
         column.configure(background=Color.cyan_light if i % 2 else Color.cyan_dark)
         column.configure(text=chr(65 + i))
         column.configure(relief="raised")
+        column.configure(font=Font.add_bold)
         main.Columns.append(column)
 
         Globals.Column_names.append(str(column))
@@ -131,6 +145,7 @@ def create_rows(main: MainWindow, top: tk.Tk):
         row.configure(background=Color.pink_light if i % 2 else Color.pink_dark)
         row.configure(text=str(8 - i))
         row.configure(relief="raised")
+        row.configure(font=Font.add_bold)
         main.Rows.append(row)
 
         Globals.Row_names.append(str(row))
@@ -144,7 +159,7 @@ def create_cells(main: MainWindow, top: tk.Frame):
         for c in range(8):
             box = tk.Label(top)
             box.place(x=c * 48, y=r * 48, height=48, width=48)  # i行j列
-            box.configure(background=Color.lemon_dark if (r + c) % 2 else Color.lemon_light)
+            box.configure(background=Color.yellow_dark if (r + c) % 2 else Color.yellow_light)
             box.configure(relief="groove")
             box.configure(font=Font.font_24)
 

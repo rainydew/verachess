@@ -65,7 +65,6 @@ def check_wdl(silent: bool = False):
 
 def check_fen_format_valid(fen: str) -> Tuple[bool, str]:
     # 只检查格式，调用后面的函数来检查局面合理性
-    # todo: c960 support
     try:
         f_list = fen.strip().split(" ")
         msg = "FEN格式不正确。FEN应包含六段信息：局面 行棋方 易位权 过路兵格 和棋计数 当前回合数\n" \
@@ -75,9 +74,16 @@ def check_fen_format_valid(fen: str) -> Tuple[bool, str]:
         msg = "和棋计数或当前回合数不正确"
         assert int(drawcount) >= 0 and int(movecount) >= 1
         msg = "易位信息不正确。易位权由这些字符组成：K=白方王翼易位，Q=白方后翼易位，k=黑方王翼易位，q=黑方后翼易位\n" \
-              "如果双方均无易位权，填-"
-        assert castle in ["".join([s if i & p else "" for p, s in {8: "K", 4:"Q", 2:"k", 1:"q"}.items()]) if i != 0 else
-                          "-" for i in range(16)]
+              "如果双方均无易位权，填-\n" \
+              "如果是chess960，填王翼车和后翼车的列号，大写白棋，小写黑棋。例如HAha"
+        if not bd.is_chess960(fen):
+            # normal
+            assert castle in ["".join([s if i & p else "" for p, s in {8: "K", 4:"Q", 2:"k", 1:"q"}.items()]) if i != 0 else
+                              "-" for i in range(16)]
+        else:
+            # c960
+            assert len(set(castle.lower())) in (1, 2) and len(set(castle)) == len(castle) and all(
+                [x.lower() in "abcdefgh" for x in castle])
         msg = "过路兵格的值不正确。过路兵格是兵直进两格时，通过中间格的坐标。如果上一步没有兵直进两格，则填-"
         assert ep == "-" or (len(ep) == 2 and ep[1] in "36" and ord(ep[0]) in range(97, 105))
         msg = "行棋方不正确。必须为w (白放) 或 b (黑方)"
@@ -127,16 +133,18 @@ def click_handler(place: Tuple[int, int]) -> None:
             with ModelLock():
                 res = easygui.buttonbox("选择你要升变的棋子(默认皇后)", "兵的升变", plist, fontsize=24) or plist[0]
             move += pdict[res]
-
         # make a move, will move to another funtion in the future to handle clock and pgn
         vs.set_cell_color(Globals.LastMove)
-        new_fen = bd.calc_move(Globals.Game_fen, move)
+        new_fen, special = bd.calc_move(Globals.Game_fen, move)
         Globals.Game_fen = new_fen
         Globals.History.append(new_fen)
         Globals.History_hash.append(calc_fen_hash(new_fen))
+        Globals.AlphabetMovelist.append(move)  # todo: pgn movelist
         vs.set_sunken_cell(Globals.Selection)
-        Globals.Selection = None
+        clear_sel_highs()
         refresh_whole_board()
+        if special:
+            place = special
         vs.set_cell_color(place, Color.red)
         Globals.LastMove = place
         check_wdl()
