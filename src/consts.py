@@ -50,12 +50,17 @@ class Color:
     yellow_light = "#ffefad"
     yellow_dark = "#dbc27f"
     magenta = "#ff00ff"     # check
+    clock_inactive = "#c4c6ff"
+    clock_active = "#d0fffc"
+    clock_disabled = "#808080"
 
 
 class Font:
-    font_24 = "-family {Times New Roman} -size 24 -weight normal -slant roman -underline 0 -overstrike 0"
-    font_14 = "-family {Times New Roman} -size 14 -weight normal -slant roman -underline 0 -overstrike 0"
-    font_9 = "-family {Times New Roman} -size 9 -weight normal -slant roman -underline 0 -overstrike 0"
+    font_24 = "-family {Times New Roman} -size 24 -weight normal -slant roman"
+    font_14 = "-family {Times New Roman} -size 14 -weight normal -slant roman"
+    font_9 = "-family {Times New Roman} -size 9 -weight normal -slant roman"
+    font_clock = "-family Digiface -size 16 -weight bold -slant roman"
+    add_songti = "-family 黑体"
     add_bold = "-weight bold"
 
 

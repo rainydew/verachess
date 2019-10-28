@@ -117,6 +117,7 @@ class MainWindow:
         create_rows(self, top)
         create_columns(self, top)
         create_cells(self, self.ChessBoard)
+        create_players(self, self.ClockBoard)
 
         from boards import init_cells
         init_cells()
@@ -182,6 +183,55 @@ def create_colorhodler(main: MainWindow, top: tk.Tk):   # 右下角行棋方指�
     holder.configure(relief="raised")
 
     main.Holder = holder
+
+
+def create_players(main: MainWindow, top: tk.Frame):
+    wp = tk.Label(top)
+    wp.place(x=0, y=68, height=26, width=187)
+    wp.configure(background=Color.white)
+    wp.configure(foreground=Color.black)
+    wp.configure(textvariable=verachess_support.WhitePlayerInfo)
+    wp.configure(font=Font.add_songti)
+
+    bp = tk.Label(top)
+    bp.place(x=187, y=68, height=26, width=187)
+    bp.configure(background=Color.black)
+    bp.configure(foreground=Color.white)
+    bp.configure(textvariable=verachess_support.BlackPlayerInfo)
+    bp.configure(font=Font.add_songti)
+
+    wt = tk.Label(top)
+    wt.place(x=0, y=0, height=34, width=187)
+    wt.configure(background=Color.clock_inactive)
+    wt.configure(font=Font.font_clock)
+    wt.configure(textvariable=verachess_support.WhiteTotalTime)
+
+    bt = tk.Label(top)
+    bt.place(x=187, y=0, height=34, width=187)
+    bt.configure(background=Color.clock_inactive)
+    bt.configure(font=Font.font_clock)
+    bt.configure(textvariable=verachess_support.BlackTotalTime)
+
+    flag_width = 60
+
+    wu = tk.Label(top)
+    wu.place(x=flag_width, y=34, height=34, width=187 - flag_width)
+    wu.configure(background=Color.clock_inactive)
+    wu.configure(font=Font.font_clock)
+    wu.configure(textvariable=verachess_support.WhiteUseTime)
+
+    bu = tk.Label(top)
+    bu.place(x=187 + flag_width, y=34, height=34, width=187 - flag_width)
+    bu.configure(background=Color.clock_inactive)
+    bu.configure(font=Font.font_clock)
+    bu.configure(textvariable=verachess_support.BlackUseTime)
+
+    main.WhitePlayer = wp
+    main.BlackPlayer = bp
+    main.WhiteTotal = wt
+    main.BlackTotal = bt
+    main.WhiteUse = wu
+    main.BlackUse = bu
 
 
 def create_menus(main: MainWindow, top: tk.Tk):

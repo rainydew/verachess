@@ -34,15 +34,29 @@ except ImportError:
 
 CellValues = None    # type: List[List[tk.StringVar]]
 MenuStats = {}    # type: Dict[str, tk.BooleanVar]
-Eco = None      # type: tk.StringVar
+Eco = WhitePlayerInfo = BlackPlayerInfo = WhiteTotalTime = BlackTotalTime = WhiteUseTime = BlackUseTime = \
+    None  # type: tk.StringVar
 
 
 def set_Tk_var():
-    global CellValues, MenuStats, Eco
+    global CellValues, MenuStats, Eco, WhitePlayerInfo, BlackPlayerInfo, WhiteTotalTime, BlackTotalTime, WhiteUseTime, \
+        BlackUseTime
     CellValues = [[tk.StringVar(value="") for _ in range(8)] for _ in range(8)]
     MenuStats[MenuStatNames.flip] = tk.BooleanVar(value=False)
     Eco = tk.StringVar()
     Eco.set('ECO - A00\nIrregular Opening')
+    WhitePlayerInfo = tk.StringVar()
+    WhitePlayerInfo.set('白方：人类')
+    BlackPlayerInfo = tk.StringVar()
+    BlackPlayerInfo.set('黑方：人类')
+    WhiteTotalTime = tk.StringVar()
+    WhiteTotalTime.set("00 : 05 : 00")
+    BlackTotalTime = tk.StringVar()
+    BlackTotalTime.set("00 : 05 : 00")
+    WhiteUseTime = tk.StringVar()
+    WhiteUseTime.set("00 : 00")
+    BlackUseTime = tk.StringVar()
+    BlackUseTime.set("00 : 00")
 
 
 def set_cell_values(narrow_fen: str):
