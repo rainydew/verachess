@@ -216,13 +216,13 @@ def create_players(main: MainWindow, top: tk.Frame):
 
     wu = tk.Label(top)
     wu.place(x=flag_width, y=34, height=34, width=187 - flag_width)
-    wu.configure(background=Color.clock_inactive)
+    wu.configure(background=Color.clock_disabled)
     wu.configure(font=Font.font_clock)
     wu.configure(textvariable=verachess_support.WhiteUseTime)
 
     bu = tk.Label(top)
     bu.place(x=187 + flag_width, y=34, height=34, width=187 - flag_width)
-    bu.configure(background=Color.clock_inactive)
+    bu.configure(background=Color.clock_disabled)
     bu.configure(font=Font.font_clock)
     bu.configure(textvariable=verachess_support.BlackUseTime)
 

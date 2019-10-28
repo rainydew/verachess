@@ -52,7 +52,7 @@ class Color:
     magenta = "#ff00ff"     # check
     clock_inactive = "#c4c6ff"
     clock_active = "#d0fffc"
-    clock_disabled = "#808080"
+    clock_disabled = "#c0c0c0"
 
 
 class Font:
