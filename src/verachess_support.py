@@ -10,8 +10,8 @@ import pyperclip
 import c960confirm
 from verachess_global import Globals, release_model_lock
 from typing import List, Tuple, Dict
-from verachess import Color, destroy_MainWindow
-from consts import Pieces, Positions, MenuStatNames, EndType, Winner
+from verachess import destroy_MainWindow
+from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths
 from tkinter import CallWrapper
 from decos import check_model, model_locked
 import events
@@ -36,13 +36,16 @@ CellValues = None    # type: List[List[tk.StringVar]]
 MenuStats = {}    # type: Dict[str, tk.BooleanVar]
 Eco = WhitePlayerInfo = BlackPlayerInfo = WhiteTotalTime = BlackTotalTime = WhiteUseTime = BlackUseTime = \
     None  # type: tk.StringVar
+WhiteFlagImg = BlackFlagImg = None  # type: tk.PhotoImage
+FlagWidth = 54  # modify it if you want
 
 
 def set_Tk_var():
     global CellValues, MenuStats, Eco, WhitePlayerInfo, BlackPlayerInfo, WhiteTotalTime, BlackTotalTime, WhiteUseTime, \
-        BlackUseTime
+        BlackUseTime, WhiteFlagImg, BlackFlagImg
     CellValues = [[tk.StringVar(value="") for _ in range(8)] for _ in range(8)]
     MenuStats[MenuStatNames.flip] = tk.BooleanVar(value=False)
+    MenuStats[MenuStatNames.clock] = tk.BooleanVar(value=True)
     Eco = tk.StringVar()
     Eco.set('ECO - A00\nIrregular Opening')
     WhitePlayerInfo = tk.StringVar()
@@ -57,6 +60,10 @@ def set_Tk_var():
     WhiteUseTime.set("00 : 00")
     BlackUseTime = tk.StringVar()
     BlackUseTime.set("00 : 00")
+    WhiteFlagImg = tk.PhotoImage()
+    WhiteFlagImg.configure(file=Paths.flag + "china.gif")
+    BlackFlagImg = tk.PhotoImage()
+    BlackFlagImg.configure(file=Paths.flag + "china.gif")
 
 
 def set_cell_values(narrow_fen: str):
@@ -227,6 +234,16 @@ def new_c960():
 def flip():
     # this is event for flip click
     refresh_flip()
+
+
+def clock_switch():
+    clock_disabled = MenuStats[MenuStatNames.clock]
+    if clock_disabled.get():
+        Globals.Main.WhiteUse.configure(background=Color.clock_disabled)
+        Globals.Main.BlackUse.configure(background=Color.clock_disabled)
+    else:
+        Globals.Main.WhiteUse.configure(background=Color.clock_inactive)
+        Globals.Main.BlackUse.configure(background=Color.clock_inactive)
 
 
 @model_locked

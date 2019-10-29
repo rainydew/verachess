@@ -113,6 +113,8 @@ class MainWindow:
 
         self.Rows = self.Columns = None  # type: List[tk.Label]
         self.Cells = None  # type: List[List[tk.Label]]
+        self.WhitePlayer = self.BlackPlayer = self.WhiteTotal = self.BlackTotal = self.WhiteUse = self.BlackUse = \
+            self.WhiteFlag = self.BlackFlag = None  # type: tk.Label
 
         create_rows(self, top)
         create_columns(self, top)
@@ -212,7 +214,7 @@ def create_players(main: MainWindow, top: tk.Frame):
     bt.configure(font=Font.font_clock)
     bt.configure(textvariable=verachess_support.BlackTotalTime)
 
-    flag_width = 60
+    flag_width = verachess_support.FlagWidth
 
     wu = tk.Label(top)
     wu.place(x=flag_width, y=34, height=34, width=187 - flag_width)
@@ -226,12 +228,22 @@ def create_players(main: MainWindow, top: tk.Frame):
     bu.configure(font=Font.font_clock)
     bu.configure(textvariable=verachess_support.BlackUseTime)
 
+    wf = tk.Label(top)
+    wf.place(x=0, y=34, height=34, width=flag_width)
+    wf.configure(image=verachess_support.WhiteFlagImg)
+
+    bf = tk.Label(top)
+    bf.place(x=187, y=34, height=34, width=flag_width)
+    bf.configure(image=verachess_support.BlackFlagImg)
+
     main.WhitePlayer = wp
     main.BlackPlayer = bp
     main.WhiteTotal = wt
     main.BlackTotal = bt
     main.WhiteUse = wu
     main.BlackUse = bu
+    main.WhiteFlag = wf
+    main.BlackFlag = bf
 
 
 def create_menus(main: MainWindow, top: tk.Tk):
@@ -243,6 +255,9 @@ def create_menus(main: MainWindow, top: tk.Tk):
     add_checkbutton(main, m_board, "翻转视角", verachess_support.flip, verachess_support.MenuStats[MenuStatNames.flip])
     add_command(main, m_board, "复制当前局面FEN", verachess_support.copy_fen)
     add_command(main, m_board, "从剪贴板导入FEN", verachess_support.paste_fen)
+    m_clock = add_menu(main, top, "棋钟")
+    add_checkbutton(main, m_clock, "关闭棋钟", verachess_support.clock_switch,
+                    verachess_support.MenuStats[MenuStatNames.clock])
 
 
 def add_menu(main: MainWindow, top: tk.Tk, name: str) -> str:

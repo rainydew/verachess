@@ -83,6 +83,7 @@ class CastleCells:
 
 class MenuStatNames:
     flip = "Flip"
+    clock = "Clock"
 
 
 class Winner:
@@ -123,7 +124,8 @@ class EndType:
     other_draw = 16
 
 
-
+class Paths:
+    flag = "flags/"
 
 
 def gen_empty_board(init_value=None) -> List[List[Any]]:
