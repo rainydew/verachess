@@ -21,6 +21,7 @@ class Globals:
     Check = None    # type: Tuple[int, int]  # place, None shows no check
     Highlights = []  # type: List[Tuple[int, int]]  # place, None shows no selection
     Game_fen = Positions.common_start_fen # type: str  # ep and so on
+    White = True    # white=True
     Game_role = {"w": Role.human, "b": Role.human}  # false if human can click
     Game_end = EndType.unterminated    # type: int  # !0 to lock board, >0 means draw, <0 means win/lose
     Chess_960_Columns = (None, None, None)  # type: Tuple[int, int, int]
@@ -32,6 +33,12 @@ class Globals:
     History_hash = [hash(calc_fen_hash(Game_fen))]    # type: List[int]
     SunkenCell = None  # type: Tuple[int, int]  # place to record which
     Winner = ConstWinner.unknown   # type: float
+    Wtime = 300000  # total ms
+    Btime = 300000
+    Wtotal = 300000  # total ms
+    Btotal = 300000
+    Winc = 3000
+    Binc = 3000
 
 
 class ModelLock:

@@ -50,7 +50,7 @@ class Color:
     yellow_light = "#ffefad"
     yellow_dark = "#dbc27f"
     magenta = "#ff00ff"     # check
-    clock_inactive = "#c4c6ff"
+    clock_inactive = "#24b6ff"
     clock_active = "#d0fffc"
     clock_disabled = "#c0c0c0"
 

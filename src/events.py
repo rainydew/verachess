@@ -137,6 +137,7 @@ def click_handler(place: Tuple[int, int]) -> None:
         vs.set_cell_color(Globals.LastMove)
         new_fen, special = bd.calc_move(Globals.Game_fen, move)
         Globals.Game_fen = new_fen
+        Globals.White = not Globals.White
         Globals.History.append(new_fen)
         Globals.History_hash.append(calc_fen_hash(new_fen))
         Globals.AlphabetMovelist.append(move)  # todo: pgn movelist

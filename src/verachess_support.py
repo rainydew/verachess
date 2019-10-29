@@ -161,6 +161,7 @@ def reformat_fen(fen: str):
 
 def set_game_fen(fen: str):
     Globals.Game_fen = fen
+    Globals.White = fen.split(" ")[1] == "w"
     Globals.History = [fen]
     Globals.AlphabetMovelist = []
     Globals.PGNMovelist = []
