@@ -189,6 +189,14 @@ def redraw_c960_flags():
         columns[k].configure(foreground=Color.magenta)
 
 
+def reset_clock():
+    MenuStats[MenuStatNames.clock].set(True)
+    Globals.Wremain = Globals.Wtime
+    Globals.Bremain = Globals.Btime
+    Globals.Wuse = 0
+    Globals.Buse = 0
+
+
 # events
 def exit_game():
     if easygui.ynbox("你确定要退出吗？", "verachess 5.0", ["是", "否"]):
@@ -205,6 +213,7 @@ def new_normal():
         Globals.Chess_960_Columns = (None, None, None)
         redraw_c960_flags()
         set_game_fen(Positions.common_start_fen)
+        reset_clock()
         MenuStats[MenuStatNames.flip].set(False)
         refresh_flip()
 
@@ -228,6 +237,7 @@ def new_c960():
         Globals.Chess_960_Columns = rkr     # 新局面不走校验逻辑，必须手动设置chess960的易位列
         redraw_c960_flags()
         set_game_fen(pos)
+        reset_clock()
         MenuStats[MenuStatNames.flip].set(False)
         refresh_flip()
 
@@ -243,8 +253,12 @@ def clock_switch():
         Globals.Main.WhiteUse.configure(background=Color.clock_disabled)
         Globals.Main.BlackUse.configure(background=Color.clock_disabled)
     else:
-        Globals.Main.WhiteUse.configure(background=Color.clock_inactive)
-        Globals.Main.BlackUse.configure(background=Color.clock_inactive)
+        if Globals.White:
+            Globals.Main.WhiteTotal.configure(background=Color.clock_active)
+            Globals.Main.BlackTotal.configure(background=Color.clock_inactive)
+        else:
+            Globals.Main.WhiteTotal.configure(background=Color.clock_inactive)
+            Globals.Main.BlackTotal.configure(background=Color.clock_active)
 
 
 @model_locked

@@ -38,7 +38,15 @@ def vp_start_gui():
     Globals.Main = top
 
     verachess_support.init(root, top)
+
+    # init clock here after ui created
+    from clock import Tick_Thread
+    Tick_Thread.setDaemon(True)
+    Tick_Thread.start()
+
     root.mainloop()
+    del verachess_support.BlackFlagImg      # otherwise errors in __del__
+    del verachess_support.WhiteFlagImg
 
 
 w = None

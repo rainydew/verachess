@@ -3,6 +3,7 @@
 from verachess_global import Globals, ModelLock, calc_fen_hash
 from typing import Tuple, Optional, List
 from consts import Color, Promotions, EndType, Winner
+from clock import before_change_mover
 import easygui
 import boards
 import verachess_support as vs
@@ -136,6 +137,7 @@ def click_handler(place: Tuple[int, int]) -> None:
         # make a move, will move to another funtion in the future to handle clock and pgn
         vs.set_cell_color(Globals.LastMove)
         new_fen, special = bd.calc_move(Globals.Game_fen, move)
+        before_change_mover()
         Globals.Game_fen = new_fen
         Globals.White = not Globals.White
         Globals.History.append(new_fen)
