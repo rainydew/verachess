@@ -3,15 +3,16 @@ import time
 import threading
 import tkinter as tk
 import verachess_support
-from verachess_global import Globals
-from consts import MenuStatNames, Color
+import easygui
+from verachess_global import Globals, ModelLock
+from consts import MenuStatNames, Color, EndType, Winner
 
 
-def to_ms(ms: int):
+def to_ms(ms: int) -> str:
     return time.strftime("%M : %S", time.gmtime((ms - 1 )// 1000 + 1))
 
 
-def to_hms(ms: int):
+def to_hms(ms: int) -> str:
     return time.strftime("%H : %M : %S", time.gmtime(ms // 1000))
 
 
@@ -43,6 +44,35 @@ def before_change_mover():
         refresh_clock()
 
 
+def timeout(white: bool, silent: bool = False):
+    if Globals.Game_end:
+        return
+    refresh_clock()
+    narrow_fen = Globals.Game_fen.split(" ")[0]
+    wp, bp = len([x for x in narrow_fen if x.isupper()]), len([x for x in narrow_fen if x.islower()])
+    if white:
+        if bp != 1:
+            Globals.Game_end = EndType.time_forfeit
+            message = "白方超时，黑方胜利"
+            Globals.Winner = Winner.black
+        else:
+            Globals.Game_fen = EndType.single_king_with_opp_violate
+            message = "白方超时，因黑方只有单王，和棋"
+            Globals.Winner = Winner.draw
+    else:
+        if wp != 1:
+            Globals.Game_end = EndType.time_forfeit
+            message = "黑方超时，白方胜利"
+            Globals.Winner = Winner.white
+        else:
+            Globals.Game_fen = EndType.single_king_with_opp_violate
+            message = "黑方超时，因白方只有单王，和棋"
+            Globals.Winner = Winner.draw
+    if not silent:
+        with ModelLock():
+            easygui.msgbox(message, "棋局结束", "确认")
+
+
 def tick():
     s = int(time.time() * 1000)
     irange = range(5)
@@ -51,13 +81,17 @@ def tick():
             time.sleep(0.2)
             now = int(time.time() * 1000)
             margin = now - s
-            if not verachess_support.MenuStats[MenuStatNames.clock].get():
+            if not verachess_support.MenuStats[MenuStatNames.clock].get() and not Globals.Game_end:
                 if Globals.White:
                     Globals.Wuse += margin
                     Globals.Wremain -= margin
+                    if Globals.Wremain < 0:
+                        timeout(True)
                 else:
                     Globals.Buse += margin
                     Globals.Bremain -= margin
+                    if Globals.Bremain < 0:
+                        timeout(False)
                 if not i:
                     refresh_clock()
             s = now

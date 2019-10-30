@@ -225,13 +225,13 @@ def create_players(main: MainWindow, top: tk.Frame):
     flag_width = verachess_support.FlagWidth
 
     wu = tk.Label(top)
-    wu.place(x=flag_width, y=34, height=34, width=187 - flag_width)
+    wu.place(x=flag_width - 4, y=34, height=34, width=187 - flag_width + 4)
     wu.configure(background=Color.clock_disabled)
     wu.configure(font=Font.font_clock)
     wu.configure(textvariable=verachess_support.WhiteUseTime)
 
     bu = tk.Label(top)
-    bu.place(x=187 + flag_width, y=34, height=34, width=187 - flag_width)
+    bu.place(x=187 + flag_width - 4, y=34, height=34, width=187 - flag_width + 4)
     bu.configure(background=Color.clock_disabled)
     bu.configure(font=Font.font_clock)
     bu.configure(textvariable=verachess_support.BlackUseTime)
@@ -266,6 +266,7 @@ def create_menus(main: MainWindow, top: tk.Tk):
     m_clock = add_menu(main, top, "棋钟")
     add_checkbutton(main, m_clock, "关闭棋钟", verachess_support.clock_switch,
                     verachess_support.MenuStats[MenuStatNames.clock])
+    add_command(main, m_clock, "设置比赛时长", verachess_support.change_clock)
 
 
 def add_menu(main: MainWindow, top: tk.Tk, name: str) -> str:

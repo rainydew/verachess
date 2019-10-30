@@ -8,6 +8,7 @@ import sys
 import easygui
 import pyperclip
 import c960confirm
+from clock import refresh_clock
 from verachess_global import Globals, release_model_lock
 from typing import List, Tuple, Dict
 from verachess import destroy_MainWindow
@@ -190,11 +191,12 @@ def redraw_c960_flags():
 
 
 def reset_clock():
-    MenuStats[MenuStatNames.clock].set(True)
+    clock_switch(reset=True)
     Globals.Wremain = Globals.Wtime
     Globals.Bremain = Globals.Btime
     Globals.Wuse = 0
     Globals.Buse = 0
+    refresh_clock()
 
 
 # events
@@ -221,7 +223,7 @@ def new_normal():
 @model_locked
 def new_c960():
     if any(Globals.Game_role.values()):
-        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能重新开局。如需要")
+        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能重新开局。请先将黑白双方均设为人类")
         return
     if easygui.ynbox("这将重置当前棋局信息，确认重新开始棋局吗？", "verachess 5.0", ["是", "否"]):
         main_window = Globals.Main.Top
@@ -242,17 +244,31 @@ def new_c960():
         refresh_flip()
 
 
+@model_locked
+def change_clock():
+    if any(Globals.Game_role.values()):
+        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能。请先将黑白双方均设为人类")
+        return
+    # todo: clock
+
+
 def flip():
     # this is event for flip click
     refresh_flip()
 
 
-def clock_switch():
+def clock_switch(reset: bool = False):
     clock_disabled = MenuStats[MenuStatNames.clock]
+    if reset:
+        clock_disabled.set(True)
     if clock_disabled.get():
         Globals.Main.WhiteUse.configure(background=Color.clock_disabled)
         Globals.Main.BlackUse.configure(background=Color.clock_disabled)
+        Globals.Main.WhiteTotal.configure(background=Color.clock_inactive)
+        Globals.Main.BlackTotal.configure(background=Color.clock_inactive)
     else:
+        Globals.Main.WhiteUse.configure(background=Color.clock_enabled)
+        Globals.Main.BlackUse.configure(background=Color.clock_enabled)
         if Globals.White:
             Globals.Main.WhiteTotal.configure(background=Color.clock_active)
             Globals.Main.BlackTotal.configure(background=Color.clock_inactive)

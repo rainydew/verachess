@@ -53,6 +53,7 @@ class Color:
     clock_inactive = "#24b6ff"
     clock_active = "#d0fffc"
     clock_disabled = "#c0c0c0"
+    clock_enabled = "#dddddd"
 
 
 class Font:
