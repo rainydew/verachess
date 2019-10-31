@@ -8,6 +8,7 @@ import sys
 import easygui
 import pyperclip
 import c960confirm
+import clockconfirm
 from clock import refresh_clock
 from verachess_global import Globals, release_model_lock
 from typing import List, Tuple, Dict
@@ -247,9 +248,19 @@ def new_c960():
 @model_locked
 def change_clock():
     if any(Globals.Game_role.values()):
-        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能。请先将黑白双方均设为人类")
+        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能设置棋钟。请先将黑白双方均设为人类")
         return
-    # todo: clock
+    main_window = Globals.Main.Top
+    sub_window, confirm_widget = clockconfirm.create_Toplevel1(root=main_window)
+    sub_window.transient(main_window)  # show only one window in taskbar
+    sub_window.grab_set()  # set as model window
+    Globals.Main.Top.wait_window(sub_window)  # wait for window return, to get return value
+    res = confirm_widget.Result
+
+    if res is None:
+        return
+
+    # todo: res handler
 
 
 def flip():

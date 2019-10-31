@@ -113,7 +113,7 @@ class ConfirmWindow:
         self.Button1.configure(activebackground="#ececec")
         self.Button1.configure(activeforeground="#000000")
         self.Button1.configure(background="#d9d9d9")
-        self.Button1.configure(command=c960confirm_support.confirm)
+        self.Button1.configure(command=c960confirm_support.Confirm)
         self.Button1.configure(disabledforeground="#a3a3a3")
         self.Button1.configure(foreground="#000000")
         self.Button1.configure(highlightbackground="#d9d9d9")
@@ -151,5 +151,5 @@ class ConfirmWindow:
 
 
 if __name__ == '__main__':
-    pass
+    print("test mode")
     vp_start_gui()

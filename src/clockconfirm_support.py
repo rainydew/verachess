@@ -6,6 +6,7 @@
 #    Oct 31, 2019 12:36:36 AM CST  platform: Windows NT
 
 import sys
+import clockconfirm
 
 try:
     import Tkinter as tk
@@ -23,6 +24,7 @@ except ImportError:
 
 WhiteMinEntry = BlackMinEntry = WhiteSecEntry = BlackSecEntry = WhiteIncEntry = BlackIncEntry = Cmv = CpuUnit = \
     CpuRebal = CpuSet = Sync = None    # type: tk.StringVar
+w = None    # type: clockconfirm.MainWindow
 
 
 def set_Tk_var():
@@ -56,8 +58,7 @@ def SynSet():
 
 
 def Cancel():
-    print('clockconfirm_support.Cancel')
-    sys.stdout.flush()
+    destroy_window()
 
 
 def Confirm():
@@ -71,10 +72,18 @@ def Default():
 
 
 def OptionChange():
-    print('clockconfirm_support.OptionChange')
-    print(Cmv.get())
-    sys.stdout.flush()
-
+    cmv = Cmv.get()
+    if cmv == "UseDepth":
+        CpuUnit.set("步(半回合)")
+        CpuSet.set("16")
+    elif cmv == "UseTimer":
+        CpuUnit.set("秒/步")
+        CpuSet.set("2")
+    elif cmv == "UseNode":
+        CpuUnit.set("百万节点/步")
+        CpuSet.set("10")
+    else:
+        raise NotImplementedError("not supported")
 
 def init(top, gui, *args, **kwargs):
     global w, top_level, root
@@ -88,9 +97,3 @@ def destroy_window():
     global top_level
     top_level.destroy()
     top_level = None
-
-
-if __name__ == '__main__':
-    import clockconfirm
-
-    clockconfirm.vp_start_gui()

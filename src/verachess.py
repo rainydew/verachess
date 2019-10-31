@@ -64,6 +64,9 @@ def create_MainWindow(root, *args, **kwargs):
 
 
 def destroy_MainWindow():
+    del verachess_support.BlackFlagImg      # otherwise errors in __del__
+    del verachess_support.WhiteFlagImg
+
     Globals.Main.Top.destroy()  # safe import
     sys.exit()
 

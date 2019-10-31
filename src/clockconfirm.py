@@ -29,7 +29,7 @@ def vp_start_gui():
     global val, w, root
     root = tk.Tk()
     clockconfirm_support.set_Tk_var()
-    top = Toplevel1(root)
+    top = MainWindow(root)
     clockconfirm_support.init(root, top)
     root.mainloop()
 
@@ -43,7 +43,7 @@ def create_Toplevel1(root, *args, **kwargs):
     rt = root
     w = tk.Toplevel(root)
     clockconfirm_support.set_Tk_var()
-    top = Toplevel1(w)
+    top = MainWindow(w)
     clockconfirm_support.init(w, top, *args, **kwargs)
     return (w, top)
 
@@ -54,7 +54,7 @@ def destroy_Toplevel1():
     w = None
 
 
-class Toplevel1:
+class MainWindow:
     def __init__(self, top=None):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
@@ -273,6 +273,9 @@ class Toplevel1:
         self.Syn.configure(variable=clockconfirm_support.Sync)
         self.Syn.configure(command=clockconfirm_support.SynSet)
 
+        self.Result = None  # to return a result
+
 
 if __name__ == '__main__':
+    print("test mode")
     vp_start_gui()

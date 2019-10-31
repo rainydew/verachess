@@ -5,7 +5,6 @@
 #  in conjunction with Tcl version 8.6
 #    Oct 27, 2019 12:17:59 AM CST  platform: Windows NT
 
-import sys
 import c960confirm
 from random import randint
 from chess960 import num_to_pos, pos_to_num, get_c960_cols
@@ -60,7 +59,7 @@ def Random():
     update_pos()
 
 
-def confirm():
+def Confirm():
     if w.Button1.cget("state") == "disabled":
         return    # to deal with enter key
     w.Result = get_c960_cols(c960pos.get())
@@ -83,7 +82,7 @@ def spin(event: Event):
 
 def text(event: Event):
     if event.keycode == 13:
-        return confirm()
+        return Confirm()
     w.Button1.configure(state="disabled")
     pos = c960pos.get()
     pos = "".join([x for x in pos.lower() if x in "kqrbn"][:8])
