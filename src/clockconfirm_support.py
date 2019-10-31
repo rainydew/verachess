@@ -14,46 +14,67 @@ except ImportError:
 
 try:
     import ttk
+
     py3 = False
 except ImportError:
     import tkinter.ttk as ttk
+
     py3 = True
+
+WhiteMinEntry = BlackMinEntry = WhiteSecEntry = BlackSecEntry = WhiteIncEntry = BlackIncEntry = Cmv = CpuUnit = \
+    CpuRebal = CpuSet = Sync = None    # type: tk.StringVar
+
 
 def set_Tk_var():
     global WhiteMinEntry
-    WhiteMinEntry = tk.StringVar()
+    WhiteMinEntry = tk.StringVar(value="5")
     global BlackMinEntry
-    BlackMinEntry = tk.StringVar()
+    BlackMinEntry = tk.StringVar(value="5")
     global WhiteSecEntry
-    WhiteSecEntry = tk.StringVar()
+    WhiteSecEntry = tk.StringVar(value="0")
     global BlackSecEntry
-    BlackSecEntry = tk.StringVar()
+    BlackSecEntry = tk.StringVar(value="0")
     global WhiteIncEntry
-    WhiteIncEntry = tk.StringVar()
+    WhiteIncEntry = tk.StringVar(value="3")
     global BlackIncEntry
-    BlackIncEntry = tk.StringVar()
+    BlackIncEntry = tk.StringVar(value="3")
     global Cmv
-    Cmv = tk.StringVar()
+    Cmv = tk.StringVar(value="UseDepth")
     global CpuUnit
-    CpuUnit = tk.StringVar()
-    CpuUnit.set('HalfMove')
+    CpuUnit = tk.StringVar(value="步(半回合)")
+    global CpuRebal
+    CpuRebal = tk.StringVar(value="1.0")
+    global CpuSet
+    CpuSet = tk.StringVar(value="16")
+    global Sync
+    Sync = tk.BooleanVar(value=True)
+
+
+def SynSet():
+    print('clockconfirm_support.Syn')
+    sys.stdout.flush()
+
 
 def Cancel():
     print('clockconfirm_support.Cancel')
     sys.stdout.flush()
 
+
 def Confirm():
     print('clockconfirm_support.Confirm')
     sys.stdout.flush()
+
 
 def Default():
     print('clockconfirm_support.Default')
     sys.stdout.flush()
 
+
 def OptionChange():
     print('clockconfirm_support.OptionChange')
     print(Cmv.get())
     sys.stdout.flush()
+
 
 def init(top, gui, *args, **kwargs):
     global w, top_level, root
@@ -61,16 +82,15 @@ def init(top, gui, *args, **kwargs):
     top_level = top
     root = top
 
+
 def destroy_window():
     # Function which closes the window.
     global top_level
     top_level.destroy()
     top_level = None
 
+
 if __name__ == '__main__':
     import clockconfirm
+
     clockconfirm.vp_start_gui()
-
-
-
-
