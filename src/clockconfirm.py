@@ -32,6 +32,7 @@ def vp_start_gui():
     top = MainWindow(root)
     clockconfirm_support.init(root, top)
     root.mainloop()
+    print(top.Result)
 
 
 w = None
@@ -72,138 +73,112 @@ class MainWindow:
         self.style.map('.', background=
         [('selected', _compcolor), ('active', _ana2color)])
 
-        top.geometry("567x383+567+247")
-        top.title("时钟设置")
+        top.geometry("567x393+567+247")
+        top.title("棋钟设置")
         top.configure(background="#d9d9d9")
 
         self.Label1 = tk.Label(top)
-        self.Label1.place(relx=0.053, rely=0.052, height=26, width=60)
+        self.Label1.place(x=30, y=20, height=26, width=60)
         self.Label1.configure(background="#d9d9d9")
-        self.Label1.configure(disabledforeground="#a3a3a3")
         self.Label1.configure(text='''白方时限''')
 
         self.WhiteTotalMinute = tk.Entry(top)
-        self.WhiteTotalMinute.place(relx=0.053, rely=0.131, height=31
-                                    , relwidth=0.131)
-        self.WhiteTotalMinute.configure(background="white")
-        self.WhiteTotalMinute.configure(font="TkFixedFont")
+        self.WhiteTotalMinute.place(x=30, y=50, height=31, width=74)
         self.WhiteTotalMinute.configure(textvariable=clockconfirm_support.WhiteMinEntry)
-        self.WhiteTotalMinute.configure(width=74)
 
         self.BlackTotalMinute = tk.Entry(top)
-        self.BlackTotalMinute.place(relx=0.053, rely=0.47, height=31
-                                    , relwidth=0.131)
-        self.BlackTotalMinute.configure(background="white")
-        self.BlackTotalMinute.configure(textvariable=clockconfirm_support.BlackMinEntry)
-        self.BlackTotalMinute.configure(width=74)
+        self.BlackTotalMinute.place(x=30, y=180, height=31, width=74)
+        self.BlackTotalMinute.configure(textvariable=clockconfirm_support.WhiteMinEntry)
+        self.BlackTotalMinute.configure(state="disabled")
 
         self.Label1_2 = tk.Label(top)
-        self.Label1_2.place(relx=0.053, rely=0.392, height=26, width=60)
+        self.Label1_2.place(x=30, y=150, height=26, width=60)
         self.Label1_2.configure(background="#d9d9d9")
         self.Label1_2.configure(text='''黑方时限''')
 
         self.Label2 = tk.Label(top)
-        self.Label2.place(relx=0.194, rely=0.131, height=26, width=34)
+        self.Label2.place(x=110, y=50, height=26, width=34)
         self.Label2.configure(background="#d9d9d9")
         self.Label2.configure(text='''分''')
 
         self.Label2_3 = tk.Label(top)
-        self.Label2_3.place(relx=0.194, rely=0.47, height=26, width=34)
+        self.Label2_3.place(x=110, y=180, height=26, width=34)
         self.Label2_3.configure(background="#d9d9d9")
         self.Label2_3.configure(text='''分''')
 
         self.WhiteTotalSecond = tk.Entry(top)
-        self.WhiteTotalSecond.place(relx=0.265, rely=0.131, height=31
-                                    , relwidth=0.131)
-        self.WhiteTotalSecond.configure(background="white")
-        self.WhiteTotalSecond.configure(font="TkFixedFont")
+        self.WhiteTotalSecond.place(x=150, y=50, height=31, width=74)
         self.WhiteTotalSecond.configure(textvariable=clockconfirm_support.WhiteSecEntry)
-        self.WhiteTotalSecond.configure(width=74)
 
         self.BlackTotalSecond = tk.Entry(top)
-        self.BlackTotalSecond.place(relx=0.265, rely=0.47, height=31
-                                    , relwidth=0.131)
-        self.BlackTotalSecond.configure(background="white")
-        self.BlackTotalSecond.configure(font="TkFixedFont")
-        self.BlackTotalSecond.configure(textvariable=clockconfirm_support.BlackSecEntry)
-        self.BlackTotalSecond.configure(width=74)
+        self.BlackTotalSecond.place(x=150, y=180, height=31, width=74)
+        self.BlackTotalSecond.configure(textvariable=clockconfirm_support.WhiteSecEntry)
+        self.BlackTotalSecond.configure(state="disabled")
 
         self.Label3 = tk.Label(top)
-        self.Label3.place(relx=0.053, rely=0.209, height=26, width=90)
+        self.Label3.place(x=30, y=80, height=26, width=90)
         self.Label3.configure(background="#d9d9d9")
         self.Label3.configure(text='''白方每步加秒''')
 
         self.WhiteInc = tk.Entry(top)
-        self.WhiteInc.place(relx=0.053, rely=0.287, height=31, relwidth=0.131)
-        self.WhiteInc.configure(background="white")
-        self.WhiteInc.configure(font="TkFixedFont")
+        self.WhiteInc.place(x=30, y=110, height=31, width=74)
         self.WhiteInc.configure(textvariable=clockconfirm_support.WhiteIncEntry)
-        self.WhiteInc.configure(width=74)
 
         self.Label2_5 = tk.Label(top)
-        self.Label2_5.place(relx=0.406, rely=0.131, height=26, width=34)
+        self.Label2_5.place(x=230, y=50, height=26, width=34)
         self.Label2_5.configure(background="#d9d9d9")
         self.Label2_5.configure(text='''秒''')
 
         self.Label2_6 = tk.Label(top)
-        self.Label2_6.place(relx=0.406, rely=0.47, height=26, width=34)
+        self.Label2_6.place(x=230, y=180, height=26, width=34)
         self.Label2_6.configure(background="#d9d9d9")
         self.Label2_6.configure(text='''秒''')
 
         self.Label2_6 = tk.Label(top)
-        self.Label2_6.place(relx=0.194, rely=0.287, height=26, width=34)
+        self.Label2_6.place(x=110, y=110, height=26, width=34)
         self.Label2_6.configure(background="#d9d9d9")
         self.Label2_6.configure(text='''秒''')
 
         self.Label3_7 = tk.Label(top)
-        self.Label3_7.place(relx=0.053, rely=0.548, height=26, width=90)
+        self.Label3_7.place(x=30, y=210, height=26, width=90)
         self.Label3_7.configure(background="#d9d9d9")
         self.Label3_7.configure(text='''黑方每步加秒''')
 
         self.BlackInc = tk.Entry(top)
-        self.BlackInc.place(relx=0.053, rely=0.627, height=31, relwidth=0.131)
-        self.BlackInc.configure(background="white")
-        self.BlackInc.configure(font="TkFixedFont")
-        self.BlackInc.configure(textvariable=clockconfirm_support.BlackIncEntry)
-        self.BlackInc.configure(width=74)
+        self.BlackInc.place(x=30, y=240, height=31, width=74)
+        self.BlackInc.configure(textvariable=clockconfirm_support.WhiteIncEntry)
+        self.BlackInc.configure(state="disabled")
 
         self.Label2_7 = tk.Label(top)
-        self.Label2_7.place(relx=0.194, rely=0.627, height=26, width=34)
+        self.Label2_7.place(x=110, y=240, height=26, width=34)
         self.Label2_7.configure(background="#d9d9d9")
         self.Label2_7.configure(text='''秒''')
 
         self.Label3_8 = tk.Label(top)
-        self.Label3_8.place(relx=0.053, rely=0.731, height=26, width=154)
+        self.Label3_8.place(x=30, y=280, height=26, width=170)
         self.Label3_8.configure(background="#d9d9d9")
         self.Label3_8.configure(text='''电脑棋手对人类让钟系数''')
-        self.Label3_8.configure(width=154)
 
         self.ComputerRebal = tk.Entry(top)
-        self.ComputerRebal.place(relx=0.053, rely=0.809, height=31
-                                 , relwidth=0.131)
-        self.ComputerRebal.configure(background="white")
-        self.ComputerRebal.configure(font="TkFixedFont")
-        self.ComputerRebal.configure(width=74)
+        self.ComputerRebal.place(x=30, y=310, height=31, width=74)
         self.ComputerRebal.configure(textvariable=clockconfirm_support.CpuRebal)
 
         self.Label2_8 = tk.Label(top)
-        self.Label2_8.place(relx=0.194, rely=0.809, height=26, width=44)
+        self.Label2_8.place(x=110, y=310, height=26, width=44)
         self.Label2_8.configure(background="#d9d9d9")
         self.Label2_8.configure(text='''倍速''')
-        self.Label2_8.configure(width=44)
 
         self.TSeparator1 = ttk.Separator(top)
-        self.TSeparator1.place(relx=0.494, rely=0.052, relheight=0.862)
+        self.TSeparator1.place(x=280, y=20, height=330)
         self.TSeparator1.configure(orient="vertical")
 
         self.Label4 = tk.Label(top)
-        self.Label4.place(relx=0.529, rely=0.052, height=26, width=210)
+        self.Label4.place(x=300, y=20, height=26, width=210)
         self.Label4.configure(background="#d9d9d9")
         self.Label4.configure(text='''若关闭棋钟，则电脑引擎配置为''')
 
         self.UseDepth = tk.Radiobutton(top)
-        self.UseDepth.place(relx=0.529, rely=0.131, relheight=0.081
-                            , relwidth=0.203)
+        self.UseDepth.place(x=300, y=50, height=30, width=115)
         self.UseDepth.configure(background="#d9d9d9")
         self.UseDepth.configure(command=clockconfirm_support.OptionChange)
         self.UseDepth.configure(text='''限制搜索深度''')
@@ -211,8 +186,7 @@ class MainWindow:
         self.UseDepth.configure(variable=clockconfirm_support.Cmv)
 
         self.UseTimer = tk.Radiobutton(top)
-        self.UseTimer.place(relx=0.529, rely=0.261, relheight=0.081
-                            , relwidth=0.203)
+        self.UseTimer.place(x=300, y=100, height=30, width=115)
         self.UseTimer.configure(background="#d9d9d9")
         self.UseTimer.configure(command=clockconfirm_support.OptionChange)
         self.UseTimer.configure(text='''设置每步时间''')
@@ -220,8 +194,7 @@ class MainWindow:
         self.UseTimer.configure(variable=clockconfirm_support.Cmv)
 
         self.UseNode = tk.Radiobutton(top)
-        self.UseNode.place(relx=0.529, rely=0.392, relheight=0.081
-                           , relwidth=0.203)
+        self.UseNode.place(x=300, y=150, height=30, width=115)
         self.UseNode.configure(background="#d9d9d9")
         self.UseNode.configure(command=clockconfirm_support.OptionChange)
         self.UseNode.configure(text='''节点数量控制''')
@@ -229,49 +202,48 @@ class MainWindow:
         self.UseNode.configure(variable=clockconfirm_support.Cmv)
 
         self.CpuSetting = tk.Entry(top)
-        self.CpuSetting.place(relx=0.547, rely=0.627, height=31, relwidth=0.219)
-        self.CpuSetting.configure(background="white")
-        self.CpuSetting.configure(font="TkFixedFont")
+        self.CpuSetting.place(x=300, y=240, height=31, width=124)
         self.CpuSetting.configure(textvariable=clockconfirm_support.CpuSet)
-        self.CpuSetting.configure(width=124)
 
         self.Label2_11 = tk.Label(top)
-        self.Label2_11.place(relx=0.547, rely=0.522, height=26, width=54)
+        self.Label2_11.place(x=300,y=200, height=26, width=54)
         self.Label2_11.configure(background="#d9d9d9")
         self.Label2_11.configure(text='''参数值''')
-        self.Label2_11.configure(width=54)
 
-        self.Label2_9 = tk.Label(top)
-        self.Label2_9.place(relx=0.794, rely=0.627, height=26, width=74)
+        self.Label2_9 = tk.Label(top)   # 搜索设置的单位
+        self.Label2_9.place(x=450, y=240, height=26, width=80)
         self.Label2_9.configure(background="#d9d9d9")
         self.Label2_9.configure(textvariable=clockconfirm_support.CpuUnit)
-        self.Label2_9.configure(width=74)
 
         self.ConfirmButton = tk.Button(top)
-        self.ConfirmButton.place(relx=0.529, rely=0.809, height=33, width=72)
+        self.ConfirmButton.place(x=300, y=310, height=33, width=72)
         self.ConfirmButton.configure(background="#d9d9d9")
         self.ConfirmButton.configure(command=clockconfirm_support.Confirm)
         self.ConfirmButton.configure(text='''确定''')
 
         self.DefaultButton = tk.Button(top)
-        self.DefaultButton.place(relx=0.688, rely=0.809, height=33, width=72)
+        self.DefaultButton.place(x=390, y=310, height=33, width=72)
         self.DefaultButton.configure(background="#d9d9d9")
         self.DefaultButton.configure(command=clockconfirm_support.Default)
         self.DefaultButton.configure(text='''默认值''')
 
         self.CancelButton = tk.Button(top)
-        self.CancelButton.place(relx=0.847, rely=0.809, height=33, width=72)
+        self.CancelButton.place(x=480, y=310, height=33, width=72)
         self.CancelButton.configure(background="#d9d9d9")
         self.CancelButton.configure(command=clockconfirm_support.Cancel)
         self.CancelButton.configure(text='''取消''')
 
         self.Syn = tk.Checkbutton(top)
-        self.Syn.place(relx=0.529, rely=0.710, relheight=0.081
-                       , relwidth=0.311)
+        self.Syn.place(x=300, y=270, height=30, width=170)
         self.Syn.configure(background="#d9d9d9")
         self.Syn.configure(text='''黑白双方时钟保持一致''')
         self.Syn.configure(variable=clockconfirm_support.Sync)
         self.Syn.configure(command=clockconfirm_support.SynSet)
+
+        self.Notice = tk.Label(top)
+        self.Notice.place(x=120, y=360, height=26, width=327)
+        self.Notice.configure(background="#d9d9d9")
+        self.Notice.configure(text='''注意：修改配置后会关闭并重置当前棋局的棋钟''')
 
         self.Result = None  # to return a result
 

@@ -30,6 +30,7 @@ def vp_start_gui():
     top = ConfirmWindow(root)
     c960confirm_support.init(root, top)
     root.mainloop()
+    print(top.Result)
 
 
 w = None

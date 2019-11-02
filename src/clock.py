@@ -14,7 +14,7 @@ def to_ms(ms: int) -> str:
 
 def to_hms(ms: int) -> str:
     return time.strftime("%H : %M : %S", time.gmtime(ms // 1000)) if ms >= 0 else time.strftime(
-        "-0 : %M : %S", time.gmtime(-ms // 1000))
+        "-0 : %M : %S", time.gmtime(-(ms // 1000)))
 
 
 def update_string_var(var: tk.StringVar, to_val: str):

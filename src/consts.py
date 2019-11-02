@@ -125,6 +125,12 @@ class EndType:
     other_draw = 16
 
 
+class CpuMoveConf:
+    use_depth = 0
+    use_timer = 1
+    use_node = 2
+
+
 class Paths:
     flag = "flags/"
 

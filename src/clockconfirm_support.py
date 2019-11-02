@@ -5,8 +5,9 @@
 #  in conjunction with Tcl version 8.6
 #    Oct 31, 2019 12:36:36 AM CST  platform: Windows NT
 
-import sys
+from typing import List
 import clockconfirm
+import easygui
 
 try:
     import Tkinter as tk
@@ -23,38 +24,79 @@ except ImportError:
     py3 = True
 
 WhiteMinEntry = BlackMinEntry = WhiteSecEntry = BlackSecEntry = WhiteIncEntry = BlackIncEntry = Cmv = CpuUnit = \
-    CpuRebal = CpuSet = Sync = None    # type: tk.StringVar
-w = None    # type: clockconfirm.MainWindow
+    CpuRebal = CpuSet = Sync = None  # type: tk.Variable
+w = None  # type: clockconfirm.MainWindow
 
 
 def set_Tk_var():
     global WhiteMinEntry
-    WhiteMinEntry = tk.StringVar(value="5")
+    WhiteMinEntry = tk.IntVar(value="5")
     global BlackMinEntry
-    BlackMinEntry = tk.StringVar(value="5")
+    BlackMinEntry = tk.IntVar(value="5")
     global WhiteSecEntry
-    WhiteSecEntry = tk.StringVar(value="0")
+    WhiteSecEntry = tk.IntVar(value="0")
     global BlackSecEntry
-    BlackSecEntry = tk.StringVar(value="0")
+    BlackSecEntry = tk.IntVar(value="0")
     global WhiteIncEntry
-    WhiteIncEntry = tk.StringVar(value="3")
+    WhiteIncEntry = tk.IntVar(value="3")
     global BlackIncEntry
-    BlackIncEntry = tk.StringVar(value="3")
+    BlackIncEntry = tk.IntVar(value="3")
     global Cmv
     Cmv = tk.StringVar(value="UseDepth")
     global CpuUnit
     CpuUnit = tk.StringVar(value="步(半回合)")
     global CpuRebal
-    CpuRebal = tk.StringVar(value="1.0")
+    CpuRebal = tk.DoubleVar(value="1.0")
     global CpuSet
-    CpuSet = tk.StringVar(value="16")
+    CpuSet = tk.DoubleVar(value="16")
     global Sync
     Sync = tk.BooleanVar(value=True)
 
 
+def refresh_tk_var():
+    WhiteMinEntry.set("5")
+    BlackMinEntry.set("5")
+    WhiteSecEntry.set("0")
+    BlackSecEntry.set("0")
+    WhiteIncEntry.set("3")
+    BlackIncEntry.set("3")
+    Cmv.set("UseDepth")
+    CpuUnit.set("步(半回合)")
+    CpuRebal.set("1.0")
+    CpuSet.set("16")
+    Sync.set(True)
+    SynSet()
+
+
 def SynSet():
-    print('clockconfirm_support.Syn')
-    sys.stdout.flush()
+    off = "disabled"
+    on = "normal"
+    if Sync.get():
+        w.BlackInc.configure(state=off)
+        w.BlackTotalMinute.configure(state=off)
+        w.BlackTotalSecond.configure(state=off)
+        w.BlackInc.configure(textvariable=WhiteIncEntry)
+        w.BlackTotalMinute.configure(textvariable=WhiteMinEntry)
+        w.BlackTotalSecond.configure(textvariable=WhiteSecEntry)
+    else:
+        w.BlackInc.configure(state=on)
+        w.BlackTotalMinute.configure(state=on)
+        w.BlackTotalSecond.configure(state=on)
+        try:
+            BlackIncEntry.set(WhiteIncEntry.get())
+        except tk.TclError:
+            pass
+        try:
+            BlackMinEntry.set(WhiteMinEntry.get())
+        except tk.TclError:
+            pass
+        try:
+            BlackSecEntry.set(WhiteSecEntry.get())
+        except tk.TclError:
+            pass
+        w.BlackInc.configure(textvariable=BlackIncEntry)
+        w.BlackTotalMinute.configure(textvariable=BlackMinEntry)
+        w.BlackTotalSecond.configure(textvariable=BlackSecEntry)
 
 
 def Cancel():
@@ -62,13 +104,29 @@ def Cancel():
 
 
 def Confirm():
-    print('clockconfirm_support.Confirm')
-    sys.stdout.flush()
+    checked_vars = [WhiteMinEntry, WhiteSecEntry, WhiteIncEntry, CpuSet, CpuRebal, Sync]  # type: List[tk.Variable]
+    if not Sync.get():
+        checked_vars.extend([BlackMinEntry, BlackSecEntry, BlackIncEntry])
+    for entry in checked_vars:
+        try:
+            before = entry.get()
+            entry.set(before)
+            assert before >= 0  # assert after ensuring entry is a number
+            if abs(float(entry.get()) - float(before)) > 1e-06 and not easygui.ynbox(
+                    "由于精度限制，数值{}将被替换为{}，继续操作吗？".format(before, entry.get()), "要求整数",
+                    ["是", "否"]):
+                return
+        except (tk.TclError, AssertionError):
+            entry.set("输入错误")
+            return
+    checked_vars.extend([Cmv])  # string vars here
+    g = globals().items()
+    w.Result = {[k for k, v in g if v == var][0]: var.get() for var in checked_vars}
+    destroy_window()
 
 
 def Default():
-    print('clockconfirm_support.Default')
-    sys.stdout.flush()
+    refresh_tk_var()
 
 
 def OptionChange():
@@ -85,11 +143,14 @@ def OptionChange():
     else:
         raise NotImplementedError("not supported")
 
+
 def init(top, gui, *args, **kwargs):
     global w, top_level, root
     w = gui
     top_level = top
     root = top
+    for k, v in kwargs.items():
+        globals().get(k).set(v)
 
 
 def destroy_window():

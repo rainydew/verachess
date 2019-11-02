@@ -1,7 +1,7 @@
 # coding: utf-8
 # 只有这里的全局变量，被其他模块导入，才能有共同的id，才可以共享通信
-from typing import List, Dict, Tuple
-from consts import Positions, Role, EndType, Winner as ConstWinner
+from typing import List, Dict, Tuple, Union
+from consts import Positions, Role, EndType, CpuMoveConf, Winner as ConstWinner
 
 if (lambda: None)():
     import verachess
@@ -41,6 +41,11 @@ class Globals:
     Buse = 0
     Winc = 3000
     Binc = 3000
+    ClockConf = {'WhiteMinEntry': 5, 'WhiteSecEntry': 0, 'WhiteIncEntry': 3, 'CpuSet': 16.0, 'CpuRebal': 1.0, 'Sync':
+        True, 'Cmv': 'UseDepth'}
+    CpuSet = 16     # type: Union[int, float]
+    CpuRebal = 1.0
+    Cmv = CpuMoveConf.use_depth
 
 
 class ModelLock:

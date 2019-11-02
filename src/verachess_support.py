@@ -13,7 +13,7 @@ from clock import refresh_clock
 from verachess_global import Globals, release_model_lock
 from typing import List, Tuple, Dict
 from verachess import destroy_MainWindow
-from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths
+from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths, CpuMoveConf
 from tkinter import CallWrapper
 from decos import check_model, model_locked
 import events
@@ -200,6 +200,29 @@ def reset_clock():
     refresh_clock()
 
 
+def refresh_clock_conf():
+    conf = Globals.ClockConf
+    Globals.Wtime = (conf.get('WhiteMinEntry') * 60 + conf.get('WhiteSecEntry')) * 1000
+    Globals.Winc = conf.get('WhiteIncEntry') * 1000
+    if conf.get('Sync'):
+        Globals.Btime = Globals.Wtime
+        Globals.Binc = Globals.Winc
+    else:
+        Globals.Btime = (conf.get('BlackMinEntry') * 60 + conf.get('BlackSecEntry')) * 1000
+        Globals.Binc = conf.get('BlackIncEntry') * 1000
+    Globals.CpuRebal = conf.get('CpuRebal')
+    Globals.Cmv = {"UseDepth": CpuMoveConf.use_depth, "UseTimer": CpuMoveConf.use_timer, "UseNode": CpuMoveConf.use_node
+                   }[conf.get("Cmv")]
+    cpu_set = conf.get('CpuSet')
+    if Globals.Cmv == CpuMoveConf.use_depth:
+        Globals.CpuSet = int(cpu_set)
+    elif Globals.Cmv == CpuMoveConf.use_timer:
+        Globals.CpuSet = int(cpu_set * 1000)
+    else:
+        Globals.CpuSet = int(cpu_set * 1000000)
+    reset_clock()
+
+
 # events
 def exit_game():
     if easygui.ynbox("你确定要退出吗？", "verachess 5.0", ["是", "否"]):
@@ -210,7 +233,7 @@ def exit_game():
 @model_locked
 def new_normal():
     if any(Globals.Game_role.values()):
-        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能重新开局。如需要")
+        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能重新开局。请先将黑白双方均设为人类")
         return
     if easygui.ynbox("这将重置当前棋局信息，确认重新开始棋局吗？", "verachess 5.0", ["是", "否"]):
         Globals.Chess_960_Columns = (None, None, None)
@@ -251,7 +274,8 @@ def change_clock():
         easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能设置棋钟。请先将黑白双方均设为人类")
         return
     main_window = Globals.Main.Top
-    sub_window, confirm_widget = clockconfirm.create_Toplevel1(root=main_window)
+    sub_window, confirm_widget = clockconfirm.create_Toplevel1(root=main_window, **Globals.ClockConf)
+    # 考虑子窗体独立测试需要，禁止子窗体直接访问需要初始化的Globals变量
     sub_window.transient(main_window)  # show only one window in taskbar
     sub_window.grab_set()  # set as model window
     Globals.Main.Top.wait_window(sub_window)  # wait for window return, to get return value
@@ -259,8 +283,8 @@ def change_clock():
 
     if res is None:
         return
-
-    # todo: res handler
+    Globals.ClockConf = res
+    refresh_clock_conf()
 
 
 def flip():
