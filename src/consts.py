@@ -32,6 +32,7 @@ class Positions:
     common_startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
     common_start_fen = common_startpos + " " + Stats.common_stats
     blank = "8/8/8/8/8/8/8/8"
+    name_normal_startpos = "startpos"
 
 
 class Color:
@@ -54,6 +55,12 @@ class Color:
     clock_active = "#d0fffc"
     clock_disabled = "#c0c0c0"
     clock_enabled = "#dddddd"
+    move_normal = "#ffd5ab"
+    move_highlight = "#9999ff"
+
+
+class Style:
+    move_list_slider = "Slicder.Vertical.TScale"    # must ended with .Vertical.TScale (the widget name and orient)
 
 
 class Font:
@@ -61,7 +68,8 @@ class Font:
     font_14 = "-family {Times New Roman} -size 14 -weight normal -slant roman"
     font_9 = "-family {Times New Roman} -size 9 -weight normal -slant roman"
     font_clock = "-family Digiface -size 16 -weight bold -slant roman"
-    add_songti = "-family 黑体"
+    font_move = "-family Roboto -size 9 -weight normal -slant roman"
+    add_blackbold = "-family 黑体"
     add_bold = "-weight bold"
 
 

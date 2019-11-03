@@ -39,12 +39,13 @@ MenuStats = {}    # type: Dict[str, tk.BooleanVar]
 Eco = WhitePlayerInfo = BlackPlayerInfo = WhiteTotalTime = BlackTotalTime = WhiteUseTime = BlackUseTime = \
     None  # type: tk.StringVar
 WhiteFlagImg = BlackFlagImg = None  # type: tk.PhotoImage
+MoveScaleVar = None     # type: tk.IntVar
 FlagWidth = 54  # modify it if you want
 
 
 def set_Tk_var():
     global CellValues, MenuStats, Eco, WhitePlayerInfo, BlackPlayerInfo, WhiteTotalTime, BlackTotalTime, WhiteUseTime, \
-        BlackUseTime, WhiteFlagImg, BlackFlagImg
+        BlackUseTime, WhiteFlagImg, BlackFlagImg, MoveScaleVar
     CellValues = [[tk.StringVar(value="") for _ in range(8)] for _ in range(8)]
     MenuStats[MenuStatNames.flip] = tk.BooleanVar(value=False)
     MenuStats[MenuStatNames.clock] = tk.BooleanVar(value=True)
@@ -66,6 +67,8 @@ def set_Tk_var():
     WhiteFlagImg.configure(file=Paths.flag + "china.gif")
     BlackFlagImg = tk.PhotoImage()
     BlackFlagImg.configure(file=Paths.flag + "china.gif")
+    MoveScaleVar = tk.IntVar()
+    MoveScaleVar.set(0)
 
 
 def set_cell_values(narrow_fen: str):
@@ -170,10 +173,15 @@ def set_game_fen(fen: str):
     Globals.History_hash = [hash(" ".join(fen.split(" ")[:4]))]
     Globals.Game_end = EndType.unterminated
     Globals.Winner = Winner.unknown
+    if fen == Positions.common_start_fen:
+        Globals.Start_pos = Positions.name_normal_startpos
+    else:
+        Globals.Start_pos = fen
     events.clear_check_cell()
     events.refresh_whole_board()
     set_cell_color(flush_all=True)
     clear_sunken_cell()
+    redraw_c960_flags()
     if fen != Positions.common_start_fen:
         events.check_wdl()
 
@@ -237,7 +245,6 @@ def new_normal():
         return
     if easygui.ynbox("这将重置当前棋局信息，确认重新开始棋局吗？", "verachess 5.0", ["是", "否"]):
         Globals.Chess_960_Columns = (None, None, None)
-        redraw_c960_flags()
         set_game_fen(Positions.common_start_fen)
         reset_clock()
         MenuStats[MenuStatNames.flip].set(False)
@@ -261,7 +268,6 @@ def new_c960():
             return
         rkr, pos = res
         Globals.Chess_960_Columns = rkr     # 新局面不走校验逻辑，必须手动设置chess960的易位列
-        redraw_c960_flags()
         set_game_fen(pos)
         reset_clock()
         MenuStats[MenuStatNames.flip].set(False)
@@ -332,7 +338,6 @@ def paste_fen():
         return
     release_model_lock()    # very important, set fen require model lock
     set_game_fen(reformat_fen(fen))
-    redraw_c960_flags()
 
 
 @check_model
@@ -341,6 +346,17 @@ def cell_click(event: CallWrapper) -> None:
         return
     place = Globals.Reverse_cell_names[str(event.widget)]
     events.click_handler(place)
+
+
+@check_model
+def move_click(event: CallWrapper) -> None:
+    place = Globals.Reverse_move_names[str(event.widget)]
+    events.move_handler(place)
+
+
+def ListScroll(value):
+    MoveScaleVar.set(int(float(value)))
+    # todo: scroll
 
 
 # event end

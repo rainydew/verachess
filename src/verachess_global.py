@@ -14,6 +14,8 @@ def calc_fen_hash(fen: str) -> int:
 class Globals:
     Cell_names = None  # type: List[List[str]]  # r, c -> tk cell name
     Reverse_cell_names = None  # type: Dict[str, Tuple[int, int]]   # tk cell name -> r, c
+    Move_names = None   # type: List[str]   # index -> tk label name
+    Reverse_move_names = None   # type: Dict[str, int]  # tk label name -> index
     Row_names = []  # type: List[str]  # r -> tk row name
     Column_names = []  # type: List[str]  # c -> tk row name
     Main = None  # type: verachess.MainWindow
@@ -31,6 +33,7 @@ class Globals:
     AlphabetMovelist = []   # type: List[str]
     PGNMovelist = []    # type: List[str]
     History_hash = [hash(calc_fen_hash(Game_fen))]    # type: List[int]
+    Start_pos = Positions.name_normal_startpos      # in c960 it will change
     SunkenCell = None  # type: Tuple[int, int]  # place to record which
     Winner = ConstWinner.unknown   # type: float
     Wtime = 300000  # total ms

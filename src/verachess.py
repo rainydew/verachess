@@ -25,7 +25,7 @@ import verachess_support
 from verachess_global import Globals
 
 from typing import List, Dict, Callable
-from consts import Color, Font, gen_empty_board, MenuStatNames
+from consts import Color, Font, gen_empty_board, MenuStatNames, Style
 
 
 def vp_start_gui():
@@ -87,6 +87,9 @@ class MainWindow:
 
         self.Top = top
 
+        self.style = ttk.Style()
+        self.style.configure(Style.move_list_slider, background=Color.move_normal)
+
         self.Holder = None  # type: tk.Label
         create_colorhodler(self, top)
 
@@ -127,10 +130,27 @@ class MainWindow:
         self.WhitePlayer = self.BlackPlayer = self.WhiteTotal = self.BlackTotal = self.WhiteUse = self.BlackUse = \
             self.WhiteFlag = self.BlackFlag = None  # type: tk.Label
 
+        self.MoveFrame = tk.LabelFrame(top)
+        self.MoveFrame.place(x=400, y=96, height=192, width=483)
+        self.MoveFrame.configure(relief='groove')
+        self.MoveFrame.configure(text='''棋谱''')
+        self.MoveFrame.configure(background=Color.move_normal)
+
+        self.Moves = None   # type: List[tk.Label]
+
+        self.MoveScale = ttk.Scale(self.MoveFrame, from_=0, to=0.01)     # add 0.01 to reformat the style!!
+        self.MoveScale.place(x=461, y=15, width=20, height=172, bordermode='ignore')
+        self.MoveScale.configure(command=verachess_support.ListScroll)
+        self.MoveScale.configure(variable=verachess_support.MoveScaleVar)
+        self.MoveScale.configure(orient="vertical")
+        self.MoveScale.configure(length="130")
+        self.MoveScale.configure(style=Style.move_list_slider)
+
         create_rows(self, top)
         create_columns(self, top)
         create_cells(self, self.ChessBoard)
         create_players(self, self.ClockBoard)
+        create_movelist(self, self.MoveFrame)
 
         from boards import init_cells
         init_cells()
@@ -204,14 +224,14 @@ def create_players(main: MainWindow, top: tk.Frame):
     wp.configure(background=Color.white)
     wp.configure(foreground=Color.black)
     wp.configure(textvariable=verachess_support.WhitePlayerInfo)
-    wp.configure(font=Font.add_songti)
+    wp.configure(font=Font.add_blackbold)
 
     bp = tk.Label(top)
     bp.place(x=187, y=68, height=26, width=187)
     bp.configure(background=Color.black)
     bp.configure(foreground=Color.white)
     bp.configure(textvariable=verachess_support.BlackPlayerInfo)
-    bp.configure(font=Font.add_songti)
+    bp.configure(font=Font.add_blackbold)
 
     wt = tk.Label(top)
     wt.place(x=0, y=0, height=34, width=187)
@@ -255,6 +275,23 @@ def create_players(main: MainWindow, top: tk.Frame):
     main.BlackUse = bu
     main.WhiteFlag = wf
     main.BlackFlag = bf
+
+
+def create_movelist(main: MainWindow, top: tk.LabelFrame):
+    main.Moves = []
+    Globals.Move_names = []
+    Globals.Reverse_move_names = {}
+
+    move = tk.Label(top)
+    move.place(x=3, y=3, height=25)     # 不设width，可以让界面灵活根据内容调整宽度
+    move.configure(background=Color.move_highlight)
+    move.configure(font=Font.font_move)
+    move.configure(text=Globals.Start_pos)
+    move.bind('<Button-1>', lambda e: verachess_support.move_click(e))
+
+    main.Moves.append(move)
+    Globals.Move_names.append(str(move))
+    Globals.Reverse_move_names[str(move)] = 0
 
 
 def create_menus(main: MainWindow, top: tk.Tk):
