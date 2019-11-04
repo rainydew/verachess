@@ -16,7 +16,7 @@ def init_cells(c960: int = None):
 
 
 def refresh_cells():
-    fen = Globals.Game_fen
+    fen = Globals.GameFen
     verachess_support.set_cell_values(Fens.get_narrow_fen(fen))
     verachess_support.set_player_color(Fens.get_mover(fen) == "w")
 
@@ -285,8 +285,8 @@ class Fens:
         return "/".join(fen_rows)
 
     @staticmethod
-    def get_board_arrays(narrow_fen: str) -> List[List[Union[str, None]]]:  # better perfomance
-        rows = Fens.get_narrow_fen(narrow_fen).split("/")
+    def get_board_arrays(opt_narrow_fen: str) -> List[List[Union[str, None]]]:  # better perfomance
+        rows = Fens.get_narrow_fen(opt_narrow_fen).split("/")
         board = gen_empty_board()
         for i, row in enumerate(rows):
             j = 0
@@ -397,6 +397,24 @@ class Fens:
         if piece in "Pp":
             secure_moves += Fens._ep_move(Fens.get_ep(fen), board, r, c)  # secure check in method too
         return secure_moves
+
+    @staticmethod
+    def get_all_moves(fen: str) -> List[str]:
+        white = Fens.get_mover(fen) == "w"
+        board = Fens.get_board_arrays(fen)
+        moves = []
+        for sr in range(8):
+            for sc in range(8):
+                if board[sr][sc] and board[sr][sc].isupper() == white:
+                    piece_move = Fens.get_piece_move(fen, (sr, sc))
+                    for er, ec in piece_move:
+                        algebra_move = chr(sc + 97) + str(8 - sr) + chr(ec + 97) + str(8 - er)
+                        if board[sr][sc].lower() == "p" and er in (0, 7):   # promotion
+                            for promote_to in "qrnb":
+                                moves.append(algebra_move + promote_to)
+                        else:
+                            moves.append(algebra_move)
+        return moves
 
     @staticmethod
     def _remove_pinned_move(moves: List[Tuple[int, int]], board: List[List[Union[str, None]]], r: int, c: int
@@ -725,5 +743,89 @@ class Fens:
 Move_Func_Dict = {piece: getattr(Fens, "_{}_move".format(piece)) for piece in "pbnrqk"} \
     # type: Dict[str, Callable[[List[List[str]], int, int], List[Tuple[int, int]]]]
 
+
+class Pgns:
+    @staticmethod
+    def single_uci_to_pgn(fen: str, move: str, final_fen: str = None) -> Tuple[str, str, str]:
+        # call it before check_wdl. final_fen for performance enhance
+        pgn = symbol = ""
+
+        narrow_fen, mover, castle, ep, draw, turn = fen.split(" ")
+        prefix = "{}.".format(turn) if mover == "w" else ""
+
+        board = Fens.get_board_arrays(narrow_fen)
+        start = move[:2]
+        end = move[2:4]
+        promote = move[4:]
+        sr, sc = Fens.cellname_to_place(start)
+        er, ec = Fens.cellname_to_place(end)
+
+        piece = board[sr][sc]
+
+        if piece in "Kk":   # castle
+            if abs(sc - ec) > 1 or (board[er][ec] and board[er][ec].isupper() == piece.isupper()):
+                pgn = "O-O" if ec > sc else "O-O-O"
+
+        if not pgn:     # normal move
+            extra = ["", ""]    # col name, row name
+            for r in range(8):
+                for c in range(8):
+                    if board[r][c] == piece and (c != sc or r != sr):
+                        if (er, ec) in Fens.get_piece_move(fen, (r, c)):
+                            if c != sc:
+                                extra[0] = chr(sc + 97)
+                            else:
+                                extra[1] = str(8 - sr)
+
+            piece = piece.upper().replace("P", "")
+            if not piece:   # is pawn
+                if sc != ec:    # pawn takes, must add start column, ep included here
+                    extra[0] = chr(sc + 97)
+
+            pgn = piece + "".join(extra) + ("x" if board[er][ec] else "") + end + ("={}".format(promote.upper()) if promote
+                                                                                   else "")
+
+        if not final_fen:
+            final_fen = Fens.calc_move(fen, move)[0]
+
+        if Fens.checked_place(final_fen):
+            if Fens.has_legal_move(final_fen):
+                symbol = "+"
+            else:
+                symbol = "#"
+
+        return prefix, pgn, symbol
+
+    @staticmethod
+    def single_pgn_to_uci(fen:str, pgn:str) -> str:
+        pgn = pgn.split(".")[-1].strip().replace("+", "").replace("=", "").replace("#", "")
+        moves = Fens.get_all_moves(fen)
+        pgn_moves = {Pgns.single_uci_to_pgn(fen, move)[1]: move for move in moves}  # type: Dict[str, str]
+        res = pgn_moves.get(pgn)
+        assert res is not None, "move not found"
+        return res
+
+    @staticmethod
+    def uci_to_pgn(fen: str, moves: List[str]) -> List[str]:
+        reslist = []
+        for move in moves:
+            next_fen = Fens.calc_move(fen, move)[0]
+            reslist.append("".join(Pgns.single_uci_to_pgn(fen, move, next_fen)))
+            fen = next_fen
+        return reslist
+
+    @staticmethod
+    def pgn_to_uci(fen: str, pgn_moves: List[str]) -> List[str]:
+        reslist = []
+        for pgn_move in pgn_moves:
+            move = Pgns.single_pgn_to_uci(fen, pgn_move)
+            reslist.append(move)
+            fen = Fens.calc_move(fen, move)[0]
+        return reslist
+
+
 if __name__ == '__main__':
-    pass
+    res = Pgns.uci_to_pgn(Positions.common_start_fen, ["f2f3", "e7e5", "g2g4", "d8h4"])
+    print(res)
+    res = Pgns.pgn_to_uci(Positions.common_start_fen, res)
+    print(res)

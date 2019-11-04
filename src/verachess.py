@@ -279,8 +279,8 @@ def create_players(main: MainWindow, top: tk.Frame):
 
 def create_movelist(main: MainWindow, top: tk.LabelFrame):
     main.Moves = []
-    Globals.Move_names = []
-    Globals.Reverse_move_names = {}
+    Globals.MoveNames = []
+    Globals.ReverseMoveNames = {}
 
     move = tk.Label(top)
     move.place(x=3, y=3, height=25)     # 不设width，可以让界面灵活根据内容调整宽度
@@ -290,8 +290,8 @@ def create_movelist(main: MainWindow, top: tk.LabelFrame):
     move.bind('<Button-1>', lambda e: verachess_support.move_click(e))
 
     main.Moves.append(move)
-    Globals.Move_names.append(str(move))
-    Globals.Reverse_move_names[str(move)] = 0
+    Globals.MoveNames.append(str(move))
+    Globals.ReverseMoveNames[str(move)] = 0
 
 
 def create_menus(main: MainWindow, top: tk.Tk):

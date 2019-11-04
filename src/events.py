@@ -2,13 +2,15 @@
 # event handlers
 from verachess_global import Globals, ModelLock, calc_fen_hash
 from typing import Tuple, Optional, List
-from consts import Color, Promotions, EndType, Winner
+from consts import Color, Promotions, EndType, Winner, Font
 from clock import before_change_mover
+import tkinter as tk
 import easygui
 import boards
 import verachess_support as vs
 
 bd = boards.Fens
+pg = boards.Pgns
 
 
 def refresh_highlights(new_cells: Optional[List[Tuple[int, int]]] = None) -> None:
@@ -33,10 +35,56 @@ def clear_check_cell():
 
 
 def refresh_opp_check():
-    fen = Globals.Game_fen
+    fen = Globals.GameFen
     cell = bd.checked_place(fen)
     if cell:
         set_check_cell(cell)
+
+
+def add_last_pgn():
+    main = Globals.Main
+
+    main.Moves[-1].configure(background=Color.move_normal)
+
+    x, y = main.Moves[-1].winfo_x() + main.Moves[-1].winfo_width(), main.Moves[-1].winfo_y() - 22   # frame label height
+    max_width = main.MoveFrame.winfo_x() + 12
+    last_pgn = Globals.PGNMovelist[-1]
+    move = tk.Label(main.MoveFrame)
+
+    move.configure(background=Color.move_highlight)
+    move.configure(font=Font.font_move)
+    move.configure(text=last_pgn)
+    move.bind('<Button-1>', lambda e: vs.move_click(e))
+
+    if move.winfo_width() + x > max_width:  # wrap the line after text set
+        move.place(x=3, y=y + 25, height=25)
+    else:
+        move.place(x=x, y=y, height=25)
+
+    main.Moves.append(move)
+    Globals.MoveNames.append(str(move))
+    Globals.ReverseMoveNames[str(move)] = len(Globals.MoveNames) - 1
+
+
+def remove_pgn_from(pos: int = 1):
+    # todo: global move hash and some other thing sync in other functions when changing moves and recover
+    assert pos > 0, "cannot remove base PGN info"
+    main = Globals.Main
+
+    del Globals.MoveNames[pos:]      # garbage collection
+
+    while len(main.Moves) > pos:
+        del Globals.ReverseMoveNames[str(main.Moves[-1])]
+        main.Moves[-1].destroy()
+        del main.Moves[-1]
+
+    main.Moves[-1].configure(background=Color.move_highlight)
+    Globals.MoveSlider = -1
+
+
+def refresh_start_pos_in_movelist():
+    main = Globals.Main
+    main.Moves[0].configure(text=Globals.Start_pos)
 
 
 def refresh_whole_board():  # recommand
@@ -46,8 +94,8 @@ def refresh_whole_board():  # recommand
 
 
 def check_wdl(silent: bool = False):
-    res = bd.check_wdl(Globals.Game_fen, Globals.History_hash)
-    if res and not Globals.Game_end:    # prevent overwrite
+    res = bd.check_wdl(Globals.GameFen, Globals.History_hash)
+    if res and not Globals.Game_end:  # prevent overwrite
         Globals.Game_end = res
         if res == EndType.checkmate:
             message = "{}方将死了对手，获得胜利".format("白" if Globals.Winner == Winner.white else "黑")
@@ -71,7 +119,7 @@ def check_fen_format_valid(fen: str) -> Tuple[bool, str]:
         msg = "FEN格式不正确。FEN应包含六段信息：局面 行棋方 易位权 过路兵格 和棋计数 当前回合数\n" \
               "每一步棋如是动兵或吃子，则和棋计数重置为0，反之计数加1。如这个数达到100(即50回合)时仍不能将死，会判和棋"
         assert len(f_list) == 6
-        narrow_fen, mover, castle, ep, drawcount, movecount = f_list    # type: str
+        narrow_fen, mover, castle, ep, drawcount, movecount = f_list  # type: str
         msg = "和棋计数或当前回合数不正确"
         assert int(drawcount) >= 0 and int(movecount) >= 1
         msg = "易位信息不正确。易位权由这些字符组成：K=白方王翼易位，Q=白方后翼易位，k=黑方王翼易位，q=黑方后翼易位\n" \
@@ -79,8 +127,9 @@ def check_fen_format_valid(fen: str) -> Tuple[bool, str]:
               "如果是chess960，填王翼车和后翼车的列号，大写白棋，小写黑棋。例如HAha"
         if not bd.is_chess960(fen):
             # normal
-            assert castle in ["".join([s if i & p else "" for p, s in {8: "K", 4:"Q", 2:"k", 1:"q"}.items()]) if i != 0 else
-                              "-" for i in range(16)]
+            assert castle in [
+                "".join([s if i & p else "" for p, s in {8: "K", 4: "Q", 2: "k", 1: "q"}.items()]) if i != 0 else
+                "-" for i in range(16)]
         else:
             # c960
             assert len(set(castle.lower())) in (1, 2) and len(set(castle)) == len(castle) and all(
@@ -106,8 +155,8 @@ def check_fen_format_valid(fen: str) -> Tuple[bool, str]:
 
 
 def click_handler(place: Tuple[int, int]) -> None:
-    fen = Globals.Game_fen
-    if Globals.Game_role[bd.get_mover(fen)]:   # not occupied by human, need fen calc so it placed here
+    fen = Globals.GameFen
+    if Globals.Game_role[bd.get_mover(fen)]:  # not occupied by human, need fen calc so it placed here
         return
     if Globals.Selection == place:
         # click twice to unselect
@@ -119,7 +168,7 @@ def click_handler(place: Tuple[int, int]) -> None:
         clear_sel_highs()
     if Globals.Selection is None:
         if bd.can_control(fen, place):
-            clear_check_cell()      # unlink check magenta
+            clear_check_cell()  # unlink check magenta
             move_list = bd.get_piece_move(fen, place) + [place]
             refresh_highlights(move_list)
             vs.set_cell_color(place, Color.blue)
@@ -136,13 +185,15 @@ def click_handler(place: Tuple[int, int]) -> None:
             move += pdict[res]
         # make a move, will move to another funtion in the future to handle clock and pgn
         vs.set_cell_color(Globals.LastMove)
-        new_fen, special = bd.calc_move(Globals.Game_fen, move)
+        old_fen = Globals.GameFen
+        new_fen, special = bd.calc_move(old_fen, move)
         before_change_mover()
-        Globals.Game_fen = new_fen
+        Globals.GameFen = new_fen
         Globals.White = not Globals.White
         Globals.History.append(new_fen)
         Globals.History_hash.append(calc_fen_hash(new_fen))
-        Globals.AlphabetMovelist.append(move)  # todo: pgn movelist
+        Globals.AlphabetMovelist.append(move)
+        Globals.PGNMovelist.append("".join(pg.single_uci_to_pgn(old_fen, move, new_fen)))
         vs.set_sunken_cell(Globals.Selection)
         clear_sel_highs()
         refresh_whole_board()
@@ -150,10 +201,11 @@ def click_handler(place: Tuple[int, int]) -> None:
             place = special
         vs.set_cell_color(place, Color.red)
         Globals.LastMove = place
+        add_last_pgn()
         check_wdl()
 
 
-def get_move_text(place: int):
+def get_move_text(place: int):  # todo: use to get label move
     return Globals.PGNMovelist[place - 1] if place else Globals.Start_pos
 
 

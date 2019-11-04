@@ -122,7 +122,7 @@ def set_cell_back_colors(active_color_list: List[Tuple[int, int]] = None, inacti
 def refresh_flip():
     arg = MenuStats[MenuStatNames.flip].get()
     main = Globals.Main
-    now_flip = main.Rows[0].winfo_geometry().split("+")[-1] != "0"
+    now_flip = main.Rows[0].winfo_y() != 0
     if arg != now_flip:
         if not arg:
             for r in range(8):
@@ -165,7 +165,7 @@ def reformat_fen(fen: str):
 
 
 def set_game_fen(fen: str):
-    Globals.Game_fen = fen
+    Globals.GameFen = fen
     Globals.White = fen.split(" ")[1] == "w"
     Globals.History = [fen]
     Globals.AlphabetMovelist = []
@@ -177,6 +177,9 @@ def set_game_fen(fen: str):
         Globals.Start_pos = Positions.name_normal_startpos
     else:
         Globals.Start_pos = fen
+    Globals.MoveSlider = -1
+    events.remove_pgn_from()
+    events.refresh_start_pos_in_movelist()
     events.clear_check_cell()
     events.refresh_whole_board()
     set_cell_color(flush_all=True)
@@ -320,7 +323,7 @@ def clock_switch(reset: bool = False):
 
 @model_locked
 def copy_fen():
-    pyperclip.copy(Globals.Game_fen)
+    pyperclip.copy(Globals.GameFen)
     easygui.msgbox("当前局面已经复制到剪贴板")
 
 
@@ -350,7 +353,7 @@ def cell_click(event: CallWrapper) -> None:
 
 @check_model
 def move_click(event: CallWrapper) -> None:
-    place = Globals.Reverse_move_names[str(event.widget)]
+    place = Globals.ReverseMoveNames[str(event.widget)]
     events.move_handler(place)
 
 

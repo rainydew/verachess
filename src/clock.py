@@ -49,7 +49,7 @@ def timeout(white: bool, silent: bool = False):
     if Globals.Game_end:
         return
     refresh_clock()
-    narrow_fen = Globals.Game_fen.split(" ")[0]
+    narrow_fen = Globals.GameFen.split(" ")[0]
     wp, bp = len([x for x in narrow_fen if x.isupper()]), len([x for x in narrow_fen if x.islower()])
     if white:
         if bp != 1:
@@ -57,7 +57,7 @@ def timeout(white: bool, silent: bool = False):
             message = "白方超时，黑方胜利"
             Globals.Winner = Winner.black
         else:
-            Globals.Game_fen = EndType.single_king_with_opp_violate
+            Globals.GameFen = EndType.single_king_with_opp_violate
             message = "白方超时，因黑方只有单王，和棋"
             Globals.Winner = Winner.draw
     else:
@@ -66,7 +66,7 @@ def timeout(white: bool, silent: bool = False):
             message = "黑方超时，白方胜利"
             Globals.Winner = Winner.white
         else:
-            Globals.Game_fen = EndType.single_king_with_opp_violate
+            Globals.GameFen = EndType.single_king_with_opp_violate
             message = "黑方超时，因白方只有单王，和棋"
             Globals.Winner = Winner.draw
     if not silent:
