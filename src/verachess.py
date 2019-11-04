@@ -283,7 +283,7 @@ def create_movelist(main: MainWindow, top: tk.LabelFrame):
     Globals.ReverseMoveNames = {}
 
     move = tk.Label(top)
-    move.place(x=3, y=3, height=25)     # 不设width，可以让界面灵活根据内容调整宽度
+    move.place(x=3, y=0, height=24)     # 不设width，可以让界面灵活根据内容调整宽度
     move.configure(background=Color.move_highlight)
     move.configure(font=Font.font_move)
     move.configure(text=Globals.Start_pos)

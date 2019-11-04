@@ -41,6 +41,19 @@ def refresh_opp_check():
         set_check_cell(cell)
 
 
+def refresh_scroll_state():
+    first_move = Globals.Main.Moves[0]
+    last_move = Globals.Main.Moves[-1]
+
+    rows = (last_move.winfo_y() - first_move.winfo_y()) // 24 + 1
+
+    if rows > 6:
+        Globals.Main.MoveScale.configure(to=0.01 + rows - 6)
+    else:
+        Globals.Main.MoveScale.configure(to=0.01)
+    vs.ListScroll(rows - 6 if rows > 6 else 0)
+
+
 def add_last_pgn():
     main = Globals.Main
 
@@ -56,12 +69,13 @@ def add_last_pgn():
     move.configure(text=last_pgn)
     move.bind('<Button-1>', lambda e: vs.move_click(e))
 
-    if move.winfo_width() + x > max_width:  # wrap the line after text set
-        move.place(x=3, y=y + 25, height=25)
+    if True or move.winfo_width() + x > max_width:  # wrap the line after text set      if True or xxx to make a stub
+        move.place(x=3, y=y + 24, height=24)
     else:
-        move.place(x=x, y=y, height=25)
+        move.place(x=x, y=y, height=24)
 
     main.Moves.append(move)
+    refresh_scroll_state()      # fixme: bug here
     Globals.MoveNames.append(str(move))
     Globals.ReverseMoveNames[str(move)] = len(Globals.MoveNames) - 1
 
@@ -80,6 +94,8 @@ def remove_pgn_from(pos: int = 1):
 
     main.Moves[-1].configure(background=Color.move_highlight)
     Globals.MoveSlider = -1
+
+    refresh_scroll_state()
 
 
 def refresh_start_pos_in_movelist():

@@ -18,7 +18,6 @@ from tkinter import CallWrapper
 from decos import check_model, model_locked
 import events
 
-
 try:
     import Tkinter as tk
 except ImportError:
@@ -33,13 +32,12 @@ except ImportError:
 
     py3 = True
 
-
-CellValues = None    # type: List[List[tk.StringVar]]
-MenuStats = {}    # type: Dict[str, tk.BooleanVar]
+CellValues = None  # type: List[List[tk.StringVar]]
+MenuStats = {}  # type: Dict[str, tk.BooleanVar]
 Eco = WhitePlayerInfo = BlackPlayerInfo = WhiteTotalTime = BlackTotalTime = WhiteUseTime = BlackUseTime = \
     None  # type: tk.StringVar
 WhiteFlagImg = BlackFlagImg = None  # type: tk.PhotoImage
-MoveScaleVar = None     # type: tk.IntVar
+MoveScaleVar = None  # type: tk.IntVar
 FlagWidth = 54  # modify it if you want
 
 
@@ -82,7 +80,7 @@ def set_cell_values(narrow_fen: str):
                 j += 1
             else:
                 [CellValues[i][r].set("") for r in range(j, j + int(char))]
-                j += int(char)    # if this errors, char is illegal
+                j += int(char)  # if this errors, char is illegal
 
 
 def set_cell_color(cell: Tuple[int, int] = None, color=Color.black, flush_all=False):
@@ -100,7 +98,7 @@ def set_player_color(white: bool):
 
 
 def set_cell_back_colors(active_color_list: List[Tuple[int, int]] = None, inactive_color_list: List[Tuple[int, int]] =
-        None, flush_all=False):
+None, flush_all=False):
     """
     :param active_color_list: 
     :param inactive_color_list: 
@@ -109,9 +107,10 @@ def set_cell_back_colors(active_color_list: List[Tuple[int, int]] = None, inacti
     """
     main = Globals.Main
     if flush_all:
-        [main.Cells[r][c].configure(background=Color.yellow_dark if (r + c) % 2 else Color.yellow_light) for r in range(8)
+        [main.Cells[r][c].configure(background=Color.yellow_dark if (r + c) % 2 else Color.yellow_light) for r in
+         range(8)
          for c in range(8)]
-    if inactive_color_list:     # deselect old first
+    if inactive_color_list:  # deselect old first
         for r, c in inactive_color_list:
             main.Cells[r][c].configure(background=Color.yellow_dark if (r + c) % 2 else Color.yellow_light)
     if active_color_list:
@@ -198,7 +197,7 @@ def redraw_c960_flags():
         columns[lr].configure(foreground=Color.orange)
     if rr is not None:  # too
         columns[rr].configure(foreground=Color.orange)
-    if k is not None:   # too
+    if k is not None:  # too
         columns[k].configure(foreground=Color.magenta)
 
 
@@ -262,15 +261,15 @@ def new_c960():
     if easygui.ynbox("这将重置当前棋局信息，确认重新开始棋局吗？", "verachess 5.0", ["是", "否"]):
         main_window = Globals.Main.Top
         sub_window, confirm_widget = c960confirm.create_Toplevel1(root=main_window)
-        sub_window.transient(main_window)   # show only one window in taskbar
-        sub_window.grab_set()   # set as model window
-        Globals.Main.Top.wait_window(sub_window)    # wait for window return, to get return value
+        sub_window.transient(main_window)  # show only one window in taskbar
+        sub_window.grab_set()  # set as model window
+        Globals.Main.Top.wait_window(sub_window)  # wait for window return, to get return value
         res = confirm_widget.Result
 
         if res is None:
             return
         rkr, pos = res
-        Globals.Chess_960_Columns = rkr     # 新局面不走校验逻辑，必须手动设置chess960的易位列
+        Globals.Chess_960_Columns = rkr  # 新局面不走校验逻辑，必须手动设置chess960的易位列
         set_game_fen(pos)
         reset_clock()
         MenuStats[MenuStatNames.flip].set(False)
@@ -335,11 +334,11 @@ def paste_fen():
     elif not easygui.ynbox("将会重置当前棋局的信息，你确认要导入局面吗？", "verachess 5.0", ["是", "否"]):
         return
     fen = pyperclip.paste()
-    res, msg = events.check_fen_format_valid(fen)   # 校验格式，如果chess960的局面校验通过，会设置chess960的易位列
+    res, msg = events.check_fen_format_valid(fen)  # 校验格式，如果chess960的局面校验通过，会设置chess960的易位列
     if not res:
-        easygui.msgbox("FEN错误\n"+msg)
+        easygui.msgbox("FEN错误\n" + msg)
         return
-    release_model_lock()    # very important, set fen require model lock
+    release_model_lock()  # very important, set fen require model lock
     set_game_fen(reformat_fen(fen))
 
 
@@ -358,8 +357,20 @@ def move_click(event: CallWrapper) -> None:
 
 
 def ListScroll(value):
-    MoveScaleVar.set(int(float(value)))
-    # todo: scroll
+    value = int(float(value))
+
+    MoveScaleVar.set(value)
+    all_moves = Globals.Main.Moves
+
+    slider = Globals.Main.MoveScale
+    min_v, max_v = int(slider.cget("from")), int(slider.cget("to"))
+    last_value = all_moves[0].winfo_y() // -24 + 1
+    last_value = min_v if last_value < min_v else max_v if last_value > max_v else last_value
+
+    for move in all_moves:
+        print(move, value, last_value, move.winfo_y())
+        to_y = move.winfo_y() + 24 * (value - last_value) + 22  # basic height for top
+        move.place(y=to_y)
 
 
 # event end
