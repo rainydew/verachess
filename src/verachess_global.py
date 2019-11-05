@@ -1,6 +1,6 @@
 # coding: utf-8
 # 只有这里的全局变量，被其他模块导入，才能有共同的id，才可以共享通信
-from typing import List, Dict, Tuple, Union
+from typing import List, Dict, Tuple, Union, Any
 from consts import Positions, Role, EndType, CpuMoveConf, Winner as ConstWinner
 
 if (lambda: None)():
@@ -15,6 +15,7 @@ class Globals:
     Cell_names = None  # type: List[List[str]]  # r, c -> tk cell name
     Reverse_cell_names = None  # type: Dict[str, Tuple[int, int]]   # tk cell name -> r, c
     MoveNames = None   # type: List[str]   # index -> tk label name
+    MoveRows = None     # type: List[int]
     ReverseMoveNames = None   # type: Dict[str, int]  # tk label name -> index
     Row_names = []  # type: List[str]  # r -> tk row name
     Column_names = []  # type: List[str]  # c -> tk row name
@@ -46,6 +47,9 @@ class Globals:
     Binc = 3000
     ClockConf = {'WhiteMinEntry': 5, 'WhiteSecEntry': 0, 'WhiteIncEntry': 3, 'CpuSet': 16.0, 'CpuRebal': 1.0, 'Sync':
         True, 'Cmv': 'UseDepth'}
+    InfoHistory = []    # type: List[Dict[str, Any]] # map clock_remain, time_use, score, depth, nps, tbhits, nodes, pv
+    # hash_full cpu_load and cpu temperature will not be saved by move
+    # todo: tick logic separate from computer play and fics
     CpuSet = 16     # type: Union[int, float]
     CpuRebal = 1.0
     Cmv = CpuMoveConf.use_depth

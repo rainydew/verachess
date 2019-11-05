@@ -5,7 +5,7 @@ import tkinter as tk
 import verachess_support
 import easygui
 from verachess_global import Globals, ModelLock
-from consts import MenuStatNames, Color, EndType, Winner
+from consts import MenuStatNames, Color, EndType, Winner, InfoTypes
 
 
 def to_ms(ms: int) -> str:
@@ -33,15 +33,20 @@ def before_change_mover():
     # use it before mover changed!!!!!!
     if not verachess_support.MenuStats[MenuStatNames.clock].get():
         if Globals.White:
+            Globals.InfoHistory[-1][InfoTypes.time_remain] = Globals.Wremain + Globals.Wuse
+            Globals.InfoHistory[-1][InfoTypes.time_use] = Globals.Wuse
             Globals.Wremain += Globals.Winc
             Globals.Buse = 0
             Globals.Main.WhiteTotal.configure(background=Color.clock_inactive)
             Globals.Main.BlackTotal.configure(background=Color.clock_active)
         else:
+            Globals.InfoHistory[-1][InfoTypes.time_remain] = Globals.Bremain + Globals.Buse
+            Globals.InfoHistory[-1][InfoTypes.time_use] = Globals.Buse
             Globals.Bremain += Globals.Binc
             Globals.Wuse = 0
             Globals.Main.WhiteTotal.configure(background=Color.clock_active)
             Globals.Main.BlackTotal.configure(background=Color.clock_inactive)
+            Globals.InfoHistory[-1][InfoTypes.time_use] = Globals.Buse
         refresh_clock()
 
 
@@ -79,20 +84,27 @@ def tick():
     irange = range(5)
     while True:
         for i in irange:
-            time.sleep(0.2)
+            time.sleep(0.1)
             now = int(time.time() * 1000)
-            margin = now - s
             if not verachess_support.MenuStats[MenuStatNames.clock].get() and not Globals.Game_end:
+                margin = now - s
                 if Globals.White:
                     Globals.Wuse += margin
-                    Globals.Wremain -= margin
-                    if Globals.Wremain < 0:
-                        timeout(True)
+                    if not Globals.Game_role["w"]:  # human
+                        Globals.Wremain -= margin
+                        if Globals.Wremain < 0:
+                            timeout(True)
+                    else:
+                        pass
                 else:
                     Globals.Buse += margin
-                    Globals.Bremain -= margin
-                    if Globals.Bremain < 0:
-                        timeout(False)
+                    if not Globals.Game_role["b"]:  # human
+                        Globals.Bremain -= margin
+                        if Globals.Bremain < 0:
+                            timeout(False)
+                    else:
+                        # todo: computer logic
+                        pass
                 if not i:
                     refresh_clock()
             s = now

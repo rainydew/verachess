@@ -141,6 +141,18 @@ class CpuMoveConf:
 
 class Paths:
     flag = "flags/"
+    music = "music/"
+
+
+class InfoTypes:
+    time_use = "time"
+    time_remain = "remain"
+    nodes = "nodes"
+    depth = "depth"
+    nps = "nps"
+    tbhits = "tbhits"
+    score = "score"
+    main_pv = "pv"
 
 
 def gen_empty_board(init_value=None) -> List[List[Any]]:

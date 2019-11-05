@@ -280,6 +280,7 @@ def create_players(main: MainWindow, top: tk.Frame):
 def create_movelist(main: MainWindow, top: tk.LabelFrame):
     main.Moves = []
     Globals.MoveNames = []
+    Globals.MoveRows = []
     Globals.ReverseMoveNames = {}
 
     move = tk.Label(top)
@@ -292,6 +293,7 @@ def create_movelist(main: MainWindow, top: tk.LabelFrame):
     main.Moves.append(move)
     Globals.MoveNames.append(str(move))
     Globals.ReverseMoveNames[str(move)] = 0
+    Globals.MoveRows.append(0)
 
 
 def create_menus(main: MainWindow, top: tk.Tk):

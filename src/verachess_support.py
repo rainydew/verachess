@@ -362,15 +362,9 @@ def ListScroll(value):
     MoveScaleVar.set(value)
     all_moves = Globals.Main.Moves
 
-    slider = Globals.Main.MoveScale
-    min_v, max_v = int(slider.cget("from")), int(slider.cget("to"))
-    last_value = all_moves[0].winfo_y() // -24 + 1
-    last_value = min_v if last_value < min_v else max_v if last_value > max_v else last_value
-
-    for move in all_moves:
-        print(move, value, last_value, move.winfo_y())
-        to_y = move.winfo_y() + 24 * (value - last_value) + 22  # basic height for top
-        move.place(y=to_y)
+    for i, move in enumerate(all_moves):
+        row = Globals.MoveRows[i]
+        move.place(y=24 * (row - value))
 
 
 # event end

@@ -42,16 +42,14 @@ def refresh_opp_check():
 
 
 def refresh_scroll_state():
-    first_move = Globals.Main.Moves[0]
-    last_move = Globals.Main.Moves[-1]
-
-    rows = (last_move.winfo_y() - first_move.winfo_y()) // 24 + 1
+    rows = Globals.MoveRows[-1]
 
     if rows > 6:
         Globals.Main.MoveScale.configure(to=0.01 + rows - 6)
+        vs.ListScroll(rows - 6)
     else:
         Globals.Main.MoveScale.configure(to=0.01)
-    vs.ListScroll(rows - 6 if rows > 6 else 0)
+        vs.ListScroll(0)
 
 
 def add_last_pgn():
@@ -69,24 +67,28 @@ def add_last_pgn():
     move.configure(text=last_pgn)
     move.bind('<Button-1>', lambda e: vs.move_click(e))
 
-    if True or move.winfo_width() + x > max_width:  # wrap the line after text set      if True or xxx to make a stub
+    if move.winfo_width() + x > max_width:  # wrap the line after text set      if True or xxx to make a stub
         move.place(x=3, y=y + 24, height=24)
+        add_new_row = True
     else:
         move.place(x=x, y=y, height=24)
+        add_new_row = False
 
     main.Moves.append(move)
-    refresh_scroll_state()      # fixme: bug here
     Globals.MoveNames.append(str(move))
+    Globals.MoveRows.append(Globals.MoveRows[-1] if not add_new_row else Globals.MoveRows[-1] + 1)
     Globals.ReverseMoveNames[str(move)] = len(Globals.MoveNames) - 1
+
+    refresh_scroll_state()
 
 
 def remove_pgn_from(pos: int = 1):
-    # todo: global move hash and some other thing sync in other functions when changing moves and recover
+    # todo: global move hash and some other thing sync in other functions when changing moves and recover, to set_board_to_old
     assert pos > 0, "cannot remove base PGN info"
     main = Globals.Main
 
     del Globals.MoveNames[pos:]      # garbage collection
-
+    del Globals.MoveRows[pos:]
     while len(main.Moves) > pos:
         del Globals.ReverseMoveNames[str(main.Moves[-1])]
         main.Moves[-1].destroy()
@@ -96,6 +98,17 @@ def remove_pgn_from(pos: int = 1):
     Globals.MoveSlider = -1
 
     refresh_scroll_state()
+
+
+def set_board_to_old(pos: int):
+    # todo: time record
+    assert pos > 0, "cannot remove base PGN info"
+    move_pos = pos - 1   # no startpos in movelist
+
+    del Globals.AlphabetMovelist[move_pos:]
+    del Globals.PGNMovelist[move_pos:]
+    del Globals.History[pos:]
+    del Globals.History_hash[pos:]
 
 
 def refresh_start_pos_in_movelist():
@@ -203,6 +216,7 @@ def click_handler(place: Tuple[int, int]) -> None:
         vs.set_cell_color(Globals.LastMove)
         old_fen = Globals.GameFen
         new_fen, special = bd.calc_move(old_fen, move)
+        Globals.InfoHistory.append({})      # set it earlier than clock change mover
         before_change_mover()
         Globals.GameFen = new_fen
         Globals.White = not Globals.White
@@ -227,8 +241,11 @@ def get_move_text(place: int):  # todo: use to get label move
 
 def move_handler(place: int) -> None:
     # todo: move handler
+    if not vs.MenuStats[vs.MenuStatNames.clock].get():  # clock enabled, cannot click
+        # can do: add under window info
+        return
     flag = Globals.Main.Moves[place]
-    print(flag)
+
     # from consts import Positions
     # flag = Globals.Main.Moves[place]
     # if flag.cget("text") == Positions.name_normal_startpos:
