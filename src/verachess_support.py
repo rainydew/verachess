@@ -353,7 +353,7 @@ def cell_click(event: CallWrapper) -> None:
 @check_model
 def move_click(event: CallWrapper) -> None:
     place = Globals.ReverseMoveNames[str(event.widget)]
-    events.move_handler(place)
+    events.move_change_handler(place)
 
 
 def ListScroll(value):

@@ -1,5 +1,16 @@
 # coding: utf-8
 from typing import List, Any, Tuple
+import sys
+
+
+def _get_bin_path():
+    filepath = sys.argv[0]  # type: str
+    if filepath.replace("\\", "/").split("/")[-2] == "src":
+        binpath = filepath + "/../../bin"
+    else:
+        binpath = filepath + "/.."
+    return binpath
+
 
 Pieces = {
     "k": "♚",
@@ -140,8 +151,10 @@ class CpuMoveConf:
 
 
 class Paths:
+    binpath = _get_bin_path()
     flag = "flags/"
     music = "music/"
+
 
 
 class InfoTypes:

@@ -2,8 +2,9 @@
 # event handlers
 from verachess_global import Globals, ModelLock, calc_fen_hash
 from typing import Tuple, Optional, List
-from consts import Color, Promotions, EndType, Winner, Font
+from consts import Color, Promotions, EndType, Winner, Font, Paths
 from clock import before_change_mover
+import os
 import tkinter as tk
 import easygui
 import boards
@@ -239,10 +240,10 @@ def get_move_text(place: int):  # todo: use to get label move
     return Globals.PGNMovelist[place - 1] if place else Globals.Start_pos
 
 
-def move_handler(place: int) -> None:
+def move_change_handler(place: int) -> None:
     # todo: move handler
     if not vs.MenuStats[vs.MenuStatNames.clock].get():  # clock enabled, cannot click
-        # can do: add under window info
+        os.system(Paths.binpath + "/vcnotify.exe verachess提示 在时钟开启的情况下，不能切换棋谱局面")
         return
     flag = Globals.Main.Moves[place]
 
