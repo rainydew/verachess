@@ -104,7 +104,6 @@ def remove_pgn_from(pos: int = 1):
 
 
 def set_board_to_old(pos: int):
-    # todo: time record
     assert pos > 0, "cannot remove base PGN info"
     move_pos = pos - 1   # no startpos in movelist
 
@@ -244,10 +243,6 @@ def click_handler(place: Tuple[int, int]) -> None:
         check_wdl()
 
 
-def get_move_text(place: int):  # todo: use to get label move, not used now
-    return Globals.PGNMovelist[place - 1] if place else Globals.Start_pos
-
-
 def change_position(place: int):
     main = Globals.Main
     main.Moves[Globals.MoveSlider].configure(background=Color.move_normal)
@@ -297,7 +292,6 @@ def change_position(place: int):
 
 
 def move_change_handler(place: int) -> None:
-    # todo: move handler
     if not vs.MenuStats[vs.MenuStatNames.clock].get():  # clock enabled, cannot click
         alert("在时钟开启的情况下，不能切换棋谱局面")
         return

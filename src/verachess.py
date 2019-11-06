@@ -305,6 +305,7 @@ def create_menus(main: MainWindow, top: tk.Tk):
     add_checkbutton(main, m_board, "翻转视角", verachess_support.flip, verachess_support.MenuStats[MenuStatNames.flip])
     add_command(main, m_board, "复制当前局面FEN", verachess_support.copy_fen)
     add_command(main, m_board, "从剪贴板导入FEN", verachess_support.paste_fen)
+    add_command(main, m_board, "摆局", verachess_support.set_board)
     m_clock = add_menu(main, top, "棋钟")
     add_checkbutton(main, m_clock, "关闭棋钟", verachess_support.clock_switch,
                     verachess_support.MenuStats[MenuStatNames.clock])

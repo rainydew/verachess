@@ -343,6 +343,14 @@ def paste_fen():
     set_game_fen(reformat_fen(fen))
 
 
+@model_locked
+def set_board():
+    if any(Globals.Game_role.values()):
+        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能使用摆局功能")
+        return
+    # fixme undone
+
+
 @check_model
 def cell_click(event: CallWrapper) -> None:
     if Globals.Game_end:

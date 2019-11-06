@@ -1,5 +1,5 @@
 # coding: utf-8
-from typing import List, Any, Tuple
+from typing import List, Any, Tuple, Dict
 import sys
 
 
@@ -13,19 +13,19 @@ def _get_bin_path():
 
 
 Pieces = {
-    "k": "♚",
     "K": "♔",
-    "q": "♛",
+    "k": "♚",
     "Q": "♕",
-    "b": "♝",
+    "q": "♛",
     "B": "♗",
-    "n": "♞",
+    "b": "♝",
     "N": "♘",
-    "r": "♜",
+    "n": "♞",
     "R": "♖",
-    "p": "♟",
+    "r": "♜",
     "P": "♙",
-}
+    "p": "♟",
+}       # type: Dict[str, str]
 
 
 class Promotions:
@@ -76,6 +76,7 @@ class Style:
 
 class Font:
     font_24 = "-family {Times New Roman} -size 24 -weight normal -slant roman"
+    font_18 = "-family {Times New Roman} -size 18 -weight normal -slant roman"
     font_14 = "-family {Times New Roman} -size 14 -weight normal -slant roman"
     font_9 = "-family {Times New Roman} -size 9 -weight normal -slant roman"
     font_clock = "-family Digiface -size 16 -weight bold -slant roman"

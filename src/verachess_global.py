@@ -18,7 +18,7 @@ class Globals:
     MoveRows = None     # type: List[int]   # index -> the label row position
     ReverseMoveNames = None   # type: Dict[str, int]  # tk label name -> index
     Row_names = []  # type: List[str]  # r -> tk row name
-    Column_names = []  # type: List[str]  # c -> tk row name
+    Column_names = []  # type: List[str]  # c -> tk column name
     Main = None  # type: verachess.MainWindow
     Selection = None  # type: Tuple[int, int]  # place, None shows no selection
     Check = None    # type: Tuple[int, int]  # place, None shows no check
