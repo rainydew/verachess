@@ -9,7 +9,7 @@ from consts import MenuStatNames, Color, EndType, Winner, InfoTypes
 
 
 def to_ms(ms: int) -> str:
-    return time.strftime("%M : %S", time.gmtime((ms - 1 )// 1000 + 1))
+    return time.strftime("%M : %S", time.gmtime((ms - 1) // 1000 + 1))
 
 
 def to_hms(ms: int) -> str:
@@ -19,7 +19,7 @@ def to_hms(ms: int) -> str:
 
 def update_string_var(var: tk.StringVar, to_val: str):
     if var.get() != to_val:
-        var.set(to_val)     # set is slower
+        var.set(to_val)  # set is slower
 
 
 def refresh_clock():
@@ -32,22 +32,31 @@ def refresh_clock():
 def before_change_mover():
     # use it before mover changed!!!!!!
     if not verachess_support.MenuStats[MenuStatNames.clock].get():
+        print(Globals.White)
         if Globals.White:
-            Globals.InfoHistory[-1][InfoTypes.time_remain] = Globals.Wremain + Globals.Wuse
-            Globals.InfoHistory[-1][InfoTypes.time_use] = Globals.Wuse
             Globals.Wremain += Globals.Winc
+            Globals.InfoHistory[-1][InfoTypes.time_remain] = Globals.Wremain
+            Globals.InfoHistory[-1][InfoTypes.time_use] = Globals.Wuse
             Globals.Buse = 0
             Globals.Main.WhiteTotal.configure(background=Color.clock_inactive)
             Globals.Main.BlackTotal.configure(background=Color.clock_active)
         else:
-            Globals.InfoHistory[-1][InfoTypes.time_remain] = Globals.Bremain + Globals.Buse
-            Globals.InfoHistory[-1][InfoTypes.time_use] = Globals.Buse
             Globals.Bremain += Globals.Binc
+            Globals.InfoHistory[-1][InfoTypes.time_remain] = Globals.Bremain
+            Globals.InfoHistory[-1][InfoTypes.time_use] = Globals.Buse
             Globals.Wuse = 0
             Globals.Main.WhiteTotal.configure(background=Color.clock_active)
             Globals.Main.BlackTotal.configure(background=Color.clock_inactive)
             Globals.InfoHistory[-1][InfoTypes.time_use] = Globals.Buse
         refresh_clock()
+    else:
+        if Globals.White:
+            Globals.InfoHistory[-1][InfoTypes.time_remain] = Globals.Wremain
+            Globals.InfoHistory[-1][InfoTypes.time_use] = 0
+        else:
+            Globals.InfoHistory[-1][InfoTypes.time_remain] = Globals.Bremain
+            Globals.InfoHistory[-1][InfoTypes.time_use] = 0
+    # print(Globals.InfoHistory) to debug, many bugs found here
 
 
 def timeout(white: bool, silent: bool = False):
@@ -62,7 +71,7 @@ def timeout(white: bool, silent: bool = False):
             message = "白方超时，黑方胜利"
             Globals.Winner = Winner.black
         else:
-            Globals.GameFen = EndType.single_king_with_opp_violate
+            Globals.Game_end = EndType.single_king_with_opp_violate
             message = "白方超时，因黑方只有单王，和棋"
             Globals.Winner = Winner.draw
     else:
@@ -71,7 +80,7 @@ def timeout(white: bool, silent: bool = False):
             message = "黑方超时，白方胜利"
             Globals.Winner = Winner.white
         else:
-            Globals.GameFen = EndType.single_king_with_opp_violate
+            Globals.Game_end = EndType.single_king_with_opp_violate
             message = "黑方超时，因白方只有单王，和棋"
             Globals.Winner = Winner.draw
     if not silent:
@@ -84,7 +93,7 @@ def tick():
     irange = range(5)
     while True:
         for i in irange:
-            time.sleep(0.1)
+            time.sleep(0.05)
             now = int(time.time() * 1000)
             if not verachess_support.MenuStats[MenuStatNames.clock].get() and not Globals.Game_end:
                 margin = now - s

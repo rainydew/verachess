@@ -1,12 +1,14 @@
 # coding: utf-8
 # Copied from a coding forum and was modified
 # Thank the origin author, although I cannot find the earliest person
+
+
 class PlaysoundException(Exception):
     pass
 
 
-def playsound(sound, block = True):
-    '''
+def playsound(sound, block=True):
+    """
     Utilizes windll.winmm. Tested and known to work with MP3 and WAVE on
     Windows 7 with Python 2.7. Probably works with more file formats.
     Probably works on Windows XP thru Windows 10. Probably works with all
@@ -16,11 +18,11 @@ def playsound(sound, block = True):
     https://github.com/michaelgundlach/mp3play
 
     I never would have tried using windll.winmm without seeing his code.
-    '''
+    """
     from ctypes import c_buffer, windll
     from random import random
-    from time   import sleep
-    from sys    import getfilesystemencoding
+    from time import sleep
+    from sys import getfilesystemencoding
 
     def winCommand(*command):
         buf = c_buffer(255)
@@ -31,11 +33,11 @@ def playsound(sound, block = True):
             windll.winmm.mciGetErrorStringA(errorCode, errorBuffer, 254)
             try:
                 exceptionMessage = ('\n    Error ' + str(errorCode) + ' for command:'
-                                '\n        ' + command.decode() +
-                                '\n    ' + errorBuffer.value.decode())
+                                                                      '\n        ' + command.decode() +
+                                    '\n    ' + errorBuffer.value.decode())
             except:
                 exceptionMessage = ('\n    Error ' + str(errorCode) + ' for command:'
-                                    '\n        ' + command.decode("gbk") +
+                                                                      '\n        ' + command.decode("gbk") +
                                     '\n    ' + errorBuffer.value.decode("gbk"))
             raise PlaysoundException(exceptionMessage)
         return buf.value
@@ -53,4 +55,5 @@ def playsound(sound, block = True):
 
 if __name__ == '__main__':
     import sys
+
     playsound(sys.argv[1])

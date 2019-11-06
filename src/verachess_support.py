@@ -167,6 +167,7 @@ def set_game_fen(fen: str):
     Globals.GameFen = fen
     Globals.White = fen.split(" ")[1] == "w"
     Globals.History = [fen]
+    Globals.InfoHistory = []
     Globals.AlphabetMovelist = []
     Globals.PGNMovelist = []
     Globals.History_hash = [hash(" ".join(fen.split(" ")[:4]))]

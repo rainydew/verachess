@@ -2,8 +2,8 @@
 # event handlers
 from verachess_global import Globals, ModelLock, calc_fen_hash
 from typing import Tuple, Optional, List
-from consts import Color, Promotions, EndType, Winner, Font, Paths
-from clock import before_change_mover
+from consts import Color, Promotions, EndType, Winner, Font, Paths, InfoTypes, Positions
+from clock import before_change_mover, refresh_clock
 import os
 import tkinter as tk
 import easygui
@@ -12,6 +12,10 @@ import verachess_support as vs
 
 bd = boards.Fens
 pg = boards.Pgns
+
+
+def alert(msg: str, title: str = "verachess5.0") -> None:
+    os.system(Paths.binpath + "/vcnotify.exe {} {}".format(msg.replace(" ", "_"), title.replace(" ", "_")))
 
 
 def refresh_highlights(new_cells: Optional[List[Tuple[int, int]]] = None) -> None:
@@ -84,7 +88,6 @@ def add_last_pgn():
 
 
 def remove_pgn_from(pos: int = 1):
-    # todo: global move hash and some other thing sync in other functions when changing moves and recover, to set_board_to_old
     assert pos > 0, "cannot remove base PGN info"
     main = Globals.Main
 
@@ -97,7 +100,6 @@ def remove_pgn_from(pos: int = 1):
 
     main.Moves[-1].configure(background=Color.move_highlight)
     Globals.MoveSlider = -1
-
     refresh_scroll_state()
 
 
@@ -108,8 +110,11 @@ def set_board_to_old(pos: int):
 
     del Globals.AlphabetMovelist[move_pos:]
     del Globals.PGNMovelist[move_pos:]
+    del Globals.InfoHistory[move_pos:]
     del Globals.History[pos:]
     del Globals.History_hash[pos:]
+    remove_pgn_from(pos)
+
 
 
 def refresh_start_pos_in_movelist():
@@ -206,6 +211,10 @@ def click_handler(place: Tuple[int, int]) -> None:
             Globals.Selection = place
     else:
         # make a move, c960 castle included
+        if Globals.MoveSlider != -1:
+            if not easygui.ynbox("这将覆盖原先的棋谱，确定继续吗？", "当前局面不是棋谱记录的最终局面", ["是", "否"]):
+                return
+            remove_pgn_from(Globals.MoveSlider + 1)
         move = bd.place_to_cellname(Globals.Selection) + bd.place_to_cellname(place)
         if bd.is_promotion(fen, Globals.Selection, place):
             plist, pdict = (Promotions.white, Promotions.white_rev) if place[0] == 0 else (Promotions.black,
@@ -226,7 +235,6 @@ def click_handler(place: Tuple[int, int]) -> None:
         Globals.AlphabetMovelist.append(move)
         Globals.PGNMovelist.append("".join(pg.single_uci_to_pgn(old_fen, move, new_fen)))
         vs.set_sunken_cell(Globals.Selection)
-        clear_sel_highs()
         refresh_whole_board()
         if special:
             place = special
@@ -236,21 +244,61 @@ def click_handler(place: Tuple[int, int]) -> None:
         check_wdl()
 
 
-def get_move_text(place: int):  # todo: use to get label move
+def get_move_text(place: int):  # todo: use to get label move, not used now
     return Globals.PGNMovelist[place - 1] if place else Globals.Start_pos
+
+
+def change_position(place: int):
+    main = Globals.Main
+    main.Moves[Globals.MoveSlider].configure(background=Color.move_normal)
+
+    vs.clear_sunken_cell()
+    vs.set_cell_color(flush_all=True)
+    vs.set_cell_back_colors(flush_all=True)
+
+    time_place = place - 1
+    Globals.GameFen = Globals.History[place] if place else \
+                      Globals.Start_pos if Globals.Start_pos != Positions.name_normal_startpos else \
+                      Positions.common_start_fen
+    Globals.White = bd.get_mover(Globals.GameFen)
+    if place:
+        res = Globals.InfoHistory[time_place].get(InfoTypes.time_remain)
+        res_use = Globals.InfoHistory[time_place].get(InfoTypes.time_use)
+        assert res is not None, "no time data"
+        assert res_use is not None, "no time use data"
+        if Globals.White == "w":
+            Globals.Bremain = res
+            Globals.Buse = res_use
+            Globals.Wuse = 0
+            if time_place:
+                res = Globals.InfoHistory[time_place - 1].get(InfoTypes.time_remain)
+                assert res, "no prev time data"
+                Globals.Wremain = res
+            else:
+                Globals.Wremain = Globals.Wtime
+        else:
+            Globals.Wremain = res
+            Globals.Wuse = res_use
+            Globals.Buse = 0
+            if time_place:
+                res = Globals.InfoHistory[time_place - 1].get(InfoTypes.time_remain)
+                assert res, "no prev time data"
+                Globals.Bremain = res
+            else:
+                Globals.Bremain = Globals.Btime
+    else:
+        Globals.Wremain = Globals.Wtime
+        Globals.Bremain = Globals.Btime
+        Globals.Wuse = Globals.Buse = 0
+    Globals.MoveSlider = -1 if place == len(Globals.History) - 1 else place
+    main.Moves[Globals.MoveSlider].configure(background=Color.move_highlight)
+    refresh_whole_board()
+    refresh_clock()
 
 
 def move_change_handler(place: int) -> None:
     # todo: move handler
     if not vs.MenuStats[vs.MenuStatNames.clock].get():  # clock enabled, cannot click
-        os.system(Paths.binpath + "/vcnotify.exe verachess提示 在时钟开启的情况下，不能切换棋谱局面")
+        alert("在时钟开启的情况下，不能切换棋谱局面")
         return
-    flag = Globals.Main.Moves[place]
-
-    # from consts import Positions
-    # flag = Globals.Main.Moves[place]
-    # if flag.cget("text") == Positions.name_normal_startpos:
-    #     flag.configure(text=Positions.common_start_fen)
-    # else:
-    #     flag.configure(text=Positions.name_normal_startpos)
-    # print(flag.winfo_geometry())
+    change_position(place)
