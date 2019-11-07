@@ -25,7 +25,7 @@ import verachess_support
 from verachess_global import Globals
 
 from typing import List, Dict, Callable
-from consts import Color, Font, gen_empty_board, MenuStatNames, Style
+from consts import Color, Font, gen_empty_board, MenuStatNames, Style, Positions
 
 
 def vp_start_gui():
@@ -152,8 +152,7 @@ class MainWindow:
         create_players(self, self.ClockBoard)
         create_movelist(self, self.MoveFrame)
 
-        from boards import init_cells
-        init_cells()
+        verachess_support.set_cell_values(Positions.common_startpos)
 
 
 # user code

@@ -1,18 +1,10 @@
 # coding: utf-8
 import verachess_support
 from verachess_global import Globals
-from consts import Positions, Pieces, gen_empty_board, CastleCells, EndType, Winner
+from consts import Pieces, gen_empty_board, CastleCells, EndType, Winner
 from typing import Tuple, List, Union, Dict, Callable, Optional
 from copy import deepcopy
 from collections import Counter
-
-
-def init_cells(c960: int = None):
-    # init pieces
-    if c960 is None:
-        verachess_support.set_cell_values(Positions.common_startpos)
-    else:
-        raise NotImplementedError("ToDo")
 
 
 def refresh_cells():
@@ -825,6 +817,7 @@ class Pgns:
 
 
 if __name__ == '__main__':
+    from consts import Positions
     res = Pgns.uci_to_pgn(Positions.common_start_fen, ["f2f3", "e7e5", "g2g4", "d8h4"])
     print(res)
     res = Pgns.pgn_to_uci(Positions.common_start_fen, res)
