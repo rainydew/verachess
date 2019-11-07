@@ -25,6 +25,7 @@ import setboard_support
 from consts import Font, Color, gen_empty_board, Pieces
 from setboard_global import Globals
 from typing import List
+from tooltip import ToolTip
 
 
 def vp_start_gui():
@@ -33,6 +34,9 @@ def vp_start_gui():
     root = tk.Tk()
     setboard_support.set_Tk_var()
     top = MainWindow(root)
+
+    Globals.Main = top
+
     setboard_support.init(root, top)
     root.mainloop()
 
@@ -67,7 +71,7 @@ class MainWindow:
         _ana1color = '#d9d9d9'  # X11 color: 'gray85'
         _ana2color = '#ececec'  # Closest X11 color: 'gray92'
 
-        top.geometry("560x560+406+218")
+        top.geometry("560x620+406+218")
         top.title("设置棋局")
         top.configure(background="#d9d9d9")
 
@@ -78,28 +82,124 @@ class MainWindow:
         self.ChessBoard.configure(background="#d9d9d9")
 
         self.Confirm = tk.Button(top)
-        self.Confirm.place(x=60, y=500, height=33, width=72)
+        self.Confirm.place(x=20, y=570, height=33, width=64)
         self.Confirm.configure(background="#d9d9d9")
         self.Confirm.configure(command=setboard_support.confirm)
         self.Confirm.configure(text='''确定''')
 
+        self.Copy = tk.Button(top)
+        self.Copy.place(x=105, y=570, height=33, width=64)
+        self.Copy.configure(background="#d9d9d9")
+        self.Copy.configure(command=setboard_support.copy)
+        self.Copy.configure(text='''复制局面''')
+
         self.Clear = tk.Button(top)
-        self.Clear.place(x=190, y=500, height=33, width=72)
+        self.Clear.place(x=190, y=570, height=33, width=64)
         self.Clear.configure(background="#d9d9d9")
         self.Clear.configure(command=setboard_support.clear)
         self.Clear.configure(text='''清空''')
 
         self.Flip = tk.Button(top)
-        self.Flip.place(x=320, y=500, height=33, width=72)
+        self.Flip.place(x=275, y=570, height=33, width=64)
         self.Flip.configure(background="#d9d9d9")
         self.Flip.configure(command=setboard_support.flip)
         self.Flip.configure(textvariable=setboard_support.FlipVar)
 
         self.Cancel = tk.Button(top)
-        self.Cancel.place(x=450, y=500, height=33, width=72)
+        self.Cancel.place(x=360, y=570, height=33, width=64)
         self.Cancel.configure(background="#d9d9d9")
         self.Cancel.configure(command=setboard_support.cancel)
-        self.Cancel.configure(text='''清空''')
+        self.Cancel.configure(text='''取消''')
+
+        self.TSeparator1 = ttk.Separator(top)
+        self.TSeparator1.place(x=440, y=410, height=190)
+        self.TSeparator1.configure(orient="vertical")
+
+        self.TSeparator2 = ttk.Separator(top)
+        self.TSeparator2.place(x=20, y=510, width=520)
+
+        self.Label3 = tk.Label(top)
+        self.Label3.place(x=190, y=400, height=26)
+        self.Label3.configure(background="#d9d9d9")
+        self.Label3.configure(disabledforeground="#a3a3a3")
+        self.Label3.configure(foreground="#000000")
+        self.Label3.configure(text='''易位设置''')
+
+        self.Label4 = tk.Label(top)
+        self.Label4.place(x=460, y=400, height=26)
+        self.Label4.configure(background="#d9d9d9")
+        self.Label4.configure(disabledforeground="#a3a3a3")
+        self.Label4.configure(foreground="#000000")
+        self.Label4.configure(text='''行棋方''')
+
+        self.Label2 = tk.Label(top)
+        self.Label2.place(x=460, y=520, height=26)
+        self.Label2.configure(background="#d9d9d9")
+        self.Label2.configure(disabledforeground="#a3a3a3")
+        self.Label2.configure(foreground="#000000")
+        self.Label2.configure(text='''过路兵格''')
+
+        self.Normal = tk.Radiobutton(top)
+        self.Normal.place(x=20, y=430, height=30)
+        self.Normal.configure(background="#d9d9d9")
+        self.Normal.configure(text='''普通''')
+        self.Normal.configure(value="normal")
+        self.Normal.configure(variable=setboard_support.C960switch)
+
+        self.C960 = tk.Radiobutton(top)
+        self.C960.place(x=20, y=470, height=30)
+        self.C960.configure(background="#d9d9d9")
+        self.C960.configure(text='''Chess960''')
+        self.C960.configure(value="c960")
+        self.C960.configure(variable=setboard_support.C960switch)
+
+        self.Label1 = tk.Label(top)
+        self.Label1.place(x=120, y=430, height=26)
+        self.Label1.configure(background="#d9d9d9")
+        self.Label1.configure(foreground=Color.blue)
+        self.Label1.configure(text='''王翼车列号''')
+        ToolTip(self.Label1, "王翼车的起始列，大小写均可")
+
+        self.Label1_2 = tk.Label(top)
+        self.Label1_2.place(x=120, y=470, height=26)
+        self.Label1_2.configure(background="#d9d9d9")
+        self.Label1_2.configure(foreground=Color.blue)
+        self.Label1_2.configure(text='''后翼车列号''')
+        ToolTip(self.Label1_2, "后翼车的起始列，大小写均可")
+
+        self.KingSide = tk.Entry(top)
+        self.KingSide.place(x=210, y=430, height=29, width=35)
+        self.KingSide.configure(state='disabled')
+        self.KingSide.configure(textvariable=setboard_support.RrCol)
+
+        self.QueenSide = tk.Entry(top)
+        self.QueenSide.place(x=210, y=470, height=29, width=35)
+        self.QueenSide.configure(state='disabled')
+        self.QueenSide.configure(textvariable=setboard_support.LrCol)
+
+        self.WKCastle = tk.Checkbutton(top)
+        self.WKCastle.place(x=250, y=430, height=30)
+        self.WKCastle.configure(background="#d9d9d9")
+        self.WKCastle.configure(text='''白方O-O''')
+        self.WKCastle.configure(variable=setboard_support.Wkcast)
+
+        self.WQCastle = tk.Checkbutton(top)
+        self.WQCastle.place(x=330, y=430, height=30)
+        self.WQCastle.configure(background="#d9d9d9")
+        self.WQCastle.configure(text='''白方O-O-O''')
+        self.WQCastle.configure(variable=setboard_support.Wqcast)
+
+        self.BKCastle = tk.Checkbutton(top)
+        self.BKCastle.place(x=250, y=470, height=30)
+        self.BKCastle.configure(background="#d9d9d9")
+        self.BKCastle.configure(text='''黑方O-O''')
+        self.BKCastle.configure(variable=setboard_support.Bkcast)
+
+        self.BQCastle = tk.Checkbutton(top)
+        self.BQCastle.place(x=330, y=470, height=30)
+        self.BQCastle.configure(background="#d9d9d9")
+        self.BQCastle.configure(text='''黑方O-O-O''')
+        self.BQCastle.configure(variable=setboard_support.Bqcast)
 
         self.Rows = self.Columns = None  # type: List[tk.Label]
         self.Cells = None  # type: List[List[tk.Label]]

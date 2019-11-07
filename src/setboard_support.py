@@ -25,17 +25,38 @@ except ImportError:
 
     py3 = True
 
-PName = FlipVar = None  # type: tk.StringVar
+PName = FlipVar = C960switch = RrCol = LrCol = None  # type: tk.StringVar
+Wkcast = Wqcast = Bkcast = Bqcast = None    # type: tk.IntVar
 CellValues = None  # type: List[List[tk.StringVar]]
 
 
 def set_Tk_var():
-    global PName, FlipVar, CellValues
-    PName = tk.StringVar()
-    PName.set("K")
-    FlipVar = tk.StringVar()
-    FlipVar.set('翻转局面')
+    global PName, FlipVar, CellValues, C960switch, RrCol, LrCol, Wkcast, Wqcast, Bkcast, Bqcast
+    PName = tk.StringVar(value="K")
+    FlipVar = tk.StringVar(value='翻转局面')
     CellValues = [[tk.StringVar(value="") for _ in range(8)] for _ in range(8)]
+    C960switch = tk.StringVar(value="normal")
+    RrCol = tk.StringVar(value="H")
+    LrCol = tk.StringVar(value="A")
+    C960switch.trace_variable("w", c960_switch_callback)
+    Wkcast = tk.IntVar(value=1)
+    Wqcast = tk.IntVar(value=1)
+    Bkcast = tk.IntVar(value=1)
+    Bqcast = tk.IntVar(value=1)
+
+
+def debug():    # todo: remove
+    print(C960switch.get())
+
+
+def c960_switch_callback(*args):
+    main = Globals.Main
+    if C960switch.get() == "c960":
+        main.KingSide.configure(state='normal')
+        main.QueenSide.configure(state='normal')
+    else:
+        main.KingSide.configure(state='disabled')
+        main.QueenSide.configure(state='disabled')
 
 
 def cancel():
@@ -50,6 +71,11 @@ def clear():
 
 def confirm():
     print('setboard_support.confirm')
+    sys.stdout.flush()
+
+
+def copy():
+    print('setboard_support.copy')
     sys.stdout.flush()
 
 

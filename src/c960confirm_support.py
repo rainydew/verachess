@@ -72,6 +72,11 @@ def scroll():
 
 def spin(event: Event):
     value = c960value.get()
+    try:
+        assert int(value) > 0
+    except:
+        c960value.set("")
+        value = ""
     if not value:
         w.Button1.configure(state="disabled")
         return
