@@ -25,13 +25,14 @@ except ImportError:
 
     py3 = True
 
-PName = FlipVar = C960switch = RrCol = LrCol = None  # type: tk.StringVar
+PName = FlipVar = C960switch = RrCol = LrCol = Mover = Drawmove = Totalmove = EpCol = None  # type: tk.StringVar
 Wkcast = Wqcast = Bkcast = Bqcast = None    # type: tk.IntVar
 CellValues = None  # type: List[List[tk.StringVar]]
 
 
 def set_Tk_var():
-    global PName, FlipVar, CellValues, C960switch, RrCol, LrCol, Wkcast, Wqcast, Bkcast, Bqcast
+    global PName, FlipVar, CellValues, C960switch, RrCol, LrCol, Wkcast, Wqcast, Bkcast, Bqcast, Mover, Drawmove, \
+        Totalmove, EpCol
     PName = tk.StringVar(value="K")
     FlipVar = tk.StringVar(value='翻转局面')
     CellValues = [[tk.StringVar(value="") for _ in range(8)] for _ in range(8)]
@@ -43,6 +44,13 @@ def set_Tk_var():
     Wqcast = tk.IntVar(value=1)
     Bkcast = tk.IntVar(value=1)
     Bqcast = tk.IntVar(value=1)
+    Mover = tk.StringVar(value='w')
+    Drawmove = tk.StringVar(value='0')
+    Drawmove.trace_variable("w", drawmove_filter)
+    Totalmove = tk.StringVar(value="1")
+    Totalmove.trace_variable("w", totalmove_filter)
+    EpCol = tk.StringVar(value="-")
+    EpCol.trace_variable("w", epcol_filter)
 
 
 def debug():    # todo: remove
@@ -59,6 +67,41 @@ def c960_switch_callback(*args):
         main.QueenSide.configure(state='disabled')
 
 
+def drawmove_filter(*args):
+    try:
+        if Drawmove.get() == "":
+            return
+        w = int(Drawmove.get())
+        if w < 0:
+            Drawmove.set("0")
+        if w > 100:
+            Drawmove.set("100")
+    except:
+        Drawmove.set("0")
+
+
+def totalmove_filter(*args):
+    try:
+        if Totalmove.get() == "":
+            return
+        w = int(Totalmove.get())
+        if w < 1:
+            Totalmove.set("1")
+    except:
+        Totalmove.set("")
+
+
+def epcol_filter(*args):
+    if EpCol.get() and EpCol.get()[-1].lower() not in ("-", "a", "b", "c", "d", "e", "f", "g", "h"):
+        EpCol.set("-")
+    else:
+        try:
+            EpCol.set(EpCol.get()[-1].lower())
+        except:
+            EpCol.set("-")
+
+
+# events
 def cancel():
     print('setboard_support.cancel')
     sys.stdout.flush()

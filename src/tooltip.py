@@ -3,6 +3,11 @@
 import tkinter as tk
 from time import time
 
+# ======================================================
+# Found the original code at:
+# http://code.activestate.com/recipes/576688-tooltip-for-tkinter/
+# ======================================================
+
 
 class ToolTip(tk.Toplevel):
     """

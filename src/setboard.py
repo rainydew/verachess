@@ -137,7 +137,9 @@ class MainWindow:
         self.Label2.configure(background="#d9d9d9")
         self.Label2.configure(disabledforeground="#a3a3a3")
         self.Label2.configure(foreground="#000000")
-        self.Label2.configure(text='''过路兵格''')
+        self.Label2.configure(foreground=Color.blue)
+        self.Label2.configure(text='''过路兵列''')
+        ToolTip(self.Label2, "若刚刚有一个兵直进两步，则需要设置这个兵所在的列")
 
         self.Normal = tk.Radiobutton(top)
         self.Normal.place(x=20, y=430, height=30)
@@ -158,27 +160,27 @@ class MainWindow:
         self.Label1.configure(background="#d9d9d9")
         self.Label1.configure(foreground=Color.blue)
         self.Label1.configure(text='''王翼车列号''')
-        ToolTip(self.Label1, "王翼车的起始列，大小写均可")
+        ToolTip(self.Label1, "王翼车的起始列，大小写均可，在chess960下需要指定")
 
         self.Label1_2 = tk.Label(top)
         self.Label1_2.place(x=120, y=470, height=26)
         self.Label1_2.configure(background="#d9d9d9")
         self.Label1_2.configure(foreground=Color.blue)
         self.Label1_2.configure(text='''后翼车列号''')
-        ToolTip(self.Label1_2, "后翼车的起始列，大小写均可")
+        ToolTip(self.Label1_2, "后翼车的起始列，大小写均可，在chess960下需要指定")
 
         self.KingSide = tk.Entry(top)
-        self.KingSide.place(x=210, y=430, height=29, width=35)
+        self.KingSide.place(x=210, y=430, height=28, width=35)
         self.KingSide.configure(state='disabled')
         self.KingSide.configure(textvariable=setboard_support.RrCol)
 
         self.QueenSide = tk.Entry(top)
-        self.QueenSide.place(x=210, y=470, height=29, width=35)
+        self.QueenSide.place(x=210, y=470, height=28, width=35)
         self.QueenSide.configure(state='disabled')
         self.QueenSide.configure(textvariable=setboard_support.LrCol)
 
         self.WKCastle = tk.Checkbutton(top)
-        self.WKCastle.place(x=250, y=430, height=30)
+        self.WKCastle.place(x=240, y=430, height=30)
         self.WKCastle.configure(background="#d9d9d9")
         self.WKCastle.configure(text='''白方O-O''')
         self.WKCastle.configure(variable=setboard_support.Wkcast)
@@ -190,7 +192,7 @@ class MainWindow:
         self.WQCastle.configure(variable=setboard_support.Wqcast)
 
         self.BKCastle = tk.Checkbutton(top)
-        self.BKCastle.place(x=250, y=470, height=30)
+        self.BKCastle.place(x=240, y=470, height=30)
         self.BKCastle.configure(background="#d9d9d9")
         self.BKCastle.configure(text='''黑方O-O''')
         self.BKCastle.configure(variable=setboard_support.Bkcast)
@@ -200,6 +202,47 @@ class MainWindow:
         self.BQCastle.configure(background="#d9d9d9")
         self.BQCastle.configure(text='''黑方O-O-O''')
         self.BQCastle.configure(variable=setboard_support.Bqcast)
+
+        self.WMove = tk.Radiobutton(top)
+        self.WMove.place(x=450, y=430, height=30)
+        self.WMove.configure(background="#d9d9d9")
+        self.WMove.configure(text='''白方''')
+        self.WMove.configure(value="w")
+        self.WMove.configure(variable=setboard_support.Mover)
+
+        self.BMove = tk.Radiobutton(top)
+        self.BMove.place(x=450, y=470, height=30)
+        self.BMove.configure(background="#d9d9d9")
+        self.BMove.configure(text='''黑方''')
+        self.BMove.configure(value="b")
+        self.BMove.configure(variable=setboard_support.Mover)
+
+        self.Label5 = tk.Label(top)
+        self.Label5.place(x=20, y=520, height=26)
+        self.Label5.configure(background="#d9d9d9")
+        self.Label5.configure(foreground=Color.blue)
+        self.Label5.configure(text='''和棋计数''')
+        ToolTip(self.Label5, "截至当前局面，双方未动兵且未吃子的步数。该数达到100即触发50回合和棋规则")
+
+        self.Draw = tk.Entry(top)
+        self.Draw.place(x=140, y=520, height=28, width=70)
+        self.Draw.configure(textvariable=setboard_support.Drawmove)
+
+        self.Label5_9 = tk.Label(top)
+        self.Label5_9.place(x=230, y=520, height=26)
+        self.Label5_9.configure(background="#d9d9d9")
+        self.Label5_9.configure(foreground=Color.blue)
+        self.Label5_9.configure(text='''回合计数''')
+        ToolTip(self.Label5_9, "从开局到现在总共的回合数，双方各走一步算1回合。这个参数不重要，只用于棋谱记录")
+
+        self.MoveCount = tk.Entry(top)
+        self.MoveCount.place(x=340, y=520, height=28, width=70)
+        self.MoveCount.configure(textvariable=setboard_support.Totalmove)
+
+        self.Spinbox1 = tk.Spinbox(top)
+        self.Spinbox1.configure(values=("-", "a", "b", "c", "d", "e", "f", "g", "h"))
+        self.Spinbox1.place(x=460, y=560, height=30, width=70)
+        self.Spinbox1.configure(textvariable=setboard_support.EpCol)
 
         self.Rows = self.Columns = None  # type: List[tk.Label]
         self.Cells = None  # type: List[List[tk.Label]]
