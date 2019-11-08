@@ -1,16 +1,9 @@
 # coding: utf-8
-import verachess_support
 from verachess_global import Globals
 from consts import Pieces, gen_empty_board, CastleCells, EndType, Winner
 from typing import Tuple, List, Union, Dict, Callable, Optional
 from copy import deepcopy
 from collections import Counter
-
-
-def refresh_cells():
-    fen = Globals.GameFen
-    verachess_support.set_cell_values(Fens.get_narrow_fen(fen))
-    verachess_support.set_player_color(Fens.get_mover(fen) == "w")
 
 
 class Fens:

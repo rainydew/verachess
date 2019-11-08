@@ -9,6 +9,7 @@ import easygui
 import pyperclip
 import c960confirm
 import clockconfirm
+import setboard
 from clock import refresh_clock
 from verachess_global import Globals, release_model_lock
 from typing import List, Tuple, Dict
@@ -348,7 +349,16 @@ def set_board():
     if any(Globals.Game_role.values()):
         easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能使用摆局功能")
         return
-    # fixme undone
+    main_window = Globals.Main.Top
+    sub_window, setboard_widget = setboard.create_Toplevel1(root=main_window)
+    sub_window.transient(main_window)  # show only one window in taskbar
+    sub_window.grab_set()  # set as model window
+    Globals.Main.Top.wait_window(sub_window)  # wait for window return, to get return value
+    res = setboard_widget.Result
+
+    if res is None:
+        return
+    print(res)
 
 
 @check_model

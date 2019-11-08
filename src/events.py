@@ -3,7 +3,6 @@
 from verachess_global import Globals, ModelLock, calc_fen_hash
 from typing import Tuple, Optional, List
 from consts import Color, Promotions, EndType, Winner, Font, Paths, InfoTypes, Positions
-from clock import before_change_mover, refresh_clock
 import os
 import tkinter as tk
 import easygui
@@ -16,6 +15,12 @@ pg = boards.Pgns
 
 def alert(msg: str, title: str = "verachess5.0") -> None:
     os.system(Paths.binpath + "/vcnotify.exe {} {}".format(msg.replace(" ", "_"), title.replace(" ", "_")))
+
+
+def refresh_cells():
+    fen = Globals.GameFen
+    vs.set_cell_values(bd.get_narrow_fen(fen))
+    vs.set_player_color(bd.get_mover(fen) == "w")
 
 
 def refresh_highlights(new_cells: Optional[List[Tuple[int, int]]] = None) -> None:
@@ -122,7 +127,7 @@ def refresh_start_pos_in_movelist():
 
 
 def refresh_whole_board():  # recommand
-    boards.refresh_cells()
+    refresh_cells()
     clear_sel_highs()
     refresh_opp_check()
 
@@ -226,6 +231,7 @@ def click_handler(place: Tuple[int, int]) -> None:
         old_fen = Globals.GameFen
         new_fen, special = bd.calc_move(old_fen, move)
         Globals.InfoHistory.append({})      # set it earlier than clock change mover
+        from clock import before_change_mover
         before_change_mover()
         Globals.GameFen = new_fen
         Globals.White = not Globals.White
@@ -288,6 +294,7 @@ def change_position(place: int):
     Globals.MoveSlider = -1 if place == len(Globals.History) - 1 else place
     main.Moves[Globals.MoveSlider].configure(background=Color.move_highlight)
     refresh_whole_board()
+    from clock import refresh_clock
     refresh_clock()
 
 

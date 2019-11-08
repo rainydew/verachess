@@ -27,6 +27,8 @@ from setboard_global import Globals
 from typing import List
 from tooltip import ToolTip
 
+w = None
+
 
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
@@ -39,9 +41,7 @@ def vp_start_gui():
 
     setboard_support.init(root, top)
     root.mainloop()
-
-
-w = None
+    print(top.Result)
 
 
 def create_Toplevel1(root, *args, **kwargs):
@@ -51,6 +51,9 @@ def create_Toplevel1(root, *args, **kwargs):
     w = tk.Toplevel(root)
     setboard_support.set_Tk_var()
     top = MainWindow(w)
+
+    Globals.Main = top
+
     setboard_support.init(w, top, *args, **kwargs)
     return (w, top)
 
@@ -322,4 +325,5 @@ def create_pieces(main: MainWindow, top: tk.Tk):
 
 
 if __name__ == '__main__':
+    print("test mode")
     vp_start_gui()
