@@ -2,7 +2,7 @@
 # event handlers
 from verachess_global import Globals, ModelLock, calc_fen_hash
 from typing import Tuple, Optional, List
-from consts import Color, Promotions, EndType, Winner, Font, Paths, InfoTypes, Positions
+from consts import Color, Promotions, EndType, Winner, Font, Paths, InfoTypes, Positions, EcoBook
 import os
 import tkinter as tk
 import easygui
@@ -49,6 +49,16 @@ def refresh_opp_check():
     cell = bd.checked_place(fen)
     if cell:
         set_check_cell(cell)
+
+
+def refresh_eco():
+    eco = EcoBook.get(Globals.GameFen)
+    label = Globals.Main.ECO
+    if eco:
+        vs.Eco.set(eco)
+        label.configure(foreground=Color.black)
+    else:
+        label.configure(foreground=Color.red)
 
 
 def refresh_scroll_state():
@@ -120,7 +130,6 @@ def set_board_to_old(pos: int):
     remove_pgn_from(pos)
 
 
-
 def refresh_start_pos_in_movelist():
     main = Globals.Main
     main.Moves[0].configure(text=Globals.Start_pos)
@@ -130,6 +139,7 @@ def refresh_whole_board():  # recommand
     refresh_cells()
     clear_sel_highs()
     refresh_opp_check()
+    refresh_eco()
 
 
 def check_wdl(silent: bool = False):

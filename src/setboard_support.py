@@ -61,10 +61,6 @@ def set_Tk_var():
     EpCol.trace_variable("w", epcol_filter)
 
 
-def debug():  # todo: remove
-    print(C960switch.get())
-
-
 def c960_switch_callback(*args):
     main = Globals.Main
     if C960switch.get() == "c960":

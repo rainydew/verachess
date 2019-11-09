@@ -299,6 +299,10 @@ def create_menus(main: MainWindow, top: tk.Tk):
     m_file = add_menu(main, top, "文件")
     add_command(main, m_file, "重新开始棋局(普通)", verachess_support.new_normal)
     add_command(main, m_file, "重新开始棋局(Chess960)", verachess_support.new_c960)
+    add_separator(main, m_file)
+    add_command(main, m_file, "棋局信息", verachess_support.edit_game)
+    add_command(main, m_file, "保存棋谱", verachess_support.save_game)
+    add_separator(main, m_file)
     add_command(main, m_file, "退出", verachess_support.exit_game)
     m_board = add_menu(main, top, "棋盘")
     add_checkbutton(main, m_board, "翻转视角", verachess_support.flip, verachess_support.MenuStats[MenuStatNames.flip])
@@ -332,6 +336,12 @@ def add_checkbutton(main: MainWindow, parent_name: str, name: str, command: Call
     parent.add_checkbutton(command=command, label=name, variable=variable)
     assert name not in main.Sub_menus, "sub menu names conflict"
     main.Sub_menus[name] = [length, parent_name]
+
+
+def add_separator(main: MainWindow, parent_name: str):
+    parent, length = main.Menus[parent_name]    # type: tk.Menu, int
+    main.Menus[parent_name][1] += 1     # can't use length because it won't set to the pointer
+    parent.add_separator()
 
 
 if __name__ == '__main__':

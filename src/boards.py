@@ -767,8 +767,9 @@ class Pgns:
                 if sc != ec:    # pawn takes, must add start column, ep included here
                     extra[0] = chr(sc + 97)
 
-            pgn = piece + "".join(extra) + ("x" if board[er][ec] else "") + end + ("={}".format(promote.upper()) if promote
-                                                                                   else "")
+            pgn = piece + "".join(extra) + (
+                "x" if board[er][ec] or (board[sr][sc] and board[sr][sc].lower() == "p" and sc != ec) else ""
+            ) + end + ("={}".format(promote.upper()) if promote else "")
 
         if not final_fen:
             final_fen = Fens.calc_move(fen, move)[0]
@@ -807,6 +808,13 @@ class Pgns:
             reslist.append(move)
             fen = Fens.calc_move(fen, move)[0]
         return reslist
+
+    @staticmethod
+    def pgn_to_fen(fen: str, pgn_moves: List[str]) -> str:
+        for pgn_move in pgn_moves:
+            move = Pgns.single_pgn_to_uci(fen, pgn_move)
+            fen = Fens.calc_move(fen, move)[0]
+        return fen
 
 
 if __name__ == '__main__':

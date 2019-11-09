@@ -5,6 +5,7 @@
 #    Oct 06, 2019 11:52:10 PM CST  platform: Windows NT
 
 import sys
+import os
 import easygui
 import pyperclip
 import c960confirm
@@ -49,7 +50,7 @@ def set_Tk_var():
     MenuStats[MenuStatNames.flip] = tk.BooleanVar(value=False)
     MenuStats[MenuStatNames.clock] = tk.BooleanVar(value=True)
     Eco = tk.StringVar()
-    Eco.set('ECO - A00\nIrregular Opening')
+    Eco.set('ECO A00 Start Position')
     WhitePlayerInfo = tk.StringVar()
     WhitePlayerInfo.set('白方：人类')
     BlackPlayerInfo = tk.StringVar()
@@ -354,11 +355,28 @@ def set_board():
     sub_window.transient(main_window)  # show only one window in taskbar
     sub_window.grab_set()  # set as model window
     Globals.Main.Top.wait_window(sub_window)  # wait for window return, to get return value
-    res = setboard_widget.Result
+    fen = setboard_widget.Result
 
-    if res is None:
+    if fen is None:
         return
-    print(res)
+    release_model_lock()  # very important, set fen require model lock
+    set_game_fen(reformat_fen(fen))
+
+
+@model_locked
+def edit_game():
+    # todo: gui
+    pass
+
+@model_locked
+def save_game():
+    filepath = easygui.filesavebox("选择保存的路径", "保存棋局", Paths.binpath + "/../*.pgn")
+    if os.path.exists(filepath):
+        if not easygui.ynbox("文件已经存在，是否覆盖？", "覆盖棋谱", ["是", "否"]):
+            return
+    with open(filepath, "w") as f:
+        pass
+        # todo: game info modifier
 
 
 @check_model

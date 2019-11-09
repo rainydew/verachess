@@ -75,7 +75,7 @@ class MainWindow:
         _ana2color = '#ececec'  # Closest X11 color: 'gray92'
 
         top.geometry("560x620+406+218")
-        top.title("设置棋局")
+        top.title("设置棋局(注意：确认后将覆盖桌上局面)")
         top.configure(background="#d9d9d9")
 
         self.ChessBoard = tk.Frame(top)

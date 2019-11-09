@@ -1,5 +1,6 @@
 # coding: utf-8
 from typing import List, Any, Tuple, Dict
+import easygui
 import sys
 
 
@@ -10,6 +11,21 @@ def _get_bin_path():
     else:
         binpath = filepath + "/.."
     return binpath
+
+
+def _gen_eco_dict() -> Dict[str, str]:
+    eco = {Positions.common_start_fen: ("A00 Start Position", "")}
+    try:
+        f = open("verachess.eco", encoding="utf-8")
+    except:
+        easygui.msgbox("开局库文件verachess.eco被损坏，请从https://github.com/rainydew/verachess下载文件")
+    else:
+        for line in f:
+            if line:
+                eco_name, eco_fen, eco_move = line.split("\t")
+                eco[eco_fen] = eco_name
+        f.close()
+    return eco
 
 
 Pieces = {
@@ -167,6 +183,9 @@ class InfoTypes:
     tbhits = "tbhits"
     score = "score"
     main_pv = "pv"
+
+
+EcoBook = _gen_eco_dict()   # type: Dict[str, str]
 
 
 def gen_empty_board(init_value=None) -> List[List[Any]]:
