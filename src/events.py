@@ -52,7 +52,10 @@ def refresh_opp_check():
 
 
 def refresh_eco():
-    eco = EcoBook.get(Globals.GameFen)
+    if Globals.Chess_960_Columns[0] is not None:
+        eco = "Chess960"
+    else:
+        eco = EcoBook.get(" ".join(Globals.GameFen.split()[:4]))
     label = Globals.Main.ECO
     if eco:
         vs.Eco.set(eco)

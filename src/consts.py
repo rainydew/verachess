@@ -14,7 +14,7 @@ def _get_bin_path():
 
 
 def _gen_eco_dict() -> Dict[str, str]:
-    eco = {Positions.common_start_fen: ("A00 Start Position", "")}
+    eco = {" ".join(Positions.common_start_fen.split()[:4]): "A00 Start Position"}
     try:
         f = open("verachess.eco", encoding="utf-8")
     except:
@@ -22,7 +22,8 @@ def _gen_eco_dict() -> Dict[str, str]:
     else:
         for line in f:
             if line:
-                eco_name, eco_fen, eco_move = line.split("\t")
+                eco_name, eco_fen, eco_move = line.split("\t")  # type: str
+                eco_fen = " ".join(eco_fen.split()[:4])
                 eco[eco_fen] = eco_name
         f.close()
     return eco
@@ -161,6 +162,44 @@ class EndType:
     other_draw = 16
 
 
+class Termination:
+    unterminated = "未结束"
+    normal = "常规结束"
+    time_forfeit = "超时"
+    rule_infraction = "犯规或故障"
+    adjunction = "裁判裁定"
+    abandon = "比赛取消"
+    all_type = (unterminated, normal, time_forfeit, rule_infraction, adjunction, abandon)
+
+
+class EndTypeToTermination:
+    unterminated = Termination.unterminated
+    checkmate = Termination.normal
+    resign = Termination.normal
+    time_forfeit = Termination.time_forfeit
+    engine_stall = Termination.rule_infraction
+    adjunction_win = Termination.adjunction  # by user or FICS
+    table_base_win = Termination.adjunction
+    score_rule_win = Termination.adjunction
+    illegal_move = Termination.rule_infraction
+    break_rule = Termination.rule_infraction  # e.g. memory overflow
+    withdraw = Termination.abandon
+    skip_win = Termination.abandon
+    other_win = Termination.adjunction
+    stalemate = Termination.normal
+    three_fold = Termination.normal
+    fifty_rule = Termination.normal
+    insufficient_material = Termination.normal
+    adjunction_draw = Termination.adjunction
+    table_base_draw = Termination.adjunction
+    score_rule_draw = Termination.adjunction
+    mutual_agreement = Termination.normal
+    single_king_with_opp_violate = Termination.adjunction
+    tournament_cancel = Termination.abandon
+    skip_draw = Termination.abandon
+    other_draw = Termination.adjunction
+
+
 class CpuMoveConf:
     use_depth = 0
     use_timer = 1
@@ -190,3 +229,7 @@ EcoBook = _gen_eco_dict()   # type: Dict[str, str]
 
 def gen_empty_board(init_value=None) -> List[List[Any]]:
     return [[init_value for _ in range(8)] for _ in range(8)]
+
+
+if __name__ == '__main__':
+    print("book load success")

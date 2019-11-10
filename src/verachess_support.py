@@ -15,7 +15,7 @@ from clock import refresh_clock
 from verachess_global import Globals, release_model_lock
 from typing import List, Tuple, Dict
 from verachess import destroy_MainWindow
-from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths, CpuMoveConf
+from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths, CpuMoveConf, Role
 from tkinter import CallWrapper
 from decos import check_model, model_locked
 import events
@@ -52,9 +52,9 @@ def set_Tk_var():
     Eco = tk.StringVar()
     Eco.set('ECO A00 Start Position')
     WhitePlayerInfo = tk.StringVar()
-    WhitePlayerInfo.set('白方：人类')
+    WhitePlayerInfo.set('人类')
     BlackPlayerInfo = tk.StringVar()
-    BlackPlayerInfo.set('黑方：人类')
+    BlackPlayerInfo.set('人类')
     WhiteTotalTime = tk.StringVar()
     WhiteTotalTime.set("00 : 05 : 00")
     BlackTotalTime = tk.StringVar()
@@ -69,6 +69,77 @@ def set_Tk_var():
     BlackFlagImg.configure(file=Paths.flag + "china.gif")
     MoveScaleVar = tk.IntVar()
     MoveScaleVar.set(0)
+
+
+class Hooks:
+    WPlayer = "WPlayer"
+    BPlayer = "BPlayer"
+    WElo = "WElo"
+    BElo = "BElo"
+    WType = "WType"
+    BType = "BType"
+    Event = "Event"
+    Site = "Site"
+    Round = "Round"
+    Result = "Result"
+    Date = "Date"
+    MTime = "MTime"
+    TCMin = "TCMin"
+    TCSec = "TCSec"
+    Termination = "Termination"
+    TDetail = "TDetail"
+    SScore = "SScore"
+    SDepth = "SDepth"
+    STime = "STime"
+    SNodes = "SNodes"
+    SNps = "SNps"
+    STb = "STb"
+    SPv = "SPv"
+
+    @staticmethod
+    def update_game_info():
+        pass    # todo: info sync
+
+    @staticmethod
+    def update_globals():
+        # player info
+        WType = Globals.GameInfo.get(Hooks.WType)
+        BType = Globals.GameInfo.get(Hooks.BType)
+        WPlayer = Globals.GameInfo.get(Hooks.WPlayer)
+        BPlayer = Globals.GameInfo.get(Hooks.BPlayer)
+        WElo = Globals.GameInfo.get(Hooks.WElo)
+        BElo = Globals.GameInfo.get(Hooks.BElo)
+
+        if WType == Role.human:
+            w = "人类"
+        elif WType == Role.computer:
+            w = "引擎"
+        else:
+            w = "联机"
+        if BType == Role.human:
+            b = "人类"
+        elif BType == Role.computer:
+            b = "引擎"
+        else:
+            b = "联机"
+
+        if WPlayer:
+            w += " " + WPlayer
+        if BPlayer:
+            b += " " + BPlayer
+
+        if WElo:
+            w += " ({})".format(WElo)
+        if BElo:
+            b += " ({})".format(BElo)
+
+        WhitePlayerInfo.set(w)
+        BlackPlayerInfo.set(b)
+
+        # result
+        Result = Globals.GameInfo.get(Hooks.Result)
+
+        # todo: doing
 
 
 def set_cell_values(narrow_fen: str):
