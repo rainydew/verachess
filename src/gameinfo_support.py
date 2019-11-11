@@ -6,6 +6,8 @@
 #    Nov 09, 2019 03:15:20 AM CST  platform: Windows NT
 
 import easygui
+import verachess_support
+from verachess_global import Globals
 from match import today, now
 from consts import Role, Winner, Termination as cTermination
 
@@ -109,7 +111,35 @@ def clear():
 
 
 def sync():
-    pass
+    verachess_support.Hooks.update_game_info()
+    info = Globals.GameInfo
+    gl_dic = {
+            "WPlayer": WPlayer,
+            "BPlayer": BPlayer,
+            "WElo": WElo,
+            "BElo": BElo,
+            "WType": WType,
+            "BType": BType,
+            "Event": Event,
+            "Site": Site,
+            "Round": Round,
+            "Result": Result,
+            "Date": Date,
+            "MTime": MTime,
+            "TCMin": TCMin,
+            "TCSec": TCSec,
+            "Termination": Termination,
+            "TDetail": TDetail,
+            "SScore": SScore,
+            "SDepth": SDepth,
+            "STime": STime,
+            "SNodes": SNodes,
+            "SNps": SNps,
+            "STb": STb,
+            "SPv": SPv,
+        }
+    for k, v in info.items():
+        gl_dic[k].set(v)
 
 
 def confirm():
@@ -158,9 +188,3 @@ def destroy_window():
     global top_level
     top_level.destroy()
     top_level = None
-
-
-if __name__ == '__main__':
-    import gameinfo
-
-    gameinfo.vp_start_gui()

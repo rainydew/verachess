@@ -11,6 +11,7 @@ import pyperclip
 import c960confirm
 import clockconfirm
 import setboard
+import gameinfo
 from clock import refresh_clock
 from verachess_global import Globals, release_model_lock
 from typing import List, Tuple, Dict
@@ -98,7 +99,7 @@ class Hooks:
     SPv = "SPv"
 
     @staticmethod
-    def _refresh_plaer_label():
+    def _refresh_player_label():
         WElo = Globals.GameInfo.get(Hooks.WElo)
         BElo = Globals.GameInfo.get(Hooks.BElo)
         WPlayer = Globals.GameInfo.get(Hooks.WPlayer)
@@ -129,12 +130,14 @@ class Hooks:
         if BElo:
             b += " ({})".format(BElo)
 
-        WhitePlayerInfo.set(w)
-        BlackPlayerInfo.set(b)
-
-        WhitePlayerInfo.set(w)
-        BlackPlayerInfo.set(b)
-        # need refresh hints after calling me
+        try:
+            WhitePlayerInfo.set(w)
+            BlackPlayerInfo.set(b)
+        except AttributeError:
+            print("only for gameinfo test mode, should be error when running real verachess")
+            print("white label", w)
+            print("black label", b)
+        # need refresh hints after calling me, flags may be changed
 
     @staticmethod
     def update_game_info():
@@ -149,7 +152,7 @@ class Hooks:
         info[Hooks.Result] = Globals.Winner
         info[Hooks.Termination] = EndTypeToTermination.get(Globals.Game_end)
 
-        Hooks._refresh_plaer_label()
+        Hooks._refresh_player_label()
 
     @staticmethod
     def update_globals():
@@ -177,7 +180,7 @@ class Hooks:
                 Globals.Game_end = EndType.adjunction_win
 
         # tc will not async here. elo will not save in the game, but read in PGN or tournament file(to plan)
-        Hooks._refresh_plaer_label()
+        Hooks._refresh_player_label()
 
 
 def set_cell_values(narrow_fen: str):
@@ -358,8 +361,8 @@ def exit_game():
 
 @model_locked
 def new_normal():
-    if any(Globals.Game_role.values()):
-        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能重新开局。请先将黑白双方均设为人类")
+    if any(Globals.Game_role.values()) and not Globals.Game_end:
+        easygui.msgbox("如果棋局正在进行，则黑白双方都需要被本地玩家控制，才能重新开局。请先将黑白双方均设为人类")
         return
     if easygui.ynbox("这将重置当前棋局信息，确认重新开始棋局吗？", "verachess 5.0", ["是", "否"]):
         Globals.Chess_960_Columns = (None, None, None)
@@ -371,15 +374,15 @@ def new_normal():
 
 @model_locked
 def new_c960():
-    if any(Globals.Game_role.values()):
-        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能重新开局。请先将黑白双方均设为人类")
+    if any(Globals.Game_role.values()) and not Globals.Game_end:
+        easygui.msgbox("如果棋局正在进行，则黑白双方都需要被本地玩家控制，才能重新开局。请先将黑白双方均设为人类")
         return
     if easygui.ynbox("这将重置当前棋局信息，确认重新开始棋局吗？", "verachess 5.0", ["是", "否"]):
         main_window = Globals.Main.Top
         sub_window, confirm_widget = c960confirm.create_Toplevel1(root=main_window)
         sub_window.transient(main_window)  # show only one window in taskbar
         sub_window.grab_set()  # set as model window
-        Globals.Main.Top.wait_window(sub_window)  # wait for window return, to get return value
+        main_window.wait_window(sub_window)  # wait for window return, to get return value
         res = confirm_widget.Result
 
         if res is None:
@@ -402,7 +405,7 @@ def change_clock():
     # 考虑子窗体独立测试需要，禁止子窗体直接访问需要初始化的Globals变量
     sub_window.transient(main_window)  # show only one window in taskbar
     sub_window.grab_set()  # set as model window
-    Globals.Main.Top.wait_window(sub_window)  # wait for window return, to get return value
+    main_window.wait_window(sub_window)  # wait for window return, to get return value
     res = confirm_widget.Result
 
     if res is None:
@@ -444,8 +447,8 @@ def copy_fen():
 
 @model_locked
 def paste_fen():
-    if any(Globals.Game_role.values()):
-        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能使用摆局功能")
+    if any(Globals.Game_role.values()) and not Globals.Game_end:
+        easygui.msgbox("如果棋局正在进行，则黑白双方都需要被本地玩家控制，才能编辑棋谱信息")
         return
     elif not easygui.ynbox("将会重置当前棋局的信息，你确认要导入局面吗？", "verachess 5.0", ["是", "否"]):
         return
@@ -460,14 +463,14 @@ def paste_fen():
 
 @model_locked
 def set_board():
-    if any(Globals.Game_role.values()):
-        easygui.msgbox("黑白双方都需要处于被玩家控制的状态，且不使用FICS联网时，才能使用摆局功能")
+    if any(Globals.Game_role.values()) and not Globals.Game_end:
+        easygui.msgbox("如果棋局正在进行，则黑白双方都需要被本地玩家控制，才能编辑棋谱信息")
         return
     main_window = Globals.Main.Top
     sub_window, setboard_widget = setboard.create_Toplevel1(root=main_window)
     sub_window.transient(main_window)  # show only one window in taskbar
     sub_window.grab_set()  # set as model window
-    Globals.Main.Top.wait_window(sub_window)  # wait for window return, to get return value
+    main_window.wait_window(sub_window)  # wait for window return, to get return value
     fen = setboard_widget.Result
 
     if fen is None:
@@ -478,8 +481,23 @@ def set_board():
 
 @model_locked
 def edit_game():
-    # todo: gui
-    pass
+    if any(Globals.Game_role.values()) and not Globals.Game_end:
+        easygui.msgbox("如果棋局正在进行，则黑白双方都需要被本地玩家控制，才能编辑对局信息")
+        return
+    main_window = Globals.Main.Top
+    sub_window, setboard_widget = gameinfo.create_Toplevel1(root=main_window)
+    sub_window.transient(main_window)  # show only one window in taskbar
+    sub_window.grab_set()  # set as model window
+    main_window.wait_window(sub_window)  # wait for window return, to get return value
+    info = setboard_widget.Result
+
+    if info is None:
+        return
+    release_model_lock()  # very important, set fen require model lock
+
+    Globals.GameInfo = info
+    Hooks.update_globals()
+
 
 @model_locked
 def save_game():
