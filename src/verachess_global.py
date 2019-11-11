@@ -12,6 +12,13 @@ def calc_fen_hash(fen: str) -> int:
     return hash(" ".join(fen.split(" ")[:4]))
 
 
+def gen_init_game_info() -> Dict[str, Any]:
+    return {'WPlayer': '', 'BPlayer': '', 'WElo': '', 'BElo': '', 'WType': Role.human, 'BType': Role.human,
+            'Event': '', 'Site': 'verachess 5.0', 'Round': '', 'Result': ConstWinner.unknown, 'Date': today(),
+            'MTime': now(), 'TCMin': 5.0, 'TCSec': 3.0, 'Termination': '未结束', 'TDetail': '', 'SScore': 1,
+            'SDepth': 1, 'STime': 1, 'SNodes': 1, 'SNps': 1, 'STb': 1, 'SPv': 1}
+
+
 class Globals:
     Cell_names = None  # type: List[List[str]]  # r, c -> tk cell name
     Reverse_cell_names = None  # type: Dict[str, Tuple[int, int]]   # tk cell name -> r, c
@@ -27,6 +34,8 @@ class Globals:
     GameFen = Positions.common_start_fen  # type: str  # ep and so on
     White = True  # white=True, real mover
     Game_role = {"w": Role.human, "b": Role.human}  # false if human can click
+    WName = ""
+    BName = ""
     Game_end = EndType.unterminated  # type: int  # !0 to lock board, >0 means draw, <0 means win/lose
     Chess_960_Columns = (None, None, None)  # type: Tuple[int, int, int]
     LastMove = None  # type: Tuple[int, int]  # place, None shows no lastmove
@@ -55,10 +64,7 @@ class Globals:
     CpuRebal = 1.0
     Cmv = CpuMoveConf.use_depth
     MoveSlider = -1  # the last one
-    GameInfo = {'WPlayer': '', 'BPlayer': '', 'WElo': '', 'BElo': '', 'WType': 0, 'BType': 0, 'Event': '',
-                'Site': 'verachess 5.0', 'Round': '', 'Result': ConstWinner.unknown, 'Date': today(), 'MTime': now(), 'TCMin': 5.0, 'TCSec': 3.0,
-                'Termination': '未结束', 'TDetail': '', 'SScore': 1, 'SDepth': 1, 'STime': 1, 'SNodes': 1, 'SNps': 1,
-                'STb': 1, 'SPv': 1}  # type: Dict[str, Any]
+    GameInfo = gen_init_game_info()
 
 
 class ModelLock:

@@ -15,7 +15,8 @@ from clock import refresh_clock
 from verachess_global import Globals, release_model_lock
 from typing import List, Tuple, Dict
 from verachess import destroy_MainWindow
-from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths, CpuMoveConf, Role
+from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths, CpuMoveConf, Role, \
+    EndTypeToTermination
 from tkinter import CallWrapper
 from decos import check_model, model_locked
 import events
@@ -97,18 +98,13 @@ class Hooks:
     SPv = "SPv"
 
     @staticmethod
-    def update_game_info():
-        pass    # todo: info sync
-
-    @staticmethod
-    def update_globals():
-        # player info
-        WType = Globals.GameInfo.get(Hooks.WType)
-        BType = Globals.GameInfo.get(Hooks.BType)
-        WPlayer = Globals.GameInfo.get(Hooks.WPlayer)
-        BPlayer = Globals.GameInfo.get(Hooks.BPlayer)
+    def _refresh_plaer_label():
         WElo = Globals.GameInfo.get(Hooks.WElo)
         BElo = Globals.GameInfo.get(Hooks.BElo)
+        WPlayer = Globals.GameInfo.get(Hooks.WPlayer)
+        BPlayer = Globals.GameInfo.get(Hooks.BPlayer)
+        WType = Globals.GameInfo.get(Hooks.WType)
+        BType = Globals.GameInfo.get(Hooks.BType)
 
         if WType == Role.human:
             w = "人类"
@@ -136,10 +132,52 @@ class Hooks:
         WhitePlayerInfo.set(w)
         BlackPlayerInfo.set(b)
 
+        WhitePlayerInfo.set(w)
+        BlackPlayerInfo.set(b)
+        # need refresh hints after calling me
+
+    @staticmethod
+    def update_game_info():
+        info = Globals.GameInfo
+
+        info[Hooks.WType] = Globals.Game_role["w"]
+        info[Hooks.BType] = Globals.Game_role["b"]
+
+        info[Hooks.WPlayer] = Globals.WName
+        info[Hooks.BPlayer] = Globals.BName
+
+        info[Hooks.Result] = Globals.Winner
+        info[Hooks.Termination] = EndTypeToTermination.get(Globals.Game_end)
+
+        Hooks._refresh_plaer_label()
+
+    @staticmethod
+    def update_globals():
+        # player info
+        WType = Globals.GameInfo.get(Hooks.WType)
+        BType = Globals.GameInfo.get(Hooks.BType)
+        WPlayer = Globals.GameInfo.get(Hooks.WPlayer)
+        BPlayer = Globals.GameInfo.get(Hooks.BPlayer)
+
+        Globals.Game_role["w"] = WType
+        Globals.Game_role["b"] = BType
+
+        Globals.WName = WPlayer
+        Globals.BName = BPlayer
+
         # result
         Result = Globals.GameInfo.get(Hooks.Result)
+        if Globals.Winner != Result:
+            Globals.Winner = Result
+            if Result == Winner.draw:
+                Globals.Game_end = EndType.adjunction_draw
+            elif Result == Winner.unknown:
+                Globals.Game_end = EndType.unterminated
+            else:
+                Globals.Game_end = EndType.adjunction_win
 
-        # todo: doing
+        # tc will not async here. elo will not save in the game, but read in PGN or tournament file(to plan)
+        Hooks._refresh_plaer_label()
 
 
 def set_cell_values(narrow_fen: str):
@@ -246,6 +284,10 @@ def set_game_fen(fen: str):
     Globals.History_hash = [hash(" ".join(fen.split(" ")[:4]))]
     Globals.Game_end = EndType.unterminated
     Globals.Winner = Winner.unknown
+    Globals.Game_role = {"w": Role.human, "b": Role.human}
+    Globals.WName = Globals.BName = ""
+    WhitePlayerInfo.set("人类")
+    BlackPlayerInfo.set("人类")
     if fen == Positions.common_start_fen:
         Globals.Start_pos = Positions.name_normal_startpos
     else:

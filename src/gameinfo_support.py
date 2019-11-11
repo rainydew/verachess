@@ -44,7 +44,7 @@ def set_Tk_var():
     Site = tk.StringVar(value='verachess 5.0')
     Round = tk.StringVar(value='')
     Result = tk.IntVar(value=Winner.unknown)
-    Date = tk.StringVar(value=today())  # todo: set to global
+    Date = tk.StringVar(value=today())
     MTime = tk.StringVar(value=now())
     TCMin = tk.DoubleVar(value=5.0)
     TCSec = tk.DoubleVar(value=3.0)
@@ -70,7 +70,7 @@ def reset_var():
     Site.set('verachess 5.0')
     Round.set('')
     Result.set(Winner.unknown)
-    Date.set(today())  # todo: set to global
+    Date.set(today())
     MTime.set(now())
     TCMin.set(5.0)
     TCSec.set(3.0)

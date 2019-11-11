@@ -68,7 +68,7 @@ class Toplevel1:
         _ana2color = '#ececec'  # Closest X11 color: 'gray92'
 
         top.geometry("634x487+474+328")
-        top.title("棋局信息")
+        top.title("棋局信息(警告：修改结果、玩家角色等配置项会影响当前棋局)")
         top.configure(background="#d9d9d9")
 
         self.Label1 = tk.Label(top)

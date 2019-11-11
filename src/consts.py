@@ -42,7 +42,7 @@ Pieces = {
     "r": "♜",
     "P": "♙",
     "p": "♟",
-}       # type: Dict[str, str]
+}  # type: Dict[str, str]
 
 
 class Promotions:
@@ -78,7 +78,7 @@ class Color:
     green_dark = "#00d100"
     yellow_light = "#ffefad"
     yellow_dark = "#dbc27f"
-    magenta = "#ff00ff"     # check
+    magenta = "#ff00ff"  # check
     clock_inactive = "#24b6ff"
     clock_active = "#d0fffc"
     clock_disabled = "#c0c0c0"
@@ -88,7 +88,7 @@ class Color:
 
 
 class Style:
-    move_list_slider = "Slicder.Vertical.TScale"    # must ended with .Vertical.TScale (the widget name and orient)
+    move_list_slider = "Slicder.Vertical.TScale"  # must ended with .Vertical.TScale (the widget name and orient)
 
 
 class Font:
@@ -109,10 +109,10 @@ class Role:
 
 
 class CastleCells:
-    white_long = ((7 ,4), (7, 3), (7, 2))
-    white_short = ((7 ,4), (7, 5), (7, 6))
-    black_long = ((0 ,4), (0, 3), (0, 2))
-    black_short = ((0 ,4), (0, 5), (0, 6))
+    white_long = ((7, 4), (7, 3), (7, 2))
+    white_short = ((7, 4), (7, 5), (7, 6))
+    black_long = ((0, 4), (0, 3), (0, 2))
+    black_short = ((0, 4), (0, 5), (0, 6))
     white_l_p, white_s_p, black_l_p, black_s_p = map(lambda x: x[1:], (
         white_long, white_short, black_long, black_short))  # type: Tuple[Tuple[int, int]]
     white_l_arrive, white_s_arrive, black_l_arrive, black_s_arrive = map(lambda x: x[-1], (
@@ -172,32 +172,33 @@ class Termination:
     all_type = (unterminated, normal, time_forfeit, rule_infraction, adjunction, abandon)
 
 
-class EndTypeToTermination:
-    unterminated = Termination.unterminated
-    checkmate = Termination.normal
-    resign = Termination.normal
-    time_forfeit = Termination.time_forfeit
-    engine_stall = Termination.rule_infraction
-    adjunction_win = Termination.adjunction  # by user or FICS
-    table_base_win = Termination.adjunction
-    score_rule_win = Termination.adjunction
-    illegal_move = Termination.rule_infraction
-    break_rule = Termination.rule_infraction  # e.g. memory overflow
-    withdraw = Termination.abandon
-    skip_win = Termination.abandon
-    other_win = Termination.adjunction
-    stalemate = Termination.normal
-    three_fold = Termination.normal
-    fifty_rule = Termination.normal
-    insufficient_material = Termination.normal
-    adjunction_draw = Termination.adjunction
-    table_base_draw = Termination.adjunction
-    score_rule_draw = Termination.adjunction
-    mutual_agreement = Termination.normal
-    single_king_with_opp_violate = Termination.adjunction
-    tournament_cancel = Termination.abandon
-    skip_draw = Termination.abandon
-    other_draw = Termination.adjunction
+EndTypeToTermination = {
+    EndType.unterminated: Termination.unterminated,
+    EndType.checkmate: Termination.normal,
+    EndType.resign: Termination.normal,
+    EndType.time_forfeit: Termination.time_forfeit,
+    EndType.engine_stall: Termination.rule_infraction,
+    EndType.adjunction_win: Termination.adjunction,  # by user or FICS
+    EndType.table_base_win: Termination.adjunction,
+    EndType.score_rule_win: Termination.adjunction,
+    EndType.illegal_move: Termination.rule_infraction,
+    EndType.break_rule: Termination.rule_infraction,  # e.g. memory overflow
+    EndType.withdraw: Termination.abandon,
+    EndType.skip_win: Termination.abandon,
+    EndType.other_win: Termination.adjunction,
+    EndType.stalemate: Termination.normal,
+    EndType.three_fold: Termination.normal,
+    EndType.fifty_rule: Termination.normal,
+    EndType.insufficient_material: Termination.normal,
+    EndType.adjunction_draw: Termination.adjunction,
+    EndType.table_base_draw: Termination.adjunction,
+    EndType.score_rule_draw: Termination.adjunction,
+    EndType.mutual_agreement: Termination.normal,
+    EndType.single_king_with_opp_violate: Termination.adjunction,
+    EndType.tournament_cancel: Termination.abandon,
+    EndType.skip_draw: Termination.abandon,
+    EndType.other_draw: Termination.adjunction,
+}
 
 
 class CpuMoveConf:
@@ -212,7 +213,6 @@ class Paths:
     music = "music/"
 
 
-
 class InfoTypes:
     time_use = "time"
     time_remain = "remain"
@@ -224,7 +224,7 @@ class InfoTypes:
     main_pv = "pv"
 
 
-EcoBook = _gen_eco_dict()   # type: Dict[str, str]
+EcoBook = _gen_eco_dict()  # type: Dict[str, str]
 
 
 def gen_empty_board(init_value=None) -> List[List[Any]]:
