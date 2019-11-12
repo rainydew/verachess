@@ -131,7 +131,7 @@ class Winner:
     unknown = -1.0
 
 
-Winner_Dict = {Winner.white: "1-0", Winner.draw: "1/2-1/2", Winner.black: "0-1"}
+Winner_Dict = {Winner.white: "1-0", Winner.draw: "1/2-1/2", Winner.black: "0-1", Winner.unknown: "*"}
 
 
 class EndType:
@@ -172,6 +172,15 @@ class Termination:
     all_type = (unterminated, normal, time_forfeit, rule_infraction, adjunction, abandon)
 
 
+class TerminationPGN:
+    unterminated = "unterminated"
+    normal = "normal"
+    time_forfeit = "time forfeit"
+    rule_infraction = "rule infraction"
+    adjunction = "adjunction"
+    abandon = "abandon"
+
+
 EndTypeToTermination = {
     EndType.unterminated: Termination.unterminated,
     EndType.checkmate: Termination.normal,
@@ -201,6 +210,35 @@ EndTypeToTermination = {
 }
 
 
+EndTypeToTerminationPGN = {
+    EndType.unterminated: TerminationPGN.unterminated,
+    EndType.checkmate: TerminationPGN.normal,
+    EndType.resign: TerminationPGN.normal,
+    EndType.time_forfeit: TerminationPGN.time_forfeit,
+    EndType.engine_stall: TerminationPGN.rule_infraction,
+    EndType.adjunction_win: TerminationPGN.adjunction,  # by user or FICS
+    EndType.table_base_win: TerminationPGN.adjunction,
+    EndType.score_rule_win: TerminationPGN.adjunction,
+    EndType.illegal_move: TerminationPGN.rule_infraction,
+    EndType.break_rule: TerminationPGN.rule_infraction,  # e.g. memory overflow
+    EndType.withdraw: TerminationPGN.abandon,
+    EndType.skip_win: TerminationPGN.abandon,
+    EndType.other_win: TerminationPGN.adjunction,
+    EndType.stalemate: TerminationPGN.normal,
+    EndType.three_fold: TerminationPGN.normal,
+    EndType.fifty_rule: TerminationPGN.normal,
+    EndType.insufficient_material: TerminationPGN.normal,
+    EndType.adjunction_draw: TerminationPGN.adjunction,
+    EndType.table_base_draw: TerminationPGN.adjunction,
+    EndType.score_rule_draw: TerminationPGN.adjunction,
+    EndType.mutual_agreement: TerminationPGN.normal,
+    EndType.single_king_with_opp_violate: TerminationPGN.adjunction,
+    EndType.tournament_cancel: TerminationPGN.abandon,
+    EndType.skip_draw: TerminationPGN.abandon,
+    EndType.other_draw: TerminationPGN.adjunction,
+}
+
+
 class CpuMoveConf:
     use_depth = 0
     use_timer = 1
@@ -225,6 +263,29 @@ class InfoTypes:
 
 
 EcoBook = _gen_eco_dict()  # type: Dict[str, str]
+
+PGNModel = """[Event "{}"]
+[Site "{}"]
+[Date "{}"]
+[Round "{}"]
+[White "{}"]
+[Black "{}"]
+[Time "{}"]
+[Result "{}"]
+[WhiteElo "{}"]
+[BlackElo "{}"]
+[ECO "{}"]
+[Opening "{}"]
+[PlyCount "{}"]
+[Termination "{}"]
+[TerminationDetails "{}"]
+[TimeControl "{}+{}"]
+"""
+
+Chess960PGNModel = """[SetUp "1"]
+[Variant "Chess960"]
+[FEN "{}"]
+"""
 
 
 def gen_empty_board(init_value=None) -> List[List[Any]]:

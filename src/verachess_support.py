@@ -14,10 +14,10 @@ import setboard
 import gameinfo
 from clock import refresh_clock
 from verachess_global import Globals, release_model_lock
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Any
 from verachess import destroy_MainWindow
 from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths, CpuMoveConf, Role, \
-    EndTypeToTermination
+    EndTypeToTermination, PGNModel, Winner_Dict, EndTypeToTerminationPGN, Chess960PGNModel
 from tkinter import CallWrapper
 from decos import check_model, model_locked
 import events
@@ -289,6 +289,7 @@ def set_game_fen(fen: str):
     Globals.Winner = Winner.unknown
     Globals.Game_role = {"w": Role.human, "b": Role.human}
     Globals.WName = Globals.BName = ""
+    Globals.TerminationInfo = ""
     WhitePlayerInfo.set("人类")
     BlackPlayerInfo.set("人类")
     if fen == Positions.common_start_fen:
@@ -350,6 +351,30 @@ def refresh_clock_conf():
     else:
         Globals.CpuSet = int(cpu_set * 1000000)
     reset_clock()
+
+
+def format_pgn_file(info: Dict[str, Any] = Globals.GameInfo):
+    eco_info = Eco.get().split(" ")
+    eco, eco_msg = eco_info[0], eco_info[1:]
+    return PGNModel.format(
+        info.get(Hooks.Event),
+        info.get(Hooks.Site),
+        info.get(Hooks.Date),
+        info.get(Hooks.Round),
+        info.get(Hooks.WPlayer or "白方"),
+        info.get(Hooks.BPlayer or "黑方"),
+        info.get(Hooks.MTime),
+        Winner_Dict[info.get(Hooks.Result)],
+        info.get(Hooks.WElo),
+        info.get(Hooks.BElo),
+        eco,
+        eco_msg,
+        len(Globals.AlphabetMovelist),
+        EndTypeToTerminationPGN.get(Globals.Game_end),
+        Globals.Wtime // 1000 if Globals.Wtime == Globals.Btime else "?", Globals.Winc // 1000 if Globals.Winc == Globals.Binc else "?",    # fixme: index out of range
+    ) + ("" if Globals.Start_pos == Positions.name_normal_startpos else Chess960PGNModel.format(
+        Globals.Start_pos
+    ))
 
 
 # events
@@ -502,12 +527,12 @@ def edit_game():
 @model_locked
 def save_game():
     filepath = easygui.filesavebox("选择保存的路径", "保存棋局", Paths.binpath + "/../*.pgn")
-    if os.path.exists(filepath):
-        if not easygui.ynbox("文件已经存在，是否覆盖？", "覆盖棋谱", ["是", "否"]):
-            return
+    Hooks.update_game_info()
     with open(filepath, "w") as f:
-        pass
-        # todo: game info modifier
+        f.write(format_pgn_file())
+        f.write("\n")
+        f.write(" ".join(Globals.PGNMovelist))
+        f.write("  " + Winner_Dict[Globals.GameInfo.get(Hooks.Result)] + "\n\n")
 
 
 @check_model
