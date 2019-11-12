@@ -150,14 +150,23 @@ def check_wdl(silent: bool = False):
     if res and not Globals.Game_end:  # prevent overwrite
         Globals.Game_end = res
         if res == EndType.checkmate:
-            message = "{}方将死了对手，获得胜利".format("白" if Globals.Winner == Winner.white else "黑")
+            if Globals.Winner == Winner.white:
+                Globals.TerminationInfo = "white mates"
+                message = "白方将死了对手，获得胜利"
+            else:
+                Globals.TerminationInfo = "black mates"
+                message = "黑方将死了对手，获得胜利"
         elif res == EndType.three_fold:
+            Globals.TerminationInfo = "three fold repeatation"
             message = "三次重复局面，和棋"
         elif res == EndType.fifty_rule:
+            Globals.TerminationInfo = "fifty moves rule"
             message = "五十回合内没有吃子和动兵，和棋"
         elif res == EndType.stalemate:
+            Globals.TerminationInfo = "stalemate"
             message = "行棋方无子可动且未被将军，逼和"
         elif res == EndType.insufficient_material:
+            Globals.TerminationInfo = "insufficient material"
             message = "双方剩余子力均不能将死对方，和棋"
         if not silent:
             with ModelLock():

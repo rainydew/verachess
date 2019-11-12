@@ -5,7 +5,6 @@
 #    Oct 06, 2019 11:52:10 PM CST  platform: Windows NT
 
 import sys
-import os
 import easygui
 import pyperclip
 import c960confirm
@@ -17,7 +16,7 @@ from verachess_global import Globals, release_model_lock
 from typing import List, Tuple, Dict, Any
 from verachess import destroy_MainWindow
 from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths, CpuMoveConf, Role, \
-    EndTypeToTermination, PGNModel, Winner_Dict, EndTypeToTerminationPGN, Chess960PGNModel
+    EndTypeToTermination, PGNModel, Winner_Dict, EndTypeToTerminationPGN, Chess960PGNModel, SetupPGNModel
 from tkinter import CallWrapper
 from decos import check_model, model_locked
 import events
@@ -356,7 +355,7 @@ def refresh_clock_conf():
 def format_pgn_file(info: Dict[str, Any] = Globals.GameInfo):
     eco_info = Eco.get().split(" ")
     eco, eco_msg = eco_info[0], eco_info[1:]
-    return PGNModel.format(
+    res = PGNModel.format(
         info.get(Hooks.Event),
         info.get(Hooks.Site),
         info.get(Hooks.Date),
@@ -371,10 +370,14 @@ def format_pgn_file(info: Dict[str, Any] = Globals.GameInfo):
         eco_msg,
         len(Globals.AlphabetMovelist),
         EndTypeToTerminationPGN.get(Globals.Game_end),
-        Globals.Wtime // 1000 if Globals.Wtime == Globals.Btime else "?", Globals.Winc // 1000 if Globals.Winc == Globals.Binc else "?",    # fixme: index out of range
-    ) + ("" if Globals.Start_pos == Positions.name_normal_startpos else Chess960PGNModel.format(
-        Globals.Start_pos
-    ))
+        Globals.TerminationInfo,
+        Globals.Wtime // 1000 if Globals.Wtime == Globals.Btime else "?", Globals.Winc // 1000 if Globals.Winc == Globals.Binc else "?",
+    )
+    if Globals.Chess_960_Columns[0] is not None:
+        res += Chess960PGNModel.format(Globals.Start_pos)
+    elif Globals.Start_pos != Positions.name_normal_startpos:
+        res += SetupPGNModel.format(Globals.Start_pos)
+    return res
 
 
 # events
@@ -526,13 +529,31 @@ def edit_game():
 
 @model_locked
 def save_game():
-    filepath = easygui.filesavebox("选择保存的路径", "保存棋局", Paths.binpath + "/../*.pgn")
+    filepath = easygui.filesavebox("选择保存路径", "保存棋局", Paths.binpath + "/../PGN/*.pgn")
+    if filepath is None:
+        return
     Hooks.update_game_info()
     with open(filepath, "w") as f:
         f.write(format_pgn_file())
         f.write("\n")
         f.write(" ".join(Globals.PGNMovelist))
         f.write("  " + Winner_Dict[Globals.GameInfo.get(Hooks.Result)] + "\n\n")
+
+
+@model_locked
+def load_game():
+    if any(Globals.Game_role.values()) and not Globals.Game_end:
+        easygui.msgbox("如果棋局正在进行，则黑白双方都需要被本地玩家控制，才能打开棋谱文件")
+        return
+    filepath = easygui.fileopenbox("选择棋谱文件", "读取棋局", Paths.binpath + "/../PGN/*.pgn")
+    if filepath is None:
+        return
+    with open(filepath, "r") as f:
+        res = f.read()
+    print(res)
+    # todo: doing, remove braces and split games
+    return
+    Hooks.update_globals()
 
 
 @check_model
@@ -560,6 +581,10 @@ def ListScroll(value):
         move.place(y=24 * (row - value))
 
 
+def destruct(event: CallWrapper) -> None:
+    sys.exit()  # fixme: error ignored here when loaded game info
+
+
 # event end
 def init(top, gui, *args, **kwargs):
     global w, top_level, root
@@ -570,6 +595,6 @@ def init(top, gui, *args, **kwargs):
 
 def destroy_window():
     # Function which closes the window.
-    global top_level
-    top_level.destroy()
-    top_level = None
+    if easygui.ynbox("你确定要退出吗？", "verachess 5.0", ["是", "否"]):
+        destroy_MainWindow()
+        sys.exit()

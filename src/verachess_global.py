@@ -37,7 +37,7 @@ class Globals:
     WName = ""
     BName = ""
     Game_end = EndType.unterminated  # type: int  # !0 to lock board, >0 means draw, <0 means win/lose
-    TerminationInfo = ""    # todo: async info after engine supported
+    TerminationInfo = ""
     Chess_960_Columns = (None, None, None)  # type: Tuple[int, int, int]
     LastMove = None  # type: Tuple[int, int]  # place, None shows no lastmove
     Models = False  # true when promotions and so on, all the main window will block

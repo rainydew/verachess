@@ -74,6 +74,7 @@ def timeout(white: bool, silent: bool = False):
             Globals.Game_end = EndType.single_king_with_opp_violate
             message = "白方超时，因黑方只有单王，和棋"
             Globals.Winner = Winner.draw
+        Globals.TerminationInfo = "white forfeits on time"
     else:
         if wp != 1:
             Globals.Game_end = EndType.time_forfeit
@@ -83,6 +84,7 @@ def timeout(white: bool, silent: bool = False):
             Globals.Game_end = EndType.single_king_with_opp_violate
             message = "黑方超时，因白方只有单王，和棋"
             Globals.Winner = Winner.draw
+        Globals.TerminationInfo = "black forfeits on time"
     if not silent:
         with ModelLock():
             easygui.msgbox(message, "棋局结束", "确认")

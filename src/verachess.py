@@ -154,6 +154,8 @@ class MainWindow:
 
         verachess_support.set_cell_values(Positions.common_startpos)
 
+        top.bind('<Destroy>', lambda e: verachess_support.destruct(e))
+
 
 # user code
 def create_columns(main: MainWindow, top: tk.Tk):
@@ -302,6 +304,7 @@ def create_menus(main: MainWindow, top: tk.Tk):
     add_separator(main, m_file)
     add_command(main, m_file, "棋局信息", verachess_support.edit_game)
     add_command(main, m_file, "保存棋谱", verachess_support.save_game)
+    add_command(main, m_file, "读取棋谱", verachess_support.load_game)
     add_separator(main, m_file)
     add_command(main, m_file, "退出", verachess_support.exit_game)
     m_board = add_menu(main, top, "棋盘")

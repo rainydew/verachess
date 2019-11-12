@@ -1,15 +1,16 @@
 # coding: utf-8
 from typing import List, Any, Tuple, Dict
 import easygui
-import sys
+import os
 
 
 def _get_bin_path():
-    filepath = sys.argv[0]  # type: str
-    if filepath.replace("\\", "/").split("/")[-2] == "src":
-        binpath = filepath + "/../../bin"
+    filepath = os.path.abspath(".").replace("\\", "/")  # type: str
+    if filepath.split("/")[-1] == "src":
+        binpath = filepath + "/../bin"
     else:
-        binpath = filepath + "/.."
+        binpath = filepath
+    print("debug path", binpath)
     return binpath
 
 
@@ -282,10 +283,11 @@ PGNModel = """[Event "{}"]
 [TimeControl "{}+{}"]
 """
 
-Chess960PGNModel = """[SetUp "1"]
-[Variant "Chess960"]
+SetupPGNModel = """[SetUp "1"]
 [FEN "{}"]
 """
+
+Chess960PGNModel = '[Variant "Chess960"]\n' + SetupPGNModel
 
 
 def gen_empty_board(init_value=None) -> List[List[Any]]:
