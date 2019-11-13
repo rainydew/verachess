@@ -4,13 +4,14 @@
 #  in conjunction with Tcl version 8.6
 #    Oct 06, 2019 11:52:10 PM CST  platform: Windows NT
 
-import sys
+import os
 import easygui
 import pyperclip
 import c960confirm
 import clockconfirm
 import setboard
 import gameinfo
+import re
 from clock import refresh_clock
 from verachess_global import Globals, release_model_lock
 from typing import List, Tuple, Dict, Any
@@ -384,7 +385,6 @@ def format_pgn_file(info: Dict[str, Any] = Globals.GameInfo):
 def exit_game():
     if easygui.ynbox("你确定要退出吗？", "verachess 5.0", ["是", "否"]):
         destroy_MainWindow()
-        sys.exit()
 
 
 @model_locked
@@ -548,10 +548,25 @@ def load_game():
     filepath = easygui.fileopenbox("选择棋谱文件", "读取棋局", Paths.binpath + "/../PGN/*.pgn")
     if filepath is None:
         return
+    header = "header"
+    body = "body"
+    pgns = []
+    in_body = True
     with open(filepath, "r") as f:
-        res = f.read()
-    print(res)
-    # todo: doing, remove braces and split games
+        for line in f:
+            if line:
+                if "[" in line:
+                    if in_body:
+                        pgns.append({header: {}, body: ""})
+                        in_body = False
+                    field, value = re.findall('\[(.+) "(.+)"\]', line)[0]
+                    pgns[-1][header][field] = value
+                else:
+                    in_body = True
+                    pgns[-1][body] += line
+    for pgn in pgns:
+        print(pgn[header])
+        print(pgn[body])
     return
     Hooks.update_globals()
 
@@ -582,7 +597,13 @@ def ListScroll(value):
 
 
 def destruct(event: CallWrapper) -> None:
-    sys.exit()  # fixme: error ignored here when loaded game info
+    global WhiteFlagImg, BlackFlagImg
+    try:
+        del WhiteFlagImg
+        del BlackFlagImg
+    except NameError:
+        pass
+    os._exit(0)
 
 
 # event end
@@ -597,4 +618,3 @@ def destroy_window():
     # Function which closes the window.
     if easygui.ynbox("你确定要退出吗？", "verachess 5.0", ["是", "否"]):
         destroy_MainWindow()
-        sys.exit()

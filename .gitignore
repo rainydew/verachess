@@ -110,3 +110,5 @@ venv.bak/
 mylab.py
 /src/lab
 
+# test PGNs
+/PGN/*.pgn
