@@ -11,6 +11,7 @@ import c960confirm
 import clockconfirm
 import setboard
 import gameinfo
+import chart
 import re
 from clock import refresh_clock
 from verachess_global import Globals, release_model_lock
@@ -563,10 +564,24 @@ def load_game():
                     pgns[-1][header][field] = value
                 else:
                     in_body = True
+                    if not len(pgns):
+                        easygui.msgbox("PGN格式不正确，无法识别")
+                        return
                     pgns[-1][body] += line
-    for pgn in pgns:
-        print(pgn[header])
-        print(pgn[body])
+    if len(pgns) > 1:
+        main_window = Globals.Main.Top
+        sub_window, chart_widget = chart.create_Toplevel1(root=main_window)
+        sub_window.transient(main_window)  # show only one window in taskbar
+        sub_window.grab_set()  # set as model window
+        main_window.wait_window(sub_window)  # wait for window return, to get return value
+        pgn_index = chart_widget.Result
+        if pgn_index is None:
+            return
+        choosen_pgn = pgns[pgn_index]
+    else:
+        choosen_pgn = pgns[0]
+    print(choosen_pgn)
+    # todo: pgn and fen auto moving(engine style)
     return
     Hooks.update_globals()
 

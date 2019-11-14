@@ -384,6 +384,40 @@ class Fens:
         return secure_moves
 
     @staticmethod
+    def _move_in_board_get_piece_move(board: List[List[Optional[str]]], r: int, c: int, fen: str, end: Tuple[int, int]
+                                      ) -> bool:
+        # better performace to verify
+        piece = board[r][c]
+        first_moves = Move_Func_Dict[piece.lower()](board, r, c)  # type: List[Tuple[int, int]]
+        secure_moves = Fens._remove_pinned_move(first_moves, board, r, c)
+        if piece in "Kk":
+            secure_moves += Fens._castle_move(Fens.get_castle(fen), board, piece == "K", Fens.is_chess960(fen), fen)
+            # secure check in method
+        if piece in "Pp":
+            secure_moves += Fens._ep_move(Fens.get_ep(fen), board, r, c)  # secure check in method too
+        return end in secure_moves
+
+    @staticmethod
+    def verify_uci_move(fen: str, move: str) -> bool:
+        narrow_fen, mover, _, _, _, _ = fen.split(" ")
+        white_now = mover == "w"
+        if len(move) == 5:
+            if move[-1] not in "qrnb":
+                return False
+        elif len(move) != 4:
+            return False
+        if move[0] not in "abcdefgh" or move[2] not in "abcdefgh" or move[1] not in "12345678" or move[3] not in \
+            "12345678":
+            return False
+        board = Fens.get_board_arrays(narrow_fen)
+        start_r, start_c = Fens.cellname_to_place(move[:2])
+        piece = board[start_r][start_c]
+        end = Fens.cellname_to_place(move[2:4])
+        if not piece or piece.isupper() != white_now:
+            return False
+        return Fens._move_in_board_get_piece_move(board, start_r, start_c, fen, end)
+
+    @staticmethod
     def get_all_moves(fen: str) -> List[str]:
         white = Fens.get_mover(fen) == "w"
         board = Fens.get_board_arrays(fen)
@@ -790,6 +824,12 @@ class Pgns:
         res = pgn_moves.get(pgn)
         assert res is not None, "move not found"
         return res
+
+    @staticmethod
+    def fast_single_pgn_to_uci(fen:str, pgn:str) -> str:
+        # todo: doing
+        narrow_fen, mover, castle, ep, _, _ = fen.split(" ")
+
 
     @staticmethod
     def uci_to_pgn(fen: str, moves: List[str]) -> List[str]:

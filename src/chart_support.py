@@ -6,6 +6,7 @@
 #    Nov 13, 2019 05:32:12 PM CST  platform: Windows NT
 
 import sys
+from typing import Dict, Union, List
 
 try:
     import Tkinter as tk
@@ -21,25 +22,28 @@ except ImportError:
 
     py3 = True
 
-w = None    # type: chart.Toplevel1
+w = None  # type: chart.Toplevel1
 
 
 def cancel():
-    print('chart_support.cancel')
-    sys.stdout.flush()
+    destroy_window()
 
 
 def choose(p1):
-    print(w.Scrolledtreeview1.item(w.Scrolledtreeview1.selection()[0])["text"])
-    print('chart_support.choose')
-    sys.stdout.flush()
+    chosen = w.Scrolledtreeview1.item(w.Scrolledtreeview1.selection()[0])["text"]
+    w.Result = chosen
+    destroy_window()
 
 
-def init(top, gui, *args, **kwargs):
+def init(top, gui, pgns: List[Dict[str, Union[Dict, str]]]):
     global w, top_level, root
-    w = gui
+    w = gui  # type: chart.Toplevel1
     top_level = top
     root = top
+    for i, pgn in enumerate(pgns):
+        columns = w.Columns
+        pgn_small = {k.lower(): v for k, v in pgn.items()}
+        w.Scrolledtreeview1.insert("", "end", text=str(i), values=[pgn_small.get(k) or "" for k in columns])
 
 
 def destroy_window():

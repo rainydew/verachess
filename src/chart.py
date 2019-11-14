@@ -29,8 +29,9 @@ def vp_start_gui():
     global val, w, root
     root = tk.Tk()
     top = Toplevel1(root)
-    chart_support.init(root, top)
+    chart_support.init(root, top, [])
     root.mainloop()
+    print(top.Result)
 
 
 w = None
@@ -43,7 +44,7 @@ def create_Toplevel1(root, *args, **kwargs):
     w = tk.Toplevel(root)
     top = Toplevel1(w)
     chart_support.init(w, top, *args, **kwargs)
-    return (w, top)
+    return w, top
 
 
 def destroy_Toplevel1():
@@ -67,52 +68,44 @@ class Toplevel1:
         self.style.configure('.', background=_bgcolor)
         self.style.configure('.', foreground=_fgcolor)
         self.style.configure('.', font="TkDefaultFont")
-        self.style.map('.', background=
-        [('selected', _compcolor), ('active', _ana2color)])
+        self.style.map('.', background=[('selected', _compcolor), ('active', _ana2color)])
 
         top.geometry("750x550+495+263")
-        top.title("Choose A Game")
+        top.title("选择棋局")
         top.configure(background="#d9d9d9")
 
         self.style.configure('Treeview', font="TkDefaultFont")
         self.Scrolledtreeview1 = ScrolledTreeView(top)
-        self.Scrolledtreeview1.place(relx=0.0, rely=0.0, relheight=0.86
-                                     , relwidth=1.0)
+        self.Scrolledtreeview1.place(x=0, y=0, height=470, width=750)
         columns = ["Round", "White", "WhiteElo", "Black", "BlackElo", "Result", "ECO", "Termination"]
         self.Columns = [x.lower() for x in columns]
         self.Scrolledtreeview1.configure(columns=columns)
         # build_treeview_support starting.
-        self.Scrolledtreeview1.heading("#0", text="No")
-        self.Scrolledtreeview1.column("#0", width="10")
+        self.Scrolledtreeview1.heading("#0", text="No.")
+        self.Scrolledtreeview1.column("#0", width="20")
         self.Scrolledtreeview1.bind('<Double-ButtonRelease-1>', lambda e: chart_support.choose(e))
 
         for col in columns:
             self.Scrolledtreeview1.heading(col, text=col)
             self.Scrolledtreeview1.column(col, width="50")
 
-        for i in range(100):
-            self.Scrolledtreeview1.insert("", "end", text=str(i), values=[str(i), "w", 2000, "b", 2000, "*", "A00",
-                                                                          "unterminated"])
+        if __name__ == '__main__':
+            for i in range(100):
+                self.Scrolledtreeview1.insert("", "end", text=str(i), values=[str(i), "w", 2000, "b", 2000, "*", "A00",
+                                                                              "unterminated"])
 
         self.Cancel = tk.Button(top)
-        self.Cancel.place(relx=0.707, rely=0.889, height=33, width=58)
-        self.Cancel.configure(activebackground="#ececec")
-        self.Cancel.configure(activeforeground="#000000")
-        self.Cancel.configure(background="#d9d9d9")
+        self.Cancel.place(x=530, y=490, height=31, width=58)
         self.Cancel.configure(command=chart_support.cancel)
-        self.Cancel.configure(disabledforeground="#a3a3a3")
-        self.Cancel.configure(foreground="#000000")
-        self.Cancel.configure(highlightbackground="#d9d9d9")
-        self.Cancel.configure(highlightcolor="black")
-        self.Cancel.configure(pady="0")
-        self.Cancel.configure(text='''Button''')
+        self.Cancel.configure(background="#d9d9d9")
+        self.Cancel.configure(text='''取消''')
 
         self.Label1 = tk.Label(top)
-        self.Label1.place(relx=0.213, rely=0.889, height=26, width=171)
+        self.Label1.place(x=160, y=490, height=26)
         self.Label1.configure(background="#d9d9d9")
-        self.Label1.configure(disabledforeground="#a3a3a3")
-        self.Label1.configure(foreground="#000000")
-        self.Label1.configure(text='''Double Click To Confirm''')
+        self.Label1.configure(text='''双击某个棋谱以确定。注意：桌上棋局将被覆盖''')
+
+        self.Result = None
 
 
 # The following code is added to facilitate the Scrolled widgets you specified.
