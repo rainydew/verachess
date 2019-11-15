@@ -4,6 +4,8 @@ from consts import Pieces, gen_empty_board, CastleCells, EndType, Winner
 from typing import Tuple, List, Union, Dict, Callable, Optional
 from copy import deepcopy
 from collections import Counter
+from decos import none_trier
+import logging
 
 
 class Fens:
@@ -395,6 +397,14 @@ class Fens:
             # secure check in method
         if piece in "Pp":
             secure_moves += Fens._ep_move(Fens.get_ep(fen), board, r, c)  # secure check in method too
+        return end in secure_moves
+
+    @staticmethod
+    def _normal_piece_can_arrive(board: List[List[Optional[str]]], r: int, c: int, piece: str, end: Tuple[int, int])\
+            -> bool:
+        # better performace, only for normal piece
+        first_moves = Move_Func_Dict[piece](board, r, c)  # type: List[Tuple[int, int]]
+        secure_moves = Fens._remove_pinned_move(first_moves, board, r, c)
         return end in secure_moves
 
     @staticmethod
@@ -818,7 +828,9 @@ class Pgns:
 
     @staticmethod
     def single_pgn_to_uci(fen:str, pgn:str) -> str:
-        pgn = pgn.split(".")[-1].strip().replace("+", "").replace("=", "").replace("#", "")
+        pgn = pgn.split(".")[-1].strip().replace("+", "").replace("#", "")      # fix promotion bug
+        if pgn[-1] == "=":
+            pgn = pgn[:-1]
         moves = Fens.get_all_moves(fen)
         pgn_moves = {Pgns.single_uci_to_pgn(fen, move)[1]: move for move in moves}  # type: Dict[str, str]
         res = pgn_moves.get(pgn)
@@ -826,10 +838,106 @@ class Pgns:
         return res
 
     @staticmethod
+    @none_trier
     def fast_single_pgn_to_uci(fen:str, pgn:str) -> str:
-        # todo: doing
+        # no verify, can use verify function to do it
         narrow_fen, mover, castle, ep, _, _ = fen.split(" ")
+        pgn = pgn.split(".")[-1].strip().replace("+", "").replace("#", "").replace("x", "")
+        if pgn[-1] == "=":
+            pgn = pgn[:-1]
 
+        if "O" in pgn:
+            row = "1" if mover == "w" else "8"
+            if any([x in castle for x in "KQkq"]):
+                # normal
+                if pgn == "O-O":
+                    return "e%sg%s"%(row, row)
+                else:
+                    return "e%sc%s"%(row, row)
+            if mover == "w":
+                line = narrow_fen.split("/")[-1]
+                king = "K"
+                rook = "R"
+            else:
+                line = narrow_fen.split("/")[0]
+                king = "k"
+                rook = "r"
+            j = 0
+            k = None
+            for char in line:
+                if char in Pieces:
+                    if char == king:
+                        k = j
+                    if char == rook:
+                        if k is None:
+                            lr = j
+                        else:
+                            rr = j
+                            break
+                    j += 1
+                else:
+                    j += int(char)
+            start = chr(97 + k)
+            if pgn == "O-O":
+                end = chr(97 + rr)
+            else:
+                end = chr(97 + lr)
+
+            return "%s%s%s%s" % (start, row, end, row)
+
+        board = Fens.get_board_arrays(narrow_fen)
+        if pgn[0].isupper():
+            piece = pgn[0] if mover == "w" else pgn[0].lower()
+            pgn = pgn[1:]
+            extra, end = pgn[:-2], pgn[-2:]
+            end_place = Fens.cellname_to_place(end)
+            if extra == "":
+                for r in range(8):
+                    for c in range(8):
+                        # king included
+                        if board[r][c] == piece and Fens._normal_piece_can_arrive(board, r, c, piece, end_place):
+                            return Fens.place_to_cellname((r, c)) + end
+            raise ValueError("move not found")
+        else:
+            piece = "P" if mover == "w" else "p"
+            if "=" == pgn[-2]:
+                tail = pgn[-1].lower()
+                pgn = pgn[:-2]
+            else:
+                tail = ""
+            if len(pgn) == 2:
+                # pawn move
+                end_r, end_c = Fens.cellname_to_place(pgn)
+                if mover == "w":
+                    if board[end_r + 1][end_c] is None:
+                        return "%s%d%s%s" % (pgn[0], int(pgn[1]) - 2, pgn, tail)
+                    else:
+                        return "%s%d%s%s" % (pgn[0], int(pgn[1]) - 1, pgn, tail)
+                else:
+                    if board[end_r - 1][end_c] is None:
+                        return "%s%d%s%s" % (pgn[0], int(pgn[1]) + 2, pgn, tail)
+                    else:
+                        return "%s%d%s%s" % (pgn[0], int(pgn[1]) + 1, pgn, tail)
+            else:
+                # pawn capture
+                if mover == "w":
+                    return "%s%d%s%s" % (pgn[0], int(pgn[2]) - 1, pgn[1:], tail)
+                else:
+                    return "%s%d%s%s" % (pgn[0], int(pgn[2]) + 1, pgn[1:], tail)
+
+    @staticmethod
+    def fast_pgn_to_moves_and_fens(fen: str, pgn_moves: List[str]) -> Optional[List[Tuple[str, str]]]:
+        # [(uci, fen)]
+        res_list = []
+        for pgn in pgn_moves:
+            uci = Pgns.fast_single_pgn_to_uci(fen, pgn)
+            if uci and Fens.verify_uci_move(fen, uci):
+                fen = Fens.calc_move(fen, uci)[0]
+                res_list.append((uci, fen))
+            else:
+                logging.warning("move {} incorrect in {}".format(uci, fen))
+                return None
+        return res_list   # todo: not tested
 
     @staticmethod
     def uci_to_pgn(fen: str, moves: List[str]) -> List[str]:
