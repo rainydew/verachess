@@ -18,7 +18,8 @@ from verachess_global import Globals, release_model_lock
 from typing import List, Tuple, Dict, Any
 from verachess import destroy_MainWindow
 from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths, CpuMoveConf, Role, \
-    EndTypeToTermination, PGNModel, Winner_Dict, EndTypeToTerminationPGN, Chess960PGNModel, SetupPGNModel
+    EndTypeToTermination, PGNModel, Winner_Dict, EndTypeToTerminationPGN, Chess960PGNModel, SetupPGNModel, \
+    Reverse_Winner_Dict, Termination, TerminationPGNToTermination
 from tkinter import CallWrapper
 from decos import check_model, model_locked
 import events
@@ -53,7 +54,7 @@ def set_Tk_var():
     MenuStats[MenuStatNames.flip] = tk.BooleanVar(value=False)
     MenuStats[MenuStatNames.clock] = tk.BooleanVar(value=True)
     Eco = tk.StringVar()
-    Eco.set('ECO A00 Start Position')
+    Eco.set('A00 Start Position')
     WhitePlayerInfo = tk.StringVar()
     WhitePlayerInfo.set('人类')
     BlackPlayerInfo = tk.StringVar()
@@ -298,6 +299,7 @@ def set_game_fen(fen: str):
     else:
         Globals.Start_pos = fen
     Globals.MoveSlider = -1
+    Hooks.update_game_info()
     events.remove_pgn_from()
     events.refresh_start_pos_in_movelist()
     events.clear_check_cell()
@@ -362,8 +364,8 @@ def format_pgn_file(info: Dict[str, Any] = Globals.GameInfo):
         info.get(Hooks.Site),
         info.get(Hooks.Date),
         info.get(Hooks.Round),
-        info.get(Hooks.WPlayer or "白方"),
-        info.get(Hooks.BPlayer or "黑方"),
+        info.get(Hooks.WPlayer),
+        info.get(Hooks.BPlayer),
         info.get(Hooks.MTime),
         Winner_Dict[info.get(Hooks.Result)],
         info.get(Hooks.WElo),
@@ -380,6 +382,43 @@ def format_pgn_file(info: Dict[str, Any] = Globals.GameInfo):
     elif Globals.Start_pos != Positions.name_normal_startpos:
         res += SetupPGNModel.format(Globals.Start_pos)
     return res
+
+
+def parse_pgn_file(header: Dict[str, str]) -> Dict[str, Any]:
+    info = {}
+    info[Hooks.WPlayer] = header.get('white') or ''
+    info[Hooks.BPlayer] = header.get('black') or ''
+    info[Hooks.WElo] = header.get('whiteelo') or ''
+    info[Hooks.BElo] = header.get('blackelo') or ''
+    info[Hooks.WType] = Role.human
+    info[Hooks.BType] = Role.human
+    info[Hooks.Event] = header.get('event') or ''
+    info[Hooks.Site] = header.get('site') or 'verachess 5.0'
+    info[Hooks.Round] = header.get('round') or ''
+    info[Hooks.Result] = Reverse_Winner_Dict.get(header.get('result')) or Winner.unknown
+    info[Hooks.Date] = header.get('date') or ''
+    info[Hooks.MTime] = header.get('time') or ''
+    tc = header.get('timecontrol')
+    if not tc:
+        info[Hooks.TCMin] = 5.0
+        info[Hooks.TCSec] = 3.0
+    else:
+        tc = tc.split("+")
+        info[Hooks.TCMin] = float(tc[0]) / 60
+        if len(tc) == 1:
+            info[Hooks.TCSec] = 0.0
+        else:
+            info[Hooks.TCSec] = float(tc[1])
+    term = header.get('termination')
+    term = TerminationPGNToTermination.get(term)
+    if not term:
+        if info[Hooks.Result] == Winner.unknown:
+            term = Termination.unterminated
+        else:
+            term = Termination.adjunction
+    info[Hooks.Termination] = term
+    info[Hooks.TDetail] = header.get('terminationdetails') or ''
+    return info
 
 
 # events
@@ -506,6 +545,8 @@ def set_board():
         return
     release_model_lock()  # very important, set fen require model lock
     set_game_fen(reformat_fen(fen))
+    MenuStats[MenuStatNames.flip].set(False)
+    refresh_flip()
 
 
 @model_locked
@@ -544,7 +585,7 @@ def save_game():
 @model_locked
 def load_game():
     if any(Globals.Game_role.values()) and not Globals.Game_end:
-        easygui.msgbox("如果棋局正在进行，则黑白双方都需要被本地玩家控制，才能打开棋谱文件")
+        easygui.msgbox("如果棋局正在进行，则黑白双方都需要被本地玩家控制，才能导入棋谱文件")
         return
     filepath = easygui.fileopenbox("选择棋谱文件", "读取棋局", Paths.binpath + "/../PGN/*.pgn")
     if filepath is None:
@@ -560,7 +601,7 @@ def load_game():
                     if in_body:
                         pgns.append({header: {}, body: ""})
                         in_body = False
-                    field, value = re.findall('\[(.+) "(.+)"\]', line)[0]
+                    field, value = re.findall('\[(.+) "(.*)"\]', line)[0]
                     pgns[-1][header][field] = value
                 else:
                     in_body = True
@@ -570,19 +611,44 @@ def load_game():
                     pgns[-1][body] += line
     if len(pgns) > 1:
         main_window = Globals.Main.Top
-        sub_window, chart_widget = chart.create_Toplevel1(root=main_window)
+        sub_window, chart_widget = chart.create_Toplevel1(root=main_window, pgns=pgns)
         sub_window.transient(main_window)  # show only one window in taskbar
         sub_window.grab_set()  # set as model window
         main_window.wait_window(sub_window)  # wait for window return, to get return value
         pgn_index = chart_widget.Result
         if pgn_index is None:
             return
-        choosen_pgn = pgns[pgn_index]
+        choosen_pgn = pgns[int(pgn_index)]
     else:
         choosen_pgn = pgns[0]
-    print(choosen_pgn)
-    # todo: pgn and fen auto moving(engine style)
-    return
+    header, pgn = choosen_pgn.get("header"), choosen_pgn.get("body").strip()
+    header = {k.lower(): v for k, v in header.items()}
+    pgn = re.sub("(\{[^\}]*\})", "", pgn)
+    pgn = [x.split(".")[-1] for x in pgn.split() if x[-1] != "."]
+    if pgn[-1] in ('1-0', '0-1', '1/2-1/2', '*'):
+        pgn = pgn[:-1]
+
+    # print("pgn:", pgn)
+    fen = header.get("fen") or Positions.common_start_fen
+    res, msg = events.check_fen_format_valid(fen)  # 校验格式，如果chess960的局面校验通过，会设置chess960的易位列
+    if not res:
+        easygui.msgbox("FEN错误\n" + msg)
+        return
+
+    # load position
+    release_model_lock()
+    set_game_fen(reformat_fen(fen))
+    reset_clock()
+    MenuStats[MenuStatNames.flip].set(False)
+    refresh_flip()
+
+    # load moves
+    res = events.pgn_move(pgn)
+    if res:
+        easygui.msgbox("棋谱解析错误，只解析到出错之前的局面。出错信息\n" + res, "警告")
+
+    # load globals
+    Globals.GameInfo = parse_pgn_file(header)
     Hooks.update_globals()
 
 

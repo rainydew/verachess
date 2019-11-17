@@ -40,9 +40,11 @@ def init(top, gui, pgns: List[Dict[str, Union[Dict, str]]]):
     w = gui  # type: chart.Toplevel1
     top_level = top
     root = top
+    columns = w.Columns
     for i, pgn in enumerate(pgns):
-        columns = w.Columns
-        pgn_small = {k.lower(): v for k, v in pgn.items()}
+        pgn_small = {k.lower(): v for k, v in pgn.get("header").items()}
+        if pgn_small.get("variant") and pgn_small.get("variant").lower() in ("chess960", "fischerandom"):
+            pgn_small["eco"] = "Chess960"
         w.Scrolledtreeview1.insert("", "end", text=str(i), values=[pgn_small.get(k) or "" for k in columns])
 
 

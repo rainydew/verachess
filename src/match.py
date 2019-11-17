@@ -3,7 +3,7 @@ import time
 
 
 def today():
-    return time.strftime("%Y-%m-%d", time.localtime())
+    return time.strftime("%Y.%m.%d", time.localtime())
 
 
 def now():

@@ -839,7 +839,7 @@ class Pgns:
 
     @staticmethod
     @none_trier
-    def fast_single_pgn_to_uci(fen:str, pgn:str) -> str:
+    def _fast_single_pgn_to_uci(fen:str, pgn:str) -> str:
         # no verify, can use verify function to do it
         narrow_fen, mover, castle, ep, _, _ = fen.split(" ")
         pgn = pgn.split(".")[-1].strip().replace("+", "").replace("#", "").replace("x", "")
@@ -899,7 +899,6 @@ class Pgns:
                             return Fens.place_to_cellname((r, c)) + end
             raise ValueError("move not found")
         else:
-            piece = "P" if mover == "w" else "p"
             if "=" == pgn[-2]:
                 tail = pgn[-1].lower()
                 pgn = pgn[:-2]
@@ -926,18 +925,13 @@ class Pgns:
                     return "%s%d%s%s" % (pgn[0], int(pgn[2]) + 1, pgn[1:], tail)
 
     @staticmethod
-    def fast_pgn_to_moves_and_fens(fen: str, pgn_moves: List[str]) -> Optional[List[Tuple[str, str]]]:
-        # [(uci, fen)]
-        res_list = []
-        for pgn in pgn_moves:
-            uci = Pgns.fast_single_pgn_to_uci(fen, pgn)
-            if uci and Fens.verify_uci_move(fen, uci):
-                fen = Fens.calc_move(fen, uci)[0]
-                res_list.append((uci, fen))
-            else:
-                logging.warning("move {} incorrect in {}".format(uci, fen))
-                return None
-        return res_list   # todo: not tested
+    def verified_fast_single_pgn_to_uci(fen:str, pgn:str) -> Optional[str]:
+        uci = Pgns._fast_single_pgn_to_uci(fen, pgn)
+        if uci and Fens.verify_uci_move(fen, uci):
+            return uci
+        else:
+            logging.warning("move {} incorrect in {}".format(uci, fen))
+            return None
 
     @staticmethod
     def uci_to_pgn(fen: str, moves: List[str]) -> List[str]:

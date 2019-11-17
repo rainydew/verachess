@@ -31,7 +31,7 @@ def none_trier(func):
     @wraps(func)
     def inner_func(*args, **kwargs):
         try:
-            return inner_func(*args, **kwargs)
+            return func(*args, **kwargs)
         except:
             logging.warning(format_exc())
             return None

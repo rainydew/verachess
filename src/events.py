@@ -271,6 +271,52 @@ def click_handler(place: Tuple[int, int]) -> None:
         check_wdl()
 
 
+def pgn_move(movelist: List[str]) -> Optional[str]:
+    # loading pgn
+    for pgn in movelist:
+        # print(pgn)
+        move = pg.verified_fast_single_pgn_to_uci(Globals.GameFen, pgn)
+        # print(move)
+        if move is None:
+            break
+        ai_move_handler(move, need_verify=False)
+    else:
+        return None
+    return "error loading at {}".format(pgn)
+
+
+def ai_move_handler(move: str, need_verify: bool = True) -> Optional[str]:
+    vs.clear_sunken_cell()
+    if Globals.MoveSlider != -1:
+        remove_pgn_from(Globals.MoveSlider + 1)
+    vs.set_cell_color(Globals.LastMove)
+    old_fen = Globals.GameFen
+    # check move
+    if need_verify and not bd.verify_uci_move(old_fen, move):
+        return "illegal move {}".format(move)
+    new_fen, special = bd.calc_move(old_fen, move)
+    Globals.InfoHistory.append({})  # set it earlier than clock change mover
+    from clock import before_change_mover
+    before_change_mover()
+    Globals.GameFen = new_fen
+    Globals.White = not Globals.White
+    Globals.History.append(new_fen)
+    Globals.History_hash.append(calc_fen_hash(new_fen))
+    Globals.AlphabetMovelist.append(move)
+    Globals.PGNMovelist.append("".join(pg.single_uci_to_pgn(old_fen, move, new_fen)))
+    refresh_whole_board()
+    if special:
+        place = special
+    else:
+        place = bd.cellname_to_place(move[2:4])
+    vs.set_sunken_cell(place)
+    vs.set_cell_color(place, Color.red)
+    Globals.LastMove = place
+    add_last_pgn()
+    check_wdl()
+    return None     # without errorinfo
+
+
 def change_position(place: int):
     main = Globals.Main
     main.Moves[Globals.MoveSlider].configure(background=Color.move_normal)

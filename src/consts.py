@@ -1,7 +1,13 @@
 # coding: utf-8
 from typing import List, Any, Tuple, Dict
+import sys
 import easygui
 import os
+
+
+def debug_print(*args, **kwargs):
+    if "debug" in sys.argv:
+        print(*args, **kwargs)
 
 
 def _get_bin_path():
@@ -10,7 +16,7 @@ def _get_bin_path():
         binpath = filepath + "/../bin"
     else:
         binpath = filepath
-    print("debug path", binpath)
+    debug_print("debug path", binpath)
     return binpath
 
 
@@ -133,6 +139,7 @@ class Winner:
 
 
 Winner_Dict = {Winner.white: "1-0", Winner.draw: "1/2-1/2", Winner.black: "0-1", Winner.unknown: "*"}
+Reverse_Winner_Dict = {v: k for k, v in Winner_Dict.items()}
 
 
 class EndType:
@@ -182,6 +189,15 @@ class TerminationPGN:
     abandon = "abandon"
 
 
+TerminationPGNToTermination = {
+    TerminationPGN.unterminated: Termination.unterminated,
+    TerminationPGN.normal: Termination.normal,
+    TerminationPGN.time_forfeit: Termination.time_forfeit,
+    TerminationPGN.rule_infraction: Termination.rule_infraction,
+    TerminationPGN.adjunction: Termination.adjunction,
+    TerminationPGN.abandon: Termination.abandon
+}
+
 EndTypeToTermination = {
     EndType.unterminated: Termination.unterminated,
     EndType.checkmate: Termination.normal,
@@ -209,7 +225,6 @@ EndTypeToTermination = {
     EndType.skip_draw: Termination.abandon,
     EndType.other_draw: Termination.adjunction,
 }
-
 
 EndTypeToTerminationPGN = {
     EndType.unterminated: TerminationPGN.unterminated,

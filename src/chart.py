@@ -77,17 +77,18 @@ class Toplevel1:
         self.style.configure('Treeview', font="TkDefaultFont")
         self.Scrolledtreeview1 = ScrolledTreeView(top)
         self.Scrolledtreeview1.place(x=0, y=0, height=470, width=750)
-        columns = ["Round", "White", "WhiteElo", "Black", "BlackElo", "Result", "ECO", "Termination"]
+        columns = ["Round", "White", "WhiteElo", "Black", "BlackElo", "Result", "ECO", "Termination",
+                   "TerminationDetails"]
         self.Columns = [x.lower() for x in columns]
         self.Scrolledtreeview1.configure(columns=columns)
         # build_treeview_support starting.
         self.Scrolledtreeview1.heading("#0", text="No.")
-        self.Scrolledtreeview1.column("#0", width="20")
+        self.Scrolledtreeview1.column("#0", width="50")
         self.Scrolledtreeview1.bind('<Double-ButtonRelease-1>', lambda e: chart_support.choose(e))
 
         for col in columns:
             self.Scrolledtreeview1.heading(col, text=col)
-            self.Scrolledtreeview1.column(col, width="50")
+            self.Scrolledtreeview1.column(col, width="80")
 
         if __name__ == '__main__':
             for i in range(100):
