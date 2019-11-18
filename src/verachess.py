@@ -72,7 +72,7 @@ class MainWindow:
         _ana1color = '#d9d9d9'  # X11 color: 'gray85'
         _ana2color = '#ececec'  # Closest X11 color: 'gray92'
 
-        top.geometry("885x700+350+200")
+        top.geometry("884x700+350+200")
         top.title("Verachess 5.0")
         top.configure(background="#d9d9d9")
         top.resizable(0, 0)
@@ -137,6 +137,72 @@ class MainWindow:
         self.MoveScale.configure(orient="vertical")
         self.MoveScale.configure(length="130")
         self.MoveScale.configure(style=Style.move_list_slider)
+
+        # extra buttons
+
+        self.Start = tk.Button(top)
+        self.Start.place(x=402, y=288, height=48, width=48)
+        self.Start.configure(background="#d9d9d9")
+        self.Start.configure(command=verachess_support.CmdStart)
+        self.Start.configure(text='''<<''')
+
+        self.Left = tk.Button(top)
+        self.Left.place(x=450, y=288, height=48, width=48)
+        self.Left.configure(background="#d9d9d9")
+        self.Left.configure(command=verachess_support.CmdLeft)
+        self.Left.configure(text='''<-''')
+
+        self.Right = tk.Button(top)
+        self.Right.place(x=498, y=288, height=48, width=48)
+        self.Right.configure(background="#d9d9d9")
+        self.Right.configure(command=verachess_support.CmdRight)
+        self.Right.configure(text='''->''')
+
+        self.End = tk.Button(top)
+        self.End.place(x=546, y=288, height=48, width=48)
+        self.End.configure(background="#d9d9d9")
+        self.End.configure(command=verachess_support.CmdEnd)
+        self.End.configure(text='''>>''')
+
+        self.Demo = tk.Button(top)
+        self.Demo.place(x=594, y=288, height=48, width=48)
+        self.Demo.configure(background="#d9d9d9")
+        self.Demo.configure(command=verachess_support.CmdDemo)
+        self.Demo.configure(wraplength=40)
+        self.Demo.configure(textvariable=verachess_support.DemoStat)
+
+        self.Analyze = tk.Button(top)
+        self.Analyze.place(x=642, y=288, height=48, width=48)
+        self.Analyze.configure(background="#d9d9d9")
+        self.Analyze.configure(command=verachess_support.CmdAnalyze)
+        self.Analyze.configure(wraplength=40)
+        self.Analyze.configure(textvariable=verachess_support.AnlyStat)
+
+        self.FlipBut = tk.Button(top)
+        self.FlipBut.place(x=690, y=288, height=48, width=48)
+        self.FlipBut.configure(background="#d9d9d9")
+        self.FlipBut.configure(command=verachess_support.CmdFlip)
+        self.FlipBut.configure(wraplength=40)
+        self.FlipBut.configure(text='''翻转视角''')
+
+        self.InfoEdit = tk.Button(top)
+        self.InfoEdit.place(x=738, y=288, height=48, width=48)
+        self.InfoEdit.configure(background="#d9d9d9")
+        self.InfoEdit.configure(command=verachess_support.CmdInfo)
+        self.InfoEdit.configure(wraplength=40)
+        self.InfoEdit.configure(text='''棋局信息''')
+
+        self.Monitor = tk.Button(top)
+        self.Monitor.place(x=786, y=288, height=48, width=98)
+        self.Monitor.configure(background="#d9d9d9")
+        self.Monitor.configure(command=verachess_support.ChangeMonitor)
+        self.Monitor.configure(textvariable=verachess_support.MonitorStat)
+
+        # diff
+        self.DiffBoard = tk.Frame(top)
+        self.DiffBoard.place(x=402, y=338, height=62, width=192)
+        self.DiffBoard.configure(relief='ridge')
+        self.DiffBoard.configure(borderwidth="1")
 
         create_rows(self, top)
         create_columns(self, top)
