@@ -38,12 +38,12 @@ except ImportError:
 
     py3 = True
 
-CellValues = None  # type: List[List[tk.StringVar]]
+CellValues = ...  # type: List[List[tk.StringVar]]
 MenuStats = {}  # type: Dict[str, tk.BooleanVar]
 Eco = WhitePlayerInfo = BlackPlayerInfo = WhiteTotalTime = BlackTotalTime = WhiteUseTime = BlackUseTime = \
-    None  # type: tk.StringVar
-WhiteFlagImg = BlackFlagImg = None  # type: tk.PhotoImage
-MoveScaleVar = None  # type: tk.IntVar
+    ...  # type: tk.StringVar
+WhiteFlagImg = BlackFlagImg = ...  # type: tk.PhotoImage
+MoveScaleVar = ...  # type: tk.IntVar
 FlagWidth = 54  # modify it if you want
 
 
@@ -674,10 +674,18 @@ def ListScroll(value):
 
     for i, move in enumerate(all_moves):
         row = Globals.MoveRows[i]
-        move.place(y=24 * (row - value))
+        relative_row = row - value
+        if relative_row >= 0:
+            move.place(y=24 * relative_row)
+        else:
+            move.place(y=24 * relative_row - 24)     # hide, cannot use forget since we didn't save coordinate "x"!
 
 
 def destruct(event: CallWrapper) -> None:
+    if event.widget != Globals.Main.Moves[0]:   # the base movelist, if we remove it, the whole program will exit
+        # when we bind it to top, it in fact was binded to all sub widgets under top!!!!
+        # otherwise even we restart a game will cause os._exit, this was a bug
+        return
     global WhiteFlagImg, BlackFlagImg
     try:
         del WhiteFlagImg

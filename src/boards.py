@@ -403,7 +403,7 @@ class Fens:
     def _normal_piece_can_arrive(board: List[List[Optional[str]]], r: int, c: int, piece: str, end: Tuple[int, int])\
             -> bool:
         # better performace, only for normal piece
-        first_moves = Move_Func_Dict[piece](board, r, c)  # type: List[Tuple[int, int]]
+        first_moves = Move_Func_Dict[piece.lower()](board, r, c)  # type: List[Tuple[int, int]]
         secure_moves = Fens._remove_pinned_move(first_moves, board, r, c)
         return end in secure_moves
 
@@ -897,9 +897,25 @@ class Pgns:
                         # king included
                         if board[r][c] == piece and Fens._normal_piece_can_arrive(board, r, c, piece, end_place):
                             return Fens.place_to_cellname((r, c)) + end
+            elif len(extra) == 1:
+                if extra.isdigit():
+                    r = 8 - int(extra)
+                    for c in range(8):
+                        if board[r][c] == piece and Fens._normal_piece_can_arrive(board, r, c, piece, end_place):
+                            return Fens.place_to_cellname((r, c)) + end
+                else:
+                    c = ord(extra) - 97
+                    for r in range(8):
+                        if board[r][c] == piece and Fens._normal_piece_can_arrive(board, r, c, piece, end_place):
+                            return Fens.place_to_cellname((r, c)) + end
+            elif len(extra) == 2:
+                r = 8 - int(extra)
+                c = ord(extra) - 97
+                if board[r][c] == piece and Fens._normal_piece_can_arrive(board, r, c, piece, end_place):
+                    return Fens.place_to_cellname((r, c)) + end
             raise ValueError("move not found")
         else:
-            if "=" == pgn[-2]:
+            if "=" == pgn[-2]:  # promotion
                 tail = pgn[-1].lower()
                 pgn = pgn[:-2]
             else:
@@ -930,7 +946,7 @@ class Pgns:
         if uci and Fens.verify_uci_move(fen, uci):
             return uci
         else:
-            logging.warning("move {} incorrect in {}".format(uci, fen))
+            logging.warning("move {} incorrect in {}".format(pgn, fen))
             return None
 
     @staticmethod

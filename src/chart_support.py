@@ -29,7 +29,7 @@ def cancel():
     destroy_window()
 
 
-def choose(p1):
+def choose(event):
     chosen = w.Scrolledtreeview1.item(w.Scrolledtreeview1.selection()[0])["text"]
     w.Result = chosen
     destroy_window()

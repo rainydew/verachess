@@ -82,7 +82,7 @@ class MainWindow:
         self.style = ttk.Style()
         self.style.configure(Style.move_list_slider, background=Color.move_normal)
 
-        self.Holder = None  # type: tk.Label
+        self.Holder = ...  # type: tk.Label
         create_colorhodler(self, top)
 
         self.ChessBoard = tk.Frame(top)
@@ -117,10 +117,10 @@ class MainWindow:
 
         create_menus(self, top)
 
-        self.Rows = self.Columns = None  # type: List[tk.Label]
-        self.Cells = None  # type: List[List[tk.Label]]
+        self.Rows = self.Columns = ...  # type: List[tk.Label]
+        self.Cells = ...  # type: List[List[tk.Label]]
         self.WhitePlayer = self.BlackPlayer = self.WhiteTotal = self.BlackTotal = self.WhiteUse = self.BlackUse = \
-            self.WhiteFlag = self.BlackFlag = None  # type: tk.Label
+            self.WhiteFlag = self.BlackFlag = ...  # type: tk.Label
 
         self.MoveFrame = tk.LabelFrame(top)
         self.MoveFrame.place(x=400, y=96, height=192, width=483)
@@ -128,7 +128,7 @@ class MainWindow:
         self.MoveFrame.configure(text='''棋谱''')
         self.MoveFrame.configure(background=Color.move_normal)
 
-        self.Moves = None   # type: List[tk.Label]
+        self.Moves = ...   # type: List[tk.Label]
 
         self.MoveScale = ttk.Scale(self.MoveFrame, from_=0, to=0.01)     # add 0.01 to reformat the style!!
         self.MoveScale.place(x=461, y=15, width=20, height=172, bordermode='ignore')
@@ -301,9 +301,14 @@ def create_menus(main: MainWindow, top: tk.Tk):
     add_command(main, m_file, "退出", verachess_support.exit_game)
     m_board = add_menu(main, top, "棋盘")
     add_checkbutton(main, m_board, "翻转视角", verachess_support.flip, verachess_support.MenuStats[MenuStatNames.flip])
+    add_separator(main, m_file)
     add_command(main, m_board, "复制当前局面FEN", verachess_support.copy_fen)
     add_command(main, m_board, "从剪贴板导入FEN", verachess_support.paste_fen)
     add_command(main, m_board, "摆局", verachess_support.set_board)
+    add_separator(main, m_board)
+    # add_command(main, m_board, "裁定白胜", verachess_support.)
+    # add_command(main, m_board, "裁定黑胜", verachess_support.)
+    # add_command(main, m_board, "裁定和棋", verachess_support.)
     m_clock = add_menu(main, top, "棋钟")
     add_checkbutton(main, m_clock, "关闭棋钟", verachess_support.clock_switch,
                     verachess_support.MenuStats[MenuStatNames.clock])

@@ -78,9 +78,12 @@ def refresh_scroll_state():
 def add_last_pgn():
     main = Globals.Main
 
-    main.Moves[-1].configure(background=Color.move_normal)
+    lastmove = main.Moves[-1]
+    lastmove.configure(background=Color.move_normal)
 
-    x, y = main.Moves[-1].winfo_x() + main.Moves[-1].winfo_width(), main.Moves[-1].winfo_y() - 22   # frame label height
+    # print("debug", lastmove.winfo_geometry(), lastmove.winfo_x(), lastmove.winfo_y(), lastmove.winfo_width())
+
+    x, y = lastmove.winfo_x() + lastmove.winfo_width(), lastmove.winfo_y() - 22   # frame label height
     max_width = main.MoveFrame.winfo_x() + 12
     last_pgn = Globals.PGNMovelist[-1]
     move = tk.Label(main.MoveFrame)
@@ -96,6 +99,8 @@ def add_last_pgn():
     else:
         move.place(x=x, y=y, height=24)
         add_new_row = False
+
+    move.update()   # otherwise we cannot get correct geometry, x or y during pgn loading!!!
 
     main.Moves.append(move)
     Globals.MoveNames.append(str(move))
