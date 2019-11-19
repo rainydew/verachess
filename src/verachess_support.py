@@ -19,7 +19,7 @@ from typing import List, Tuple, Dict, Any
 from verachess import destroy_MainWindow
 from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths, CpuMoveConf, Role, \
     EndTypeToTermination, PGNModel, Winner_Dict, EndTypeToTerminationPGN, Chess960PGNModel, SetupPGNModel, \
-    Reverse_Winner_Dict, Termination, TerminationPGNToTermination
+    Reverse_Winner_Dict, Termination, TerminationPGNToTermination, EndTypeToInfo
 from tkinter import CallWrapper
 from decos import check_model, model_locked
 import events
@@ -41,7 +41,7 @@ except ImportError:
 CellValues = ...  # type: List[List[tk.StringVar]]
 MenuStats = {}  # type: Dict[str, tk.BooleanVar]
 Eco = WhitePlayerInfo = BlackPlayerInfo = WhiteTotalTime = BlackTotalTime = WhiteUseTime = BlackUseTime = \
-    DemoStat = AnlyStat = MonitorStat = ...  # type: tk.StringVar
+    DemoStat = AnlyStat = MonitorStat = PieceDiff = TerminateInfo = ...  # type: tk.StringVar
 WhiteFlagImg = BlackFlagImg = ...  # type: tk.PhotoImage
 MoveScaleVar = ...  # type: tk.IntVar
 FlagWidth = 54  # modify it if you want
@@ -49,7 +49,8 @@ FlagWidth = 54  # modify it if you want
 
 def set_Tk_var():
     global CellValues, MenuStats, Eco, WhitePlayerInfo, BlackPlayerInfo, WhiteTotalTime, BlackTotalTime, WhiteUseTime, \
-        BlackUseTime, WhiteFlagImg, BlackFlagImg, MoveScaleVar, DemoStat, AnlyStat, MonitorStat
+        BlackUseTime, WhiteFlagImg, BlackFlagImg, MoveScaleVar, DemoStat, AnlyStat, MonitorStat, PieceDiff, \
+        TerminateInfo
     CellValues = [[tk.StringVar(value="") for _ in range(8)] for _ in range(8)]
     MenuStats[MenuStatNames.flip] = tk.BooleanVar(value=False)
     MenuStats[MenuStatNames.clock] = tk.BooleanVar(value=True)
@@ -79,6 +80,10 @@ def set_Tk_var():
     AnlyStat.set('局面分析')
     MonitorStat = tk.StringVar()
     MonitorStat.set('可用内存\n0 MB')
+    PieceDiff = tk.StringVar()
+    PieceDiff.set("\n")
+    TerminateInfo = tk.StringVar()
+    TerminateInfo.set("棋局状态：{}\n{}".format(Winner_Dict.get(Globals.Winner), EndTypeToInfo.get(Globals.Game_end)))
 
 
 class Hooks:
@@ -191,18 +196,33 @@ class Hooks:
         Hooks._refresh_player_label()
 
 
-def set_cell_values(narrow_fen: str):
+def set_cell_values_and_diff(narrow_fen: str):
     rows = narrow_fen.split("/")
     assert len(rows) == 8, "error fen"
+    nums = {x.lower(): 0 for x in Pieces}
+    w_diff = ""
+    b_diff = ""
     for i, row in enumerate(rows):
         j = 0
         for char in row:
             if char in Pieces:
                 CellValues[i][j].set(Pieces[char])
                 j += 1
+                if char.isupper():
+                    nums[char.lower()] += 1
+                else:
+                    nums[char] -= 1
             else:
                 [CellValues[i][r].set("") for r in range(j, j + int(char))]
                 j += int(char)  # if this errors, char is illegal
+    for piece in "kqrbnp":
+        np = nums[piece]
+        if np > 0:
+            w_diff += Pieces[piece.upper()] * np
+        elif np < 0:
+            b_diff += Pieces[piece] * -np
+
+    PieceDiff.set("{}\n{}".format(w_diff, b_diff))
 
 
 def set_cell_color(cell: Tuple[int, int] = None, color=Color.black, flush_all=False):
@@ -315,6 +335,8 @@ def set_game_fen(fen: str):
     redraw_c960_flags()
     if fen != Positions.common_start_fen:
         events.check_wdl()
+    else:
+        events.refresh_end_type()
 
 
 def redraw_c960_flags():
@@ -656,6 +678,42 @@ def load_game():
     # load globals
     Globals.GameInfo = parse_pgn_file(header)
     Hooks.update_globals()
+
+
+def adjunction(winner: float):
+    assert winner in (0, 0.5, 1), "wrong winner"
+
+    @model_locked
+    def inner():
+        if Role.remote in Globals.Game_role.values() or Globals.Game_role['w'] != Globals.Game_role['b'] or Globals.Game_end:
+            easygui.msgbox("不能修改已经结束的棋局、FICS联网棋局和人机对战的结果\n"
+                           "只能裁定双方都是人类或双方都是引擎的棋局")
+            return
+        elif not easygui.ynbox("本局将中止，不能再继续，确定吗？", "verachess 5.0", ["是", "否"]):
+            return
+        Globals.Winner = winner
+        Globals.TerminationInfo = "user adjunction"
+        Globals.Game_end = EndType.adjunction_win if winner != 0.5 else EndType.adjunction_draw
+        events.refresh_end_type()
+    return inner
+
+
+@model_locked
+def resign():
+    mover = Globals.GameFen.split()[1]
+    if Globals.Game_role.get(mover) or Globals.Game_end:
+        easygui.msgbox("只有棋局处于进行中，且当前行棋方为人类时才可以认输")
+        return
+    elif not easygui.ynbox("认输后不能反悔，确定吗？", "verachess 5.0", ["是", "否"]):
+        return
+    if mover == "w":
+        Globals.Winner = Winner.black
+        Globals.TerminationInfo = "white resigns"
+    else:
+        Globals.Winner = Winner.white
+        Globals.TerminationInfo = "black resigns"
+    Globals.Game_end = EndType.resign
+    events.refresh_end_type()
 
 
 @check_model

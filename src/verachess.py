@@ -22,7 +22,7 @@ import verachess_support
 from verachess_global import Globals
 
 from typing import List, Dict, Callable
-from consts import Color, Font, gen_empty_board, MenuStatNames, Style, Positions
+from consts import Color, Font, gen_empty_board, MenuStatNames, Style, Positions, Winner
 
 
 def vp_start_gui():
@@ -103,7 +103,7 @@ class MainWindow:
         self.ECO = tk.Label(self.EcoBoard)
         self.ECO.place(x=-2, y=-2, height=96, width=105)
         self.ECO.configure(anchor='nw')
-        self.ECO.configure(background="#ffffab")
+        self.ECO.configure(background=Color.yellow_eco)
         self.ECO.configure(justify='left')
         self.ECO.configure(wraplength=105)
         self.ECO.configure(textvariable=verachess_support.Eco)
@@ -198,11 +198,28 @@ class MainWindow:
         self.Monitor.configure(command=verachess_support.ChangeMonitor)
         self.Monitor.configure(textvariable=verachess_support.MonitorStat)
 
-        # diff
         self.DiffBoard = tk.Frame(top)
-        self.DiffBoard.place(x=402, y=338, height=62, width=192)
+        self.DiffBoard.place(x=402, y=338, height=62, width=288)
         self.DiffBoard.configure(relief='ridge')
         self.DiffBoard.configure(borderwidth="1")
+
+        self.Diff = tk.Label(self.DiffBoard)
+        self.Diff.place(x=-2, y=-2, height=62, width=144)
+        self.Diff.configure(anchor='nw')
+        self.Diff.configure(background=Color.yellow_eco)
+        self.Diff.configure(justify='left')
+        self.Diff.configure(wraplength=192)
+        self.Diff.configure(textvariable=verachess_support.PieceDiff)
+        self.Diff.configure(font=Font.font_16)
+
+        self.Termination = tk.Label(self.DiffBoard)
+        self.Termination.place(x=142, y=-2, height=62, width=144)
+        self.Termination.configure(anchor='nw')
+        self.Termination.configure(background=Color.cyan_light)
+        self.Termination.configure(justify='left')
+        self.Termination.configure(wraplength=144)
+        self.Termination.configure(textvariable=verachess_support.TerminateInfo)
+        self.Termination.configure(font=Font.font_11)
 
         create_rows(self, top)
         create_columns(self, top)
@@ -210,7 +227,7 @@ class MainWindow:
         create_players(self, self.ClockBoard)
         create_movelist(self, self.MoveFrame)
 
-        verachess_support.set_cell_values(Positions.common_startpos)
+        verachess_support.set_cell_values_and_diff(Positions.common_startpos)
 
         top.bind('<Destroy>', lambda e: verachess_support.destruct(e))
 
@@ -367,14 +384,15 @@ def create_menus(main: MainWindow, top: tk.Tk):
     add_command(main, m_file, "退出", verachess_support.exit_game)
     m_board = add_menu(main, top, "棋盘")
     add_checkbutton(main, m_board, "翻转视角", verachess_support.flip, verachess_support.MenuStats[MenuStatNames.flip])
-    add_separator(main, m_file)
+    add_separator(main, m_board)
     add_command(main, m_board, "复制当前局面FEN", verachess_support.copy_fen)
     add_command(main, m_board, "从剪贴板导入FEN", verachess_support.paste_fen)
     add_command(main, m_board, "摆局", verachess_support.set_board)
     add_separator(main, m_board)
-    # add_command(main, m_board, "裁定白胜", verachess_support.)
-    # add_command(main, m_board, "裁定黑胜", verachess_support.)
-    # add_command(main, m_board, "裁定和棋", verachess_support.)
+    add_command(main, m_board, "认输", verachess_support.resign)
+    add_command(main, m_board, "裁定白胜", verachess_support.adjunction(Winner.white))
+    add_command(main, m_board, "裁定黑胜", verachess_support.adjunction(Winner.black))
+    add_command(main, m_board, "裁定和棋", verachess_support.adjunction(Winner.draw))
     m_clock = add_menu(main, top, "棋钟")
     add_checkbutton(main, m_clock, "关闭棋钟", verachess_support.clock_switch,
                     verachess_support.MenuStats[MenuStatNames.clock])

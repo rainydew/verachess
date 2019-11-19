@@ -2,7 +2,8 @@
 # event handlers
 from verachess_global import Globals, ModelLock, calc_fen_hash
 from typing import Tuple, Optional, List
-from consts import Color, Promotions, EndType, Winner, Font, Paths, InfoTypes, Positions, EcoBook
+from consts import Color, Promotions, EndType, Winner, Font, Paths, InfoTypes, Positions, EcoBook, EndTypeToInfo, \
+    Winner_Dict
 import os
 import tkinter as tk
 import easygui
@@ -19,7 +20,7 @@ def alert(msg: str, title: str = "verachess5.0") -> None:
 
 def refresh_cells():
     fen = Globals.GameFen
-    vs.set_cell_values(bd.get_narrow_fen(fen))
+    vs.set_cell_values_and_diff(bd.get_narrow_fen(fen))
     vs.set_player_color(bd.get_mover(fen) == "w")
 
 
@@ -73,6 +74,10 @@ def refresh_scroll_state():
     else:
         Globals.Main.MoveScale.configure(to=0.01)
         vs.ListScroll(0)
+
+
+def refresh_end_type():
+    vs.TerminateInfo.set("棋局状态：{}\n{}".format(Winner_Dict.get(Globals.Winner), EndTypeToInfo.get(Globals.Game_end)))
 
 
 def add_last_pgn():
@@ -176,6 +181,7 @@ def check_wdl(silent: bool = False):
         if not silent:
             with ModelLock():
                 easygui.msgbox(message, "棋局结束", "确认")
+    refresh_end_type()
 
 
 def check_fen_format_valid(fen: str) -> Tuple[bool, str]:
@@ -372,7 +378,7 @@ def change_position(place: int):
 
 
 def move_change_handler(place: int) -> None:
-    if not vs.MenuStats[vs.MenuStatNames.clock].get():  # clock enabled, cannot click
-        alert("在时钟开启的情况下，不能切换棋谱局面")
+    if not vs.MenuStats[vs.MenuStatNames.clock].get() or Globals.Game_role.values():  # clock enabled, cannot click
+        alert("在时钟开启、有引擎参与、或有联网棋手的情况下，不能切换棋谱局面")
         return
     change_position(place)

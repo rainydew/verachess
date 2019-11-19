@@ -85,6 +85,7 @@ class Color:
     green_dark = "#00d100"
     yellow_light = "#ffefad"
     yellow_dark = "#dbc27f"
+    yellow_eco = "#ffffab"
     magenta = "#ff00ff"  # check
     clock_inactive = "#24b6ff"
     clock_active = "#d0fffc"
@@ -101,8 +102,10 @@ class Style:
 class Font:
     font_24 = "-family {Times New Roman} -size 24 -weight normal -slant roman"
     font_18 = "-family {Times New Roman} -size 18 -weight normal -slant roman"
+    font_16 = "-family {Times New Roman} -size 16 -weight normal -slant roman"
     font_14 = "-family {Times New Roman} -size 14 -weight normal -slant roman"
     font_9 = "-family {Times New Roman} -size 9 -weight normal -slant roman"
+    font_11 = "-family {Times New Roman} -size 11 -weight normal -slant roman"
     font_clock = "-family Digiface -size 16 -weight bold -slant roman"
     font_move = "-family Roboto -size 9 -weight normal -slant roman"
     add_blackbold = "-family 黑体"
@@ -252,6 +255,35 @@ EndTypeToTerminationPGN = {
     EndType.tournament_cancel: TerminationPGN.abandon,
     EndType.skip_draw: TerminationPGN.abandon,
     EndType.other_draw: TerminationPGN.adjunction,
+}
+
+
+EndTypeToInfo = {
+    EndType.unterminated: "进行中",
+    EndType.checkmate: "将杀",
+    EndType.resign: "行棋方认输",
+    EndType.time_forfeit: "超时",
+    EndType.engine_stall: "引擎故障",
+    EndType.adjunction_win: "裁判裁定",  # by user or FICS
+    EndType.table_base_win: "残局库裁定",
+    EndType.score_rule_win: "引擎胜负规则裁定",
+    EndType.illegal_move: "非法棋步",
+    EndType.break_rule: "行棋方犯规",  # e.g. memory overflow
+    EndType.withdraw: "行棋方退赛",
+    EndType.skip_win: "比赛跳过",
+    EndType.other_win: "其他原因结束",
+    EndType.stalemate: "逼和",
+    EndType.three_fold: "三次重复局面和棋",
+    EndType.fifty_rule: "五十回合规则和棋",
+    EndType.insufficient_material: "双方子力不足",
+    EndType.adjunction_draw: "裁判裁定",
+    EndType.table_base_draw: "残局库裁定",
+    EndType.score_rule_draw: "引擎和棋规则裁定",
+    EndType.mutual_agreement: "双方同意和棋",
+    EndType.single_king_with_opp_violate: "面对单王违例和棋",
+    EndType.tournament_cancel: "比赛取消",
+    EndType.skip_draw: "比赛跳过",
+    EndType.other_draw: "其他原因结束",
 }
 
 
