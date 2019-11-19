@@ -403,7 +403,8 @@ def format_pgn_file(info: Dict[str, Any] = Globals.GameInfo):
         len(Globals.AlphabetMovelist),
         EndTypeToTerminationPGN.get(Globals.Game_end),
         Globals.TerminationInfo,
-        Globals.Wtime // 1000 if Globals.Wtime == Globals.Btime else "?", Globals.Winc // 1000 if Globals.Winc == Globals.Binc else "?",
+        Globals.Wtime // 1000 if Globals.Wtime == Globals.Btime else "?",
+        Globals.Winc // 1000 if Globals.Winc == Globals.Binc else "?",
     )
     if Globals.Chess_960_Columns[0] is not None:
         res += Chess960PGNModel.format(Globals.Start_pos)
@@ -685,7 +686,8 @@ def adjunction(winner: float):
 
     @model_locked
     def inner():
-        if Role.remote in Globals.Game_role.values() or Globals.Game_role['w'] != Globals.Game_role['b'] or Globals.Game_end:
+        if Role.remote in Globals.Game_role.values() or Globals.Game_role['w'] != Globals.Game_role[
+            'b'] or Globals.Game_end:
             easygui.msgbox("不能修改已经结束的棋局、FICS联网棋局和人机对战的结果\n"
                            "只能裁定双方都是人类或双方都是引擎的棋局")
             return
@@ -695,6 +697,7 @@ def adjunction(winner: float):
         Globals.TerminationInfo = "user adjunction"
         Globals.Game_end = EndType.adjunction_win if winner != 0.5 else EndType.adjunction_draw
         events.refresh_end_type()
+
     return inner
 
 
@@ -714,6 +717,51 @@ def resign():
         Globals.TerminationInfo = "black resigns"
     Globals.Game_end = EndType.resign
     events.refresh_end_type()
+
+
+def change_monitor():
+    print('verachess_support.ChangeMonitor')
+    sys.stdout.flush()
+
+
+def cmd_analyze():
+    print('verachess_support.CmdAnalyze')
+    sys.stdout.flush()
+
+
+def cmd_demo():
+    print('verachess_support.CmdDemo')
+    sys.stdout.flush()
+
+
+def cmd_end():
+    print('verachess_support.CmdEnd')
+    sys.stdout.flush()
+
+
+def cmd_flip():
+    print('verachess_support.CmdFlip')
+    sys.stdout.flush()
+
+
+def cmd_info():
+    print('verachess_support.CmdInfo')
+    sys.stdout.flush()
+
+
+def cmd_left():
+    print('verachess_support.CmdLeft')
+    sys.stdout.flush()
+
+
+def cmd_right():
+    print('verachess_support.CmdRight')
+    sys.stdout.flush()
+
+
+def cmd_start():
+    print('verachess_support.CmdStart')
+    sys.stdout.flush()
 
 
 @check_model
@@ -742,11 +790,11 @@ def ListScroll(value):
         if relative_row >= 0:
             move.place(y=24 * relative_row)
         else:
-            move.place(y=24 * relative_row - 24)     # hide, cannot use forget since we didn't save coordinate "x"!
+            move.place(y=24 * relative_row - 24)  # hide, cannot use forget since we didn't save coordinate "x"!
 
 
 def destruct(event: CallWrapper) -> None:
-    if event.widget != Globals.Main.Moves[0]:   # the base movelist, if we remove it, the whole program will exit
+    if event.widget != Globals.Main.Moves[0]:  # the base movelist, if we remove it, the whole program will exit
         # when we bind it to top, it in fact was binded to all sub widgets under top!!!!
         # otherwise even we restart a game will cause os._exit, this was a bug
         return
@@ -757,43 +805,6 @@ def destruct(event: CallWrapper) -> None:
     except NameError:
         pass
     os._exit(0)
-
-
-def ChangeMonitor():
-    print('verachess_support.ChangeMonitor')
-    sys.stdout.flush()
-
-def CmdAnalyze():
-    print('verachess_support.CmdAnalyze')
-    sys.stdout.flush()
-
-def CmdDemo():
-    print('verachess_support.CmdDemo')
-    sys.stdout.flush()
-
-def CmdEnd():
-    print('verachess_support.CmdEnd')
-    sys.stdout.flush()
-
-def CmdFlip():
-    print('verachess_support.CmdFlip')
-    sys.stdout.flush()
-
-def CmdInfo():
-    print('verachess_support.CmdInfo')
-    sys.stdout.flush()
-
-def CmdLeft():
-    print('verachess_support.CmdLeft')
-    sys.stdout.flush()
-
-def CmdRight():
-    print('verachess_support.CmdRight')
-    sys.stdout.flush()
-
-def CmdStart():
-    print('verachess_support.CmdStart')
-    sys.stdout.flush()
 
 
 # event end
