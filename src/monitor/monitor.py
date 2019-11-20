@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-import os, struct, time, re, sys
+import os, struct, time, re, sys, traceback
 
 
 def resource_path(relative_path):
@@ -30,17 +30,19 @@ while True:
     os.system(bin)
 
     try:
-        with open(record_path) as f:
+        with open(record_path, encoding='utf-8', errors='replace') as f:
             lines = f.readlines()
             try:
                 temp = [re.findall("\t(\d+) degC", x) for x in lines if "(Package)\n" in x][0][0]
                 sys.stdout.write(time.strftime("%Y%m%d-%H%M%S") + " " + temp + "\n")
                 sys.stdout.flush()
             except:
+                print(traceback.format_exc())
                 input("文件解析错误，可能是不支持cpu温度传感器")
                 os._exit(0)
     except:
-        input("文件找不到或不能打开")
+        print(traceback.format_exc())
+        input("文件找不到或不能打开，路径{}，回车确定".format(record_path))
         os._exit(0)
 
     time.sleep(25)
