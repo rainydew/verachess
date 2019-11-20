@@ -1,2 +1,2 @@
 @echo off
-pyinstaller -F -w monitor.py
+pyinstaller -F -w monitor.spec
