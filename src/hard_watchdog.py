@@ -14,7 +14,7 @@ def cpu_monitor():
     binary = Paths.binpath + "/monitor.exe"
 
     while True:
-        p = subprocess.Popen(binary, stdout=subprocess.PIPE)
+        p = subprocess.Popen(binary, stdout=subprocess.PIPE, creationflags=0x40)        # 0x40 = low priority
         while p.poll() is None:
             line = p.stdout.readline().strip()
             if line:

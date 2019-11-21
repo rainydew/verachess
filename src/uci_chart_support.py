@@ -5,22 +5,21 @@
 #  in conjunction with Tcl version 8.6
 #    Nov 13, 2019 05:32:12 PM CST  platform: Windows NT
 from typing import Dict, Union, List
-
 try:
     import Tkinter as tk
 except ImportError:
     import tkinter as tk
-
 try:
     import ttk
-
     py3 = False
 except ImportError:
     import tkinter.ttk as ttk
-
     py3 = True
 
-w = None  # type: chart.Toplevel1
+if (lambda: None)():
+    import uci_chart
+
+w = None  # type: uci_chart.Toplevel1
 
 
 def cancel():
@@ -37,7 +36,7 @@ def choose(event):
 
 def init(top, gui, pgns: List[Dict[str, Union[Dict, str]]]):
     global w, top_level, root
-    w = gui  # type: chart.Toplevel1
+    w = gui  # type: uci_chart.Toplevel1
     top_level = top
     root = top
     columns = w.Columns
@@ -53,9 +52,3 @@ def destroy_window():
     global top_level
     top_level.destroy()
     top_level = None
-
-
-if __name__ == '__main__':
-    import chart
-
-    chart.vp_start_gui()

@@ -72,7 +72,7 @@ class MainWindow:
         _ana1color = '#d9d9d9'  # X11 color: 'gray85'
         _ana2color = '#ececec'  # Closest X11 color: 'gray92'
 
-        top.geometry("884x700+350+200")
+        top.geometry("884x700+0+0")
         top.title("Verachess 5.0")
         top.configure(background="#d9d9d9")
         top.resizable(0, 0)
@@ -398,6 +398,7 @@ def create_menus(main: MainWindow, top: tk.Tk):
     add_checkbutton(main, m_clock, "关闭棋钟", verachess_support.clock_switch,
                     verachess_support.MenuStats[MenuStatNames.clock])
     add_command(main, m_clock, "设置比赛时长", verachess_support.change_clock)
+
     m_tool = add_menu(main, top, "工具")
     sm_monitor = add_cascade(main, top, m_tool, "监控选项")
     add_command(main, sm_monitor, "监控CPU温度", verachess_support.change_monitor_cpu)
