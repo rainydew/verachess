@@ -13,8 +13,9 @@ import setboard
 import gameinfo
 import chart
 import re
+import hard_watchdog
 from clock import refresh_clock
-from verachess_global import Globals, release_model_lock
+from verachess_global import Globals, release_model_lock, Tracers
 from typing import List, Tuple, Dict, Any
 from verachess import destroy_MainWindow
 from consts import Pieces, Positions, MenuStatNames, EndType, Winner, Color, Paths, CpuMoveConf, Role, \
@@ -79,11 +80,13 @@ def set_Tk_var():
     AnlyStat = tk.StringVar()
     AnlyStat.set('局面分析')
     MonitorStat = tk.StringVar()
-    MonitorStat.set('可用内存\n0 MB')
+    MonitorStat.set('可用内存\nN/A')
+    Globals.MonitorStatVar = MonitorStat
     PieceDiff = tk.StringVar()
     PieceDiff.set("\n")
     TerminateInfo = tk.StringVar()
     TerminateInfo.set("棋局状态：{}\n{}".format(Winner_Dict.get(Globals.Winner), EndTypeToInfo.get(Globals.Game_end)))
+    hard_watchdog.start_watch()
 
 
 class Hooks:
@@ -265,13 +268,15 @@ def refresh_flip():
     main = Globals.Main
     now_flip = main.Rows[0].winfo_y() != 0
     if arg != now_flip:
-        if not arg:
+        if now_flip:     # black view
+            main.FlipBut.configure(relief='raised')
             for r in range(8):
                 main.Rows[r].place(y=r * 48)
                 main.Columns[r].place(x=r * 48)
                 for c in range(8):
                     main.Cells[r][c].place(x=c * 48, y=r * 48)
         else:
+            main.FlipBut.configure(relief='sunken')
             for r in range(8):
                 main.Rows[7 - r].place(y=r * 48)
                 main.Columns[7 - r].place(x=r * 48)
@@ -687,7 +692,7 @@ def adjunction(winner: float):
     @model_locked
     def inner():
         if Role.remote in Globals.Game_role.values() or Globals.Game_role['w'] != Globals.Game_role[
-            'b'] or Globals.Game_end:
+                'b'] or Globals.Game_end:
             easygui.msgbox("不能修改已经结束的棋局、FICS联网棋局和人机对战的结果\n"
                            "只能裁定双方都是人类或双方都是引擎的棋局")
             return
@@ -720,8 +725,18 @@ def resign():
 
 
 def change_monitor():
-    print('verachess_support.ChangeMonitor')
-    sys.stdout.flush()
+    if "可用内存" == MonitorStat.get()[:4]:
+        MonitorStat.set("CPU温度\n{} 度".format(Tracers.cpu_temp))
+    else:
+        MonitorStat.set("可用内存\n{}".format(Tracers.mem_avail))
+
+
+def change_monitor_cpu():
+    MonitorStat.set("CPU温度\n{} 度".format(Tracers.cpu_temp))
+
+
+def change_monitor_mem():
+    MonitorStat.set("可用内存\n{}".format(Tracers.mem_avail))
 
 
 def cmd_analyze():
@@ -734,34 +749,38 @@ def cmd_demo():
     sys.stdout.flush()
 
 
-def cmd_end():
-    print('verachess_support.CmdEnd')
-    sys.stdout.flush()
-
-
 def cmd_flip():
-    print('verachess_support.CmdFlip')
-    sys.stdout.flush()
+    flip_stat = MenuStats[MenuStatNames.flip]
+    flip_stat.set(not flip_stat.get())
+    refresh_flip()
 
 
-def cmd_info():
-    print('verachess_support.CmdInfo')
-    sys.stdout.flush()
-
-
+@check_model
 def cmd_left():
-    print('verachess_support.CmdLeft')
-    sys.stdout.flush()
+    place = Globals.MoveSlider
+    if place == 0:
+        return
+    if place == -1:
+        place = len(Globals.History) - 1
+    events.move_change_handler(place - 1)
 
 
+@check_model
 def cmd_right():
-    print('verachess_support.CmdRight')
-    sys.stdout.flush()
+    place = Globals.MoveSlider
+    if place in [-1, len(Globals.History) - 1]:
+        return
+    events.move_change_handler(place + 1)
 
 
+@check_model
 def cmd_start():
-    print('verachess_support.CmdStart')
-    sys.stdout.flush()
+    events.move_change_handler(0)
+
+
+@check_model
+def cmd_end():
+    events.move_change_handler(len(Globals.History) - 1)
 
 
 @check_model

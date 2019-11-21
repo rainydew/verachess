@@ -188,7 +188,7 @@ class MainWindow:
         self.InfoEdit = tk.Button(top)
         self.InfoEdit.place(x=738, y=288, height=48, width=48)
         self.InfoEdit.configure(background="#d9d9d9")
-        self.InfoEdit.configure(command=verachess_support.cmd_info)
+        self.InfoEdit.configure(command=verachess_support.edit_game)
         self.InfoEdit.configure(wraplength=40)
         self.InfoEdit.configure(text='''棋局信息''')
 
@@ -196,6 +196,7 @@ class MainWindow:
         self.Monitor.place(x=786, y=288, height=48, width=98)
         self.Monitor.configure(background="#d9d9d9")
         self.Monitor.configure(command=verachess_support.change_monitor)
+        self.Monitor.configure(font=Font.font_9)
         self.Monitor.configure(textvariable=verachess_support.MonitorStat)
 
         self.DiffBoard = tk.Frame(top)
@@ -397,12 +398,23 @@ def create_menus(main: MainWindow, top: tk.Tk):
     add_checkbutton(main, m_clock, "关闭棋钟", verachess_support.clock_switch,
                     verachess_support.MenuStats[MenuStatNames.clock])
     add_command(main, m_clock, "设置比赛时长", verachess_support.change_clock)
+    m_tool = add_menu(main, top, "工具")
+    sm_monitor = add_cascade(main, top, m_tool, "监控选项")
+    add_command(main, sm_monitor, "监控CPU温度", verachess_support.change_monitor_cpu)
+    add_command(main, sm_monitor, "监控可用内存", verachess_support.change_monitor_mem)
 
 
 def add_menu(main: MainWindow, top: tk.Tk, name: str) -> str:
     controller = tk.Menu(top, tearoff=0)
     main.Menus[name] = [controller, 0]     # init sub length = 0
     main.menubar.add_cascade(menu=controller, label=name)
+    return name
+
+
+def add_cascade(main: MainWindow, top: tk.Tk, parent: str, name: str) -> str:
+    controller = tk.Menu(top, tearoff=0)
+    main.Menus[name] = [controller, 0]     # init sub length = 0
+    main.Menus[parent][0].add_cascade(menu=controller, label=name)
     return name
 
 

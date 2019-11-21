@@ -3,9 +3,11 @@
 from typing import List, Dict, Tuple, Union, Any
 from consts import Positions, Role, EndType, CpuMoveConf, Winner as ConstWinner
 from match import today, now
+from singleton.singleton import Singleton
 
 if (lambda: None)():
     import verachess
+    import tkinter as tk
 
 
 def calc_fen_hash(fen: str) -> int:
@@ -59,13 +61,45 @@ class Globals:
     Winc = 3000
     Binc = 3000
     ClockConf = {'WhiteMinEntry': 5, 'WhiteSecEntry': 0, 'WhiteIncEntry': 3, 'CpuSet': 16.0, 'CpuRebal': 1.0, 'Sync':
-        True, 'Cmv': 'UseDepth'}
+                 True, 'Cmv': 'UseDepth'}
     # todo: tick logic separate from computer play and fics
     CpuSet = 16  # type: Union[int, float]
     CpuRebal = 1.0
     Cmv = CpuMoveConf.use_depth
     MoveSlider = -1  # the last one
     GameInfo = gen_init_game_info()
+    MonitorStatVar = None  # type: tk.StringVar
+
+
+@Singleton
+class _Tracers:
+    # only for two way binding
+    def __init__(self):
+        self._cpu_temp = "N/A"
+        self._mem_avail = "N/A"
+
+    @property
+    def cpu_temp(self):
+        return self._cpu_temp
+
+    @cpu_temp.setter
+    def cpu_temp(self, value):
+        if "可用内存" != Globals.MonitorStatVar.get()[:4]:
+            Globals.MonitorStatVar.set("CPU温度\n{} 度".format(value))
+        self._cpu_temp = value
+
+    @property
+    def mem_avail(self):
+        return self._mem_avail
+
+    @mem_avail.setter
+    def mem_avail(self, value):
+        if "可用内存" == Globals.MonitorStatVar.get()[:4]:
+            Globals.MonitorStatVar.set("可用内存\n{}".format(value))
+        self._mem_avail = value
+
+
+Tracers = _Tracers.instance()  # type: _Tracers
 
 
 class ModelLock:

@@ -378,7 +378,7 @@ def change_position(place: int):
 
 
 def move_change_handler(place: int) -> None:
-    if not vs.MenuStats[vs.MenuStatNames.clock].get() or Globals.Game_role.values():  # clock enabled, cannot click
+    if not vs.MenuStats[vs.MenuStatNames.clock].get() or any(Globals.Game_role.values()):  # clock enabled, cannot click
         alert("在时钟开启、有引擎参与、或有联网棋手的情况下，不能切换棋谱局面")
         return
     change_position(place)
