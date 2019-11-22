@@ -27,11 +27,13 @@ import uci_chart_support
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
+    print("test mode")
     root = tk.Tk()
+    uci_chart_support.set_Tk_var()
     top = Toplevel1(root)
     uci_chart_support.init(root, top, [])
     root.mainloop()
-    print(top.Result)
+    print("Result:", top.Result)
 
 
 w = None
@@ -71,14 +73,17 @@ class Toplevel1:
         self.style.map('.', background=[('selected', _compcolor), ('active', _ana2color)])
 
         top.geometry("750x550+495+263")
-        top.title("选择棋局")
+        top.title("引擎UCI配置")
         top.configure(background="#d9d9d9")
 
         self.style.configure('Treeview', font="TkDefaultFont")
+
+        self.Top = top
+        self.Editing = False
+
         self.Scrolledtreeview1 = ScrolledTreeView(top)
         self.Scrolledtreeview1.place(x=0, y=0, height=470, width=750)
-        columns = ["Name", "Type", "Default", "", "BlackElo", "Result", "ECO", "Termination",
-                   "TerminationDetails"]
+        columns = ["Name", "Type", "Default", "Require", "Value"]
         self.Columns = [x.lower() for x in columns]
         self.Scrolledtreeview1.configure(columns=columns)
         # build_treeview_support starting.
@@ -92,8 +97,33 @@ class Toplevel1:
 
         if __name__ == '__main__':
             for i in range(100):
-                self.Scrolledtreeview1.insert("", "end", text=str(i), values=[str(i), "w", 2000, "b", 2000, "*", "A00",
-                                                                              "unterminated"])
+                if i % 5 == 0:
+                    self.Scrolledtreeview1.insert("", "end", text=str(i), values=["Hash", "spin", "128",
+                                                                                  "64-1024", "128"])
+                elif i % 5 == 1:
+                    self.Scrolledtreeview1.insert("", "end", text=str(i), values=["Ponder", "check", "false",
+                                                                                  "", "false"])
+                elif i % 5 == 2:
+                    self.Scrolledtreeview1.insert("", "end", text=str(i), values=["SyzygyPath", "string", "",
+                                                                                  "", ""])
+                elif i % 5 == 3:
+                    self.Scrolledtreeview1.insert("", "end", text=str(i), values=["Clear Hash", "button", "",
+                                                                                  "", ""])
+                else:
+                    self.Scrolledtreeview1.insert("", "end", text=str(i), values=[
+                        "UseBook", "combo", "anywhere", "none|analyze only|anywhere", "anywhere"])
+
+        self.Confirm = tk.Button(top)
+        self.Confirm.place(x=410, y=490, height=31, width=58)
+        self.Confirm.configure(command=uci_chart_support.confirm)
+        self.Confirm.configure(background="#d9d9d9")
+        self.Confirm.configure(text='''确定''')
+
+        self.Default = tk.Button(top)
+        self.Default.place(x=290, y=490, height=31, width=58)
+        self.Default.configure(command=uci_chart_support.default)
+        self.Default.configure(background="#d9d9d9")
+        self.Default.configure(text='''重置''')
 
         self.Cancel = tk.Button(top)
         self.Cancel.place(x=530, y=490, height=31, width=58)
@@ -102,7 +132,7 @@ class Toplevel1:
         self.Cancel.configure(text='''取消''')
 
         self.Label1 = tk.Label(top)
-        self.Label1.place(x=160, y=490, height=26)
+        self.Label1.place(x=120, y=490, height=26)
         self.Label1.configure(background="#d9d9d9")
         self.Label1.configure(text='''双击选项编辑''')
 

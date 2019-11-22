@@ -2,9 +2,8 @@
 # event handlers
 from verachess_global import Globals, ModelLock, calc_fen_hash
 from typing import Tuple, Optional, List
-from consts import Color, Promotions, EndType, Winner, Font, Paths, InfoTypes, Positions, EcoBook, EndTypeToInfo, \
-    Winner_Dict
-import os
+from consts import Color, Promotions, EndType, Winner, Font, InfoTypes, Positions, EcoBook, EndTypeToInfo, Winner_Dict
+from notify import alert
 import tkinter as tk
 import easygui
 import boards
@@ -12,10 +11,6 @@ import verachess_support as vs
 
 bd = boards.Fens
 pg = boards.Pgns
-
-
-def alert(msg: str, title: str = "verachess5.0") -> None:
-    os.system(Paths.binpath + "/vcnotify.exe {} {}".format(msg.replace(" ", "_"), title.replace(" ", "_")))
 
 
 def refresh_cells():

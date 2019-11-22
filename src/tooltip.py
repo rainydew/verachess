@@ -70,7 +70,7 @@ class ToolTip(tk.Toplevel):
         """
         self.visible = 1
         # The after function takes a time argument in miliseconds
-        self.after(int(self.delay * 1000), self.show)
+        self.after(int(self.delay * 500), self.show)
 
     def show(self):
         """

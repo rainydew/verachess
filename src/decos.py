@@ -2,6 +2,7 @@
 from verachess_global import Globals, ModelLock
 from functools import wraps
 from traceback import format_exc
+from notify import alert
 import logging
 
 
@@ -19,7 +20,6 @@ def model_locked(func):
     @wraps(func)
     def inner_func(*args, **kwargs):
         if Globals.Models:
-            from events import alert
             alert("你有弹出窗口未关闭，暂不能使用此功能")
             return None
         with ModelLock():
