@@ -29,7 +29,8 @@ def cancel():
 
 
 def confirm():
-    print("confirm")
+
+    destroy_window()
 
 
 def default():
