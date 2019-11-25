@@ -2,7 +2,7 @@
 from verachess_global import Globals, ModelLock
 from functools import wraps
 from traceback import format_exc
-from notify import alert
+from tooltip import alert
 import logging
 
 

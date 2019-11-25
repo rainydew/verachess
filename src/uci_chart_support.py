@@ -5,7 +5,7 @@
 #  in conjunction with Tcl version 8.6
 #    Nov 13, 2019 05:32:12 PM CST  platform: Windows NT
 from typing import Dict, Union, List
-from notify import alert
+from tooltip import alert
 from consts import Color
 import tkinter as tk
 import easygui

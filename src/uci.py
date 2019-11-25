@@ -1,7 +1,7 @@
 # coding: utf-8
 from typing import Optional, Union, List
 from singleton.singleton import Singleton
-from notify import alert
+from tooltip import alert
 import gc
 import json
 import time

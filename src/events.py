@@ -3,7 +3,7 @@
 from verachess_global import Globals, ModelLock, calc_fen_hash
 from typing import Tuple, Optional, List
 from consts import Color, Promotions, EndType, Winner, Font, InfoTypes, Positions, EcoBook, EndTypeToInfo, Winner_Dict
-from notify import alert
+from tooltip import alert
 import tkinter as tk
 import easygui
 import boards

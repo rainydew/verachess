@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
+import os
 import tkinter as tk
 from time import time
+from consts import Paths
 
 # ======================================================
 # Found the original code at:
@@ -118,3 +120,7 @@ class ToolTip(tk.Toplevel):
 # ===========================================================
 #                   End of Class ToolTip
 # ===========================================================
+
+
+def alert(msg: str, title: str = "verachess5.0") -> None:
+    os.system(Paths.binpath + "/vcnotify.exe {} {}".format(msg.replace(" ", "_"), title.replace(" ", "_")))
