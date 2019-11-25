@@ -258,6 +258,7 @@ class Toplevel1:
         self.Termination = ttk.Combobox(top, values=Termination.all_type)
         self.Termination.place(x=140, y=380, height=29, width=94)
         self.Termination.configure(textvariable=gameinfo_support.Termination)
+        self.Termination.configure(state="readonly")
 
         self.Label1_9 = tk.Label(top)
         self.Label1_9.place(x=240, y=380, height=26)
