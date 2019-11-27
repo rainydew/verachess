@@ -14,37 +14,45 @@ except ImportError:
 
 try:
     import ttk
+
     py3 = False
 except ImportError:
     import tkinter.ttk as ttk
+
     py3 = True
 
 import EngineView_support
+
 
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = tk.Tk()
     EngineView_support.set_Tk_var()
-    top = Toplevel1 (root)
+    top = Toplevel1(root)
     EngineView_support.init(root, top)
     root.mainloop()
 
+
 w = None
+
+
 def create_Toplevel1(root, *args, **kwargs):
     '''Starting point when module is imported by another program.'''
     global w, w_win, rt
     rt = root
-    w = tk.Toplevel (root)
+    w = tk.Toplevel(root)
     EngineView_support.set_Tk_var()
-    top = Toplevel1 (w)
+    top = Toplevel1(w)
     EngineView_support.init(w, top, *args, **kwargs)
     return (w, top)
+
 
 def destroy_Toplevel1():
     global w
     w.destroy()
     w = None
+
 
 class Toplevel1:
     def __init__(self, top=None):
@@ -52,17 +60,17 @@ class Toplevel1:
            top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
         _fgcolor = '#000000'  # X11 color: 'black'
-        _compcolor = '#d9d9d9' # X11 color: 'gray85'
-        _ana1color = '#d9d9d9' # X11 color: 'gray85' 
-        _ana2color = '#ececec' # Closest X11 color: 'gray92' 
+        _compcolor = '#d9d9d9'  # X11 color: 'gray85'
+        _ana1color = '#d9d9d9'  # X11 color: 'gray85'
+        _ana2color = '#ececec'  # Closest X11 color: 'gray92'
         self.style = ttk.Style()
         if sys.platform == "win32":
             self.style.theme_use('winnative')
-        self.style.configure('.',background=_bgcolor)
-        self.style.configure('.',foreground=_fgcolor)
-        self.style.configure('.',font="TkDefaultFont")
-        self.style.map('.',background=
-            [('selected', _compcolor), ('active',_ana2color)])
+        self.style.configure('.', background=_bgcolor)
+        self.style.configure('.', foreground=_fgcolor)
+        self.style.configure('.', font="TkDefaultFont")
+        self.style.map('.', background=
+        [('selected', _compcolor), ('active', _ana2color)])
 
         top.geometry("800x510+0+0")
         top.title("引擎选择")
@@ -71,441 +79,224 @@ class Toplevel1:
         top.configure(highlightcolor="black")
 
         self.Label1 = tk.Label(top)
-        self.Label1.place(x=50, y=20, height=26)
+        self.Label1.place(x=50, y=20, height=28)
         self.Label1.configure(background="#d9d9d9")
         self.Label1.configure(text='''白方引擎''')
 
         self.WhiteEngine = ttk.Combobox(top)
-        self.WhiteEngine.place(x=50, y=50, height=26, width=205)
+        self.WhiteEngine.place(x=50, y=50, height=28, width=205)
         self.WhiteEngine.configure(textvariable=EngineView_support.WhiteEngineChoosen)
         self.WhiteEngine.configure(state="readonly")
 
         self.Label1_1 = tk.Label(top)
-        self.Label1_1.place(x=50, y=100, height=26)
+        self.Label1_1.place(x=50, y=100, height=28)
         self.Label1_1.configure(background="#d9d9d9")
         self.Label1_1.configure(text='''黑方引擎''')
 
         self.BlackEngine = ttk.Combobox(top)
-        self.BlackEngine.place(x=50, y=130, height=26, width=205)
+        self.BlackEngine.place(x=50, y=130, height=28, width=205)
         self.BlackEngine.configure(textvariable=EngineView_support.BlackEngineChoosen)
         self.BlackEngine.configure(state="readonly")
 
         self.Label1_2 = tk.Label(top)
-        self.Label1_2.place(x=50, y=170, height=26)
+        self.Label1_2.place(x=50, y=170, height=28)
         self.Label1_2.configure(background="#d9d9d9")
         self.Label1_2.configure(text='''可用引擎''')
 
-        self.Scrolledlistbox1 = ScrolledListBox(top)
-        self.Scrolledlistbox1.place(x=50, y=200, height=300, width=205)
-        self.Scrolledlistbox1.configure(listvariable=EngineView_support.ListSelect)
+        self.EngineSpinBox = ScrolledListBox(top)
+        self.EngineSpinBox.place(x=50, y=200, height=300, width=205)
+        self.EngineSpinBox.configure(listvariable=EngineView_support.ListSelect)
 
         self.EngCountry = ttk.Combobox(top)
-        self.EngCountry.place(relx=0.388, rely=0.255, relheight=0.051
-                , relwidth=0.281)
+        self.EngCountry.place(x=310, y=130, height=28, width=170)
         self.EngCountry.configure(textvariable=EngineView_support.EngCountryVar)
-        self.EngCountry.configure(takefocus="")
+        self.EngCountry.configure(state="readonly")
+
+        self.EngFlag = tk.Label(top)
+        self.EngFlag.place(x=481, y=127, height=34, width=54)
+        self.EngFlag.configure(image=EngineView_support.FlagImg)
 
         self.Label1_3 = tk.Label(top)
-        self.Label1_3.place(relx=0.388, rely=0.196, height=26, width=67)
-        self.Label1_3.configure(activebackground="#f9f9f9")
-        self.Label1_3.configure(activeforeground="black")
+        self.Label1_3.place(x=310, y=100, height=28)
         self.Label1_3.configure(background="#d9d9d9")
-        self.Label1_3.configure(disabledforeground="#a3a3a3")
-        self.Label1_3.configure(foreground="#000000")
-        self.Label1_3.configure(highlightbackground="#d9d9d9")
-        self.Label1_3.configure(highlightcolor="black")
-        self.Label1_3.configure(text='''Country''')
+        self.Label1_3.configure(text='''所属国家''')
 
         self.Label1_4 = tk.Label(top)
-        self.Label1_4.place(relx=0.388, rely=0.039, height=26, width=57)
-        self.Label1_4.configure(activebackground="#f9f9f9")
-        self.Label1_4.configure(activeforeground="black")
+        self.Label1_4.place(x=310, y=20, height=28)
         self.Label1_4.configure(background="#d9d9d9")
-        self.Label1_4.configure(disabledforeground="#a3a3a3")
-        self.Label1_4.configure(foreground="#000000")
-        self.Label1_4.configure(highlightbackground="#d9d9d9")
-        self.Label1_4.configure(highlightcolor="black")
-        self.Label1_4.configure(text='''Name''')
+        self.Label1_4.configure(text='''名称''')
 
         self.EngName = tk.Entry(top)
-        self.EngName.place(relx=0.388, rely=0.098,height=29, relwidth=0.28)
-        self.EngName.configure(background="white")
-        self.EngName.configure(disabledforeground="#a3a3a3")
-        self.EngName.configure(font="TkFixedFont")
-        self.EngName.configure(foreground="#000000")
-        self.EngName.configure(highlightbackground="#d9d9d9")
-        self.EngName.configure(highlightcolor="black")
-        self.EngName.configure(insertbackground="black")
-        self.EngName.configure(selectbackground="#c4c4c4")
-        self.EngName.configure(selectforeground="black")
+        self.EngName.place(x=310, y=50, height=29, width=225)
         self.EngName.configure(textvariable=EngineView_support.EngNameVar)
 
         self.Label1_5 = tk.Label(top)
-        self.Label1_5.place(relx=0.388, rely=0.334, height=26, width=87)
-        self.Label1_5.configure(activebackground="#f9f9f9")
-        self.Label1_5.configure(activeforeground="black")
+        self.Label1_5.place(x=310, y=170, height=28)
         self.Label1_5.configure(background="#d9d9d9")
-        self.Label1_5.configure(disabledforeground="#a3a3a3")
-        self.Label1_5.configure(foreground="#000000")
-        self.Label1_5.configure(highlightbackground="#d9d9d9")
-        self.Label1_5.configure(highlightcolor="black")
-        self.Label1_5.configure(text='''Command''')
+        self.Label1_5.configure(text='''引擎文件运行命令行''')
+
+        self.OpenExe = tk.Button(top)
+        self.OpenExe.place(x=480, y=170, height=28, width=55)
+        self.OpenExe.configure(background="#d9d9d9")
+        self.OpenExe.configure(text='''浏览''')
+        self.OpenExe.configure(command=EngineView_support.view)
 
         self.EngCommand = tk.Entry(top)
-        self.EngCommand.place(relx=0.388, rely=0.393,height=39, relwidth=0.28)
-        self.EngCommand.configure(background="white")
-        self.EngCommand.configure(disabledforeground="#a3a3a3")
-        self.EngCommand.configure(font="TkFixedFont")
-        self.EngCommand.configure(foreground="#000000")
-        self.EngCommand.configure(highlightbackground="#d9d9d9")
-        self.EngCommand.configure(highlightcolor="black")
-        self.EngCommand.configure(insertbackground="black")
-        self.EngCommand.configure(selectbackground="#c4c4c4")
-        self.EngCommand.configure(selectforeground="black")
+        self.EngCommand.place(x=310, y=200, height=28, width=225)
         self.EngCommand.configure(textvariable=EngineView_support.EngCommandVar)
-        self.EngCommand.configure(width=224)
-
-        self.UciSet = tk.Button(top)
-        self.UciSet.place(relx=0.388, rely=0.688, height=33, width=86)
-        self.UciSet.configure(activebackground="#ececec")
-        self.UciSet.configure(activeforeground="#000000")
-        self.UciSet.configure(background="#d9d9d9")
-        self.UciSet.configure(command=EngineView_support.configure)
-        self.UciSet.configure(disabledforeground="#a3a3a3")
-        self.UciSet.configure(foreground="#000000")
-        self.UciSet.configure(highlightbackground="#d9d9d9")
-        self.UciSet.configure(highlightcolor="black")
-        self.UciSet.configure(pady="0")
-        self.UciSet.configure(text='''Configure''')
-        self.UciSet.configure(width=86)
 
         self.Label1_7 = tk.Label(top)
-        self.Label1_7.place(relx=0.388, rely=0.511, height=26, width=57)
-        self.Label1_7.configure(activebackground="#f9f9f9")
-        self.Label1_7.configure(activeforeground="black")
+        self.Label1_7.place(x=310, y=230, height=28)
         self.Label1_7.configure(background="#d9d9d9")
-        self.Label1_7.configure(disabledforeground="#a3a3a3")
-        self.Label1_7.configure(foreground="#000000")
-        self.Label1_7.configure(highlightbackground="#d9d9d9")
-        self.Label1_7.configure(highlightcolor="black")
-        self.Label1_7.configure(text='''Ending''')
+        self.Label1_7.configure(text='''引擎控制台换行符''')
 
         self.EngEnding = ttk.Combobox(top)
-        self.EngEnding.place(relx=0.475, rely=0.511, relheight=0.051
-                , relwidth=0.194)
+        self.EngEnding.place(x=310, y=260, height=28, width=225)
         self.EngEnding.configure(textvariable=EngineView_support.EngEndingVar)
-        self.EngEnding.configure(takefocus="")
+        self.EngEnding.configure(state="readonly")
+        self.EngEnding.configure(values=r"\\r\\n \\n")
 
-        self.UciDel = tk.Button(top)
-        self.UciDel.place(relx=0.388, rely=0.884, height=33, width=86)
-        self.UciDel.configure(activebackground="#ececec")
-        self.UciDel.configure(activeforeground="#000000")
-        self.UciDel.configure(background="#d9d9d9")
-        self.UciDel.configure(command=EngineView_support.delete)
-        self.UciDel.configure(disabledforeground="#a3a3a3")
-        self.UciDel.configure(foreground="#000000")
-        self.UciDel.configure(highlightbackground="#d9d9d9")
-        self.UciDel.configure(highlightcolor="black")
-        self.UciDel.configure(pady="0")
-        self.UciDel.configure(text='''Delete''')
-        self.UciDel.configure(width=89)
-
-        self.UciNew = tk.Button(top)
-        self.UciNew.place(relx=0.55, rely=0.688, height=33, width=89)
-        self.UciNew.configure(activebackground="#ececec")
-        self.UciNew.configure(activeforeground="#000000")
-        self.UciNew.configure(background="#d9d9d9")
-        self.UciNew.configure(command=EngineView_support.new)
-        self.UciNew.configure(disabledforeground="#a3a3a3")
-        self.UciNew.configure(foreground="#000000")
-        self.UciNew.configure(highlightbackground="#d9d9d9")
-        self.UciNew.configure(highlightcolor="black")
-        self.UciNew.configure(pady="0")
-        self.UciNew.configure(text='''New''')
-        self.UciNew.configure(width=89)
-
-        self.Quit = tk.Button(top)
-        self.Quit.place(relx=0.55, rely=0.884, height=33, width=89)
-        self.Quit.configure(activebackground="#ececec")
-        self.Quit.configure(activeforeground="#000000")
-        self.Quit.configure(background="#d9d9d9")
-        self.Quit.configure(command=EngineView_support.c_close)
-        self.Quit.configure(disabledforeground="#a3a3a3")
-        self.Quit.configure(foreground="#000000")
-        self.Quit.configure(highlightbackground="#d9d9d9")
-        self.Quit.configure(highlightcolor="black")
-        self.Quit.configure(pady="0")
-        self.Quit.configure(text='''Close''')
-        self.Quit.configure(width=89)
+        self.UciSet = tk.Button(top)
+        self.UciSet.place(x=310, y=350, height=33, width=92)
+        self.UciSet.configure(background="#d9d9d9")
+        self.UciSet.configure(command=EngineView_support.configure)
+        self.UciSet.configure(text='''编辑UCI选项''')
 
         self.UciReset = tk.Button(top)
-        self.UciReset.place(relx=0.388, rely=0.786, height=33, width=86)
-        self.UciReset.configure(activebackground="#ececec")
-        self.UciReset.configure(activeforeground="#000000")
+        self.UciReset.place(x=310, y=400, height=33, width=92)
         self.UciReset.configure(background="#d9d9d9")
         self.UciReset.configure(command=EngineView_support.stash)
-        self.UciReset.configure(disabledforeground="#a3a3a3")
-        self.UciReset.configure(foreground="#000000")
-        self.UciReset.configure(highlightbackground="#d9d9d9")
-        self.UciReset.configure(highlightcolor="black")
-        self.UciReset.configure(pady="0")
-        self.UciReset.configure(text='''Stash''')
+        self.UciReset.configure(text='''重置UCI配置''')
+
+        self.Quit = tk.Button(top)
+        self.Quit.place(x=310, y=450, height=33, width=92)
+        self.Quit.configure(background="#d9d9d9")
+        self.Quit.configure(command=EngineView_support.c_close)
+        self.Quit.configure(text='''关闭窗口''')
+
+        self.UciNew = tk.Button(top)
+        self.UciNew.place(x=443, y=350, height=33, width=92)
+        self.UciNew.configure(background="#d9d9d9")
+        self.UciNew.configure(command=EngineView_support.new)
+        self.UciNew.configure(text='''新增引擎''')
 
         self.Copy = tk.Button(top)
-        self.Copy.place(relx=0.55, rely=0.786, height=33, width=89)
-        self.Copy.configure(activebackground="#ececec")
-        self.Copy.configure(activeforeground="#000000")
+        self.Copy.place(x=443, y=400, height=33, width=92)
         self.Copy.configure(background="#d9d9d9")
         self.Copy.configure(command=EngineView_support.c_copy)
-        self.Copy.configure(disabledforeground="#a3a3a3")
-        self.Copy.configure(foreground="#000000")
-        self.Copy.configure(highlightbackground="#d9d9d9")
-        self.Copy.configure(highlightcolor="black")
-        self.Copy.configure(pady="0")
-        self.Copy.configure(text='''Copy''')
-        self.Copy.configure(width=89)
+        self.Copy.configure(text='''复制引擎''')
+
+        self.UciDel = tk.Button(top)
+        self.UciDel.place(x=443, y=450, height=33, width=92)
+        self.UciDel.configure(background="#d9d9d9")
+        self.UciDel.configure(command=EngineView_support.delete)
+        self.UciDel.configure(text='''移除引擎''')
+
+        self.WB2UCI = tk.Checkbutton(top)
+        self.WB2UCI.place(x=300, y=300, height=28)
+        self.WB2UCI.configure(background="#d9d9d9")
+        self.WB2UCI.configure(text='''使用Winboard协议转换器(待开发)''')
+        self.WB2UCI.configure(variable=EngineView_support.UseWb2Uci)
+        self.WB2UCI.configure(state="disabled")
 
         self.TSeparator1 = ttk.Separator(top)
-        self.TSeparator1.place(relx=0.725, rely=0.039, relheight=0.923)
+        self.TSeparator1.place(x=580, y=20, height=470)
         self.TSeparator1.configure(orient="vertical")
 
+        self.Label5 = tk.Label(top)
+        self.Label5.place(x=610, y=20, height=28)
+        self.Label5.configure(background="#d9d9d9")
+        self.Label5.configure(text='''引擎通用设置：''')
+
         self.Label1_8 = tk.Label(top)
-        self.Label1_8.place(relx=0.763, rely=0.079, height=26, width=67)
-        self.Label1_8.configure(activebackground="#f9f9f9")
-        self.Label1_8.configure(activeforeground="black")
+        self.Label1_8.place(x=610, y=50, height=28)
         self.Label1_8.configure(background="#d9d9d9")
-        self.Label1_8.configure(disabledforeground="#a3a3a3")
-        self.Label1_8.configure(foreground="#000000")
-        self.Label1_8.configure(highlightbackground="#d9d9d9")
-        self.Label1_8.configure(highlightcolor="black")
-        self.Label1_8.configure(text='''Priority''')
-        self.Label1_8.configure(width=67)
+        self.Label1_8.configure(text='''引擎优先级''')
 
         self.EngPriority = ttk.Combobox(top)
-        self.EngPriority.place(relx=0.775, rely=0.138, relheight=0.051
-                , relwidth=0.194)
+        self.EngPriority.place(x=610, y=80, height=28, width=155)
         self.EngPriority.configure(textvariable=EngineView_support.EngPriorityVar)
-        self.EngPriority.configure(takefocus="")
+        self.EngPriority.configure(state="readonly")
+        self.EngPriority.configure(values="中 中低")
 
         self.CommonHash = tk.Checkbutton(top)
-        self.CommonHash.place(relx=0.775, rely=0.216, relheight=0.061
-                , relwidth=0.166)
-        self.CommonHash.configure(activebackground="#ececec")
-        self.CommonHash.configure(activeforeground="#000000")
+        self.CommonHash.place(x=600, y=120, height=28)
         self.CommonHash.configure(background="#d9d9d9")
-        self.CommonHash.configure(disabledforeground="#a3a3a3")
-        self.CommonHash.configure(foreground="#000000")
-        self.CommonHash.configure(highlightbackground="#d9d9d9")
-        self.CommonHash.configure(highlightcolor="black")
-        self.CommonHash.configure(justify='left')
-        self.CommonHash.configure(text='''CommonHash''')
+        self.CommonHash.configure(text='''统一内存(哈希表)用量''')
         self.CommonHash.configure(variable=EngineView_support.UseHash)
 
         self.CHash = tk.Entry(top)
-        self.CHash.place(relx=0.775, rely=0.275,height=31, relwidth=0.13)
-        self.CHash.configure(background="white")
-        self.CHash.configure(disabledforeground="#a3a3a3")
-        self.CHash.configure(font="TkFixedFont")
-        self.CHash.configure(foreground="black")
-        self.CHash.configure(highlightbackground="#d9d9d9")
-        self.CHash.configure(highlightcolor="black")
-        self.CHash.configure(insertbackground="black")
-        self.CHash.configure(selectbackground="#c4c4c4")
-        self.CHash.configure(selectforeground="black")
+        self.CHash.place(x=610, y=150, height=28, width=105)
         self.CHash.configure(textvariable=EngineView_support.CHashVar)
-        self.CHash.configure(width=104)
 
         self.Label2 = tk.Label(top)
-        self.Label2.place(relx=0.925, rely=0.275, height=26, width=30)
-        self.Label2.configure(activebackground="#f9f9f9")
-        self.Label2.configure(activeforeground="black")
+        self.Label2.place(x=730, y=150, height=28)
         self.Label2.configure(background="#d9d9d9")
-        self.Label2.configure(disabledforeground="#a3a3a3")
-        self.Label2.configure(foreground="black")
-        self.Label2.configure(highlightbackground="#d9d9d9")
-        self.Label2.configure(highlightcolor="black")
         self.Label2.configure(text='''MB''')
 
         self.CommonCpus = tk.Checkbutton(top)
-        self.CommonCpus.place(relx=0.775, rely=0.354, relheight=0.061
-                , relwidth=0.166)
-        self.CommonCpus.configure(activebackground="#ececec")
-        self.CommonCpus.configure(activeforeground="#000000")
+        self.CommonCpus.place(x=600, y=190, height=28)
         self.CommonCpus.configure(background="#d9d9d9")
-        self.CommonCpus.configure(disabledforeground="#a3a3a3")
-        self.CommonCpus.configure(foreground="#000000")
-        self.CommonCpus.configure(highlightbackground="#d9d9d9")
-        self.CommonCpus.configure(highlightcolor="black")
-        self.CommonCpus.configure(justify='left')
-        self.CommonCpus.configure(text='''CommonCpus''')
+        self.CommonCpus.configure(text='''统一CPU核心/线程数''')
         self.CommonCpus.configure(variable=EngineView_support.UseCpu)
 
         self.CCpu = tk.Entry(top)
-        self.CCpu.place(relx=0.775, rely=0.432,height=31, relwidth=0.13)
-        self.CCpu.configure(background="white")
-        self.CCpu.configure(disabledforeground="#a3a3a3")
-        self.CCpu.configure(font="TkFixedFont")
-        self.CCpu.configure(foreground="black")
-        self.CCpu.configure(highlightbackground="#d9d9d9")
-        self.CCpu.configure(highlightcolor="black")
-        self.CCpu.configure(insertbackground="black")
-        self.CCpu.configure(selectbackground="#c4c4c4")
-        self.CCpu.configure(selectforeground="black")
+        self.CCpu.place(x=610, y=220, height=28, width=105)
         self.CCpu.configure(textvariable=EngineView_support.CCpuVar)
 
         self.Label2_1 = tk.Label(top)
-        self.Label2_1.place(relx=0.925, rely=0.432, height=26, width=40)
-        self.Label2_1.configure(activebackground="#f9f9f9")
-        self.Label2_1.configure(activeforeground="black")
+        self.Label2_1.place(x=730, y=220, height=28)
         self.Label2_1.configure(background="#d9d9d9")
-        self.Label2_1.configure(disabledforeground="#a3a3a3")
-        self.Label2_1.configure(foreground="black")
-        self.Label2_1.configure(highlightbackground="#d9d9d9")
-        self.Label2_1.configure(highlightcolor="black")
-        self.Label2_1.configure(text='''Core''')
-        self.Label2_1.configure(width=40)
+        self.Label2_1.configure(text='''线程''')
 
         self.Label1_9 = tk.Label(top)
-        self.Label1_9.place(relx=0.763, rely=0.511, height=26, width=177)
-        self.Label1_9.configure(activebackground="#f9f9f9")
-        self.Label1_9.configure(activeforeground="black")
+        self.Label1_9.place(x=610, y=260, height=28)
         self.Label1_9.configure(background="#d9d9d9")
-        self.Label1_9.configure(disabledforeground="#a3a3a3")
-        self.Label1_9.configure(foreground="#000000")
-        self.Label1_9.configure(highlightbackground="#d9d9d9")
-        self.Label1_9.configure(highlightcolor="black")
-        self.Label1_9.configure(text='''CPU Temperature Watch''')
-        self.Label1_9.configure(width=177)
+        self.Label1_9.configure(text='''CPU温度监控''')
 
         self.TempConfine = tk.Checkbutton(top)
-        self.TempConfine.place(relx=0.763, rely=0.57, relheight=0.061
-                , relwidth=0.133)
-        self.TempConfine.configure(activebackground="#ececec")
-        self.TempConfine.configure(activeforeground="#000000")
+        self.TempConfine.place(x=600, y=290, height=28)
         self.TempConfine.configure(background="#d9d9d9")
-        self.TempConfine.configure(disabledforeground="#a3a3a3")
-        self.TempConfine.configure(foreground="#000000")
-        self.TempConfine.configure(highlightbackground="#d9d9d9")
-        self.TempConfine.configure(highlightcolor="black")
-        self.TempConfine.configure(justify='left')
-        self.TempConfine.configure(text='''Confine to''')
+        self.TempConfine.configure(text='''启用并限制到''')
         self.TempConfine.configure(variable=EngineView_support.WatchTemp)
 
         self.CpuTempLine = tk.Entry(top)
-        self.CpuTempLine.place(relx=0.775, rely=0.629,height=31, relwidth=0.13)
-        self.CpuTempLine.configure(background="white")
-        self.CpuTempLine.configure(disabledforeground="#a3a3a3")
-        self.CpuTempLine.configure(font="TkFixedFont")
-        self.CpuTempLine.configure(foreground="black")
-        self.CpuTempLine.configure(highlightbackground="#d9d9d9")
-        self.CpuTempLine.configure(highlightcolor="black")
-        self.CpuTempLine.configure(insertbackground="black")
-        self.CpuTempLine.configure(selectbackground="#c4c4c4")
-        self.CpuTempLine.configure(selectforeground="black")
+        self.CpuTempLine.place(x=610, y=320, height=28, width=105)
         self.CpuTempLine.configure(textvariable=EngineView_support.CpuTempVar)
-        self.CpuTempLine.configure(width=104)
 
-        self.Label2 = tk.Label(top)
-        self.Label2.place(relx=0.925, rely=0.629, height=26, width=30)
-        self.Label2.configure(activebackground="#f9f9f9")
-        self.Label2.configure(activeforeground="black")
-        self.Label2.configure(background="#d9d9d9")
-        self.Label2.configure(disabledforeground="#a3a3a3")
-        self.Label2.configure(foreground="black")
-        self.Label2.configure(highlightbackground="#d9d9d9")
-        self.Label2.configure(highlightcolor="black")
-        self.Label2.configure(text='''C''')
+        self.Label2_2 = tk.Label(top)
+        self.Label2_2.place(x=730, y=320, height=28)
+        self.Label2_2.configure(background="#d9d9d9")
+        self.Label2_2.configure(text='''度''')
 
         self.Label3 = tk.Label(top)
-        self.Label3.place(relx=0.763, rely=0.707, height=26, width=118)
-        self.Label3.configure(activebackground="#f9f9f9")
-        self.Label3.configure(activeforeground="black")
+        self.Label3.place(x=610, y=360, height=28)
         self.Label3.configure(background="#d9d9d9")
-        self.Label3.configure(disabledforeground="#a3a3a3")
-        self.Label3.configure(foreground="black")
-        self.Label3.configure(highlightbackground="#d9d9d9")
-        self.Label3.configure(highlightcolor="black")
-        self.Label3.configure(text='''Memory Watch''')
+        self.Label3.configure(text='''系统可用内存监控''')
 
         self.MemConfine = tk.Checkbutton(top)
-        self.MemConfine.place(relx=0.763, rely=0.766, relheight=0.061
-                , relwidth=0.155)
-        self.MemConfine.configure(activebackground="#ececec")
-        self.MemConfine.configure(activeforeground="#000000")
+        self.MemConfine.place(x=600, y=390, height=28)
         self.MemConfine.configure(background="#d9d9d9")
-        self.MemConfine.configure(disabledforeground="#a3a3a3")
-        self.MemConfine.configure(foreground="#000000")
-        self.MemConfine.configure(highlightbackground="#d9d9d9")
-        self.MemConfine.configure(highlightcolor="black")
-        self.MemConfine.configure(justify='left')
-        self.MemConfine.configure(text='''Keep at least''')
+        self.MemConfine.configure(text='''启动并至少保留''')
         self.MemConfine.configure(variable=EngineView_support.WatchMem)
 
         self.MemKeepLine = tk.Entry(top)
-        self.MemKeepLine.place(relx=0.775, rely=0.825,height=31, relwidth=0.13)
-        self.MemKeepLine.configure(background="white")
-        self.MemKeepLine.configure(disabledforeground="#a3a3a3")
-        self.MemKeepLine.configure(font="TkFixedFont")
-        self.MemKeepLine.configure(foreground="black")
-        self.MemKeepLine.configure(highlightbackground="#d9d9d9")
-        self.MemKeepLine.configure(highlightcolor="black")
-        self.MemKeepLine.configure(insertbackground="black")
-        self.MemKeepLine.configure(selectbackground="#c4c4c4")
-        self.MemKeepLine.configure(selectforeground="black")
+        self.MemKeepLine.place(x=610, y=420, height=28, width=105)
         self.MemKeepLine.configure(textvariable=EngineView_support.MemLimitVar)
 
         self.Label4 = tk.Label(top)
-        self.Label4.place(relx=0.925, rely=0.825, height=26, width=30)
-        self.Label4.configure(activebackground="#f9f9f9")
-        self.Label4.configure(activeforeground="black")
+        self.Label4.place(x=730, y=420, height=28)
         self.Label4.configure(background="#d9d9d9")
-        self.Label4.configure(disabledforeground="#a3a3a3")
-        self.Label4.configure(foreground="black")
-        self.Label4.configure(highlightbackground="#d9d9d9")
-        self.Label4.configure(highlightcolor="black")
         self.Label4.configure(text='''MB''')
 
-        self.Label5 = tk.Label(top)
-        self.Label5.place(relx=0.763, rely=0.039, height=26, width=105)
-        self.Label5.configure(activebackground="#f9f9f9")
-        self.Label5.configure(activeforeground="black")
-        self.Label5.configure(background="#d9d9d9")
-        self.Label5.configure(disabledforeground="#a3a3a3")
-        self.Label5.configure(foreground="black")
-        self.Label5.configure(highlightbackground="#d9d9d9")
-        self.Label5.configure(highlightcolor="black")
-        self.Label5.configure(text='''Global Config''')
-
         self.MemLeakConfine = tk.Checkbutton(top)
-        self.MemLeakConfine.place(relx=0.763, rely=0.904, relheight=0.061
-                , relwidth=0.224)
-        self.MemLeakConfine.configure(activebackground="#ececec")
-        self.MemLeakConfine.configure(activeforeground="#000000")
+        self.MemLeakConfine.place(x=600, y=460, height=28)
         self.MemLeakConfine.configure(background="#d9d9d9")
-        self.MemLeakConfine.configure(disabledforeground="#a3a3a3")
-        self.MemLeakConfine.configure(foreground="#000000")
-        self.MemLeakConfine.configure(highlightbackground="#d9d9d9")
-        self.MemLeakConfine.configure(highlightcolor="black")
-        self.MemLeakConfine.configure(justify='left')
-        self.MemLeakConfine.configure(text='''Watch Memory Leak''')
+        self.MemLeakConfine.configure(text='''监测引擎内存泄漏''')
         self.MemLeakConfine.configure(variable=EngineView_support.WatchMemLeak)
 
-        self.WB2UCI = tk.Checkbutton(top)
-        self.WB2UCI.place(relx=0.388, rely=0.589, relheight=0.061
-                , relwidth=0.245)
-        self.WB2UCI.configure(activebackground="#ececec")
-        self.WB2UCI.configure(activeforeground="#000000")
-        self.WB2UCI.configure(background="#d9d9d9")
-        self.WB2UCI.configure(disabledforeground="#a3a3a3")
-        self.WB2UCI.configure(foreground="#000000")
-        self.WB2UCI.configure(highlightbackground="#d9d9d9")
-        self.WB2UCI.configure(highlightcolor="black")
-        self.WB2UCI.configure(justify='left')
-        self.WB2UCI.configure(text='''Use Winboard Transfer''')
-        self.WB2UCI.configure(variable=EngineView_support.UseWb2Uci)
+        top.bind('<Destroy>', lambda e: EngineView_support.destruct(e))
 
-        self.menubar = tk.Menu(top,font="TkMenuFont",bg=_bgcolor,fg=_fgcolor)
-        top.configure(menu = self.menubar)
 
 # The following code is added to facilitate the Scrolled widgets you specified.
 class AutoScroll(object):
@@ -521,7 +312,7 @@ class AutoScroll(object):
             pass
         hsb = ttk.Scrollbar(master, orient='horizontal', command=self.xview)
 
-        #self.configure(yscrollcommand=_autoscroll(vsb),
+        # self.configure(yscrollcommand=_autoscroll(vsb),
         #    xscrollcommand=_autoscroll(hsb))
         try:
             self.configure(yscrollcommand=self._autoscroll(vsb))
@@ -542,10 +333,10 @@ class AutoScroll(object):
         # Copy geometry methods of master  (taken from ScrolledText.py)
         if py3:
             methods = tk.Pack.__dict__.keys() | tk.Grid.__dict__.keys() \
-                  | tk.Place.__dict__.keys()
+                      | tk.Place.__dict__.keys()
         else:
             methods = tk.Pack.__dict__.keys() + tk.Grid.__dict__.keys() \
-                  + tk.Place.__dict__.keys()
+                      + tk.Place.__dict__.keys()
 
         for meth in methods:
             if meth[0] != '_' and meth not in ('config', 'configure'):
@@ -554,6 +345,7 @@ class AutoScroll(object):
     @staticmethod
     def _autoscroll(sbar):
         '''Hide and show scrollbar as needed.'''
+
         def wrapped(first, last):
             first, last = float(first), float(last)
             if first <= 0 and last >= 1:
@@ -561,30 +353,39 @@ class AutoScroll(object):
             else:
                 sbar.grid()
             sbar.set(first, last)
+
         return wrapped
 
     def __str__(self):
         return str(self.master)
 
+
 def _create_container(func):
     '''Creates a ttk Frame with a given master, and use this new frame to
     place the scrollbars and the widget.'''
+
     def wrapped(cls, master, **kw):
         container = ttk.Frame(master)
         container.bind('<Enter>', lambda e: _bound_to_mousewheel(e, container))
         container.bind('<Leave>', lambda e: _unbound_to_mousewheel(e, container))
         return func(cls, container, **kw)
+
     return wrapped
+
 
 class ScrolledListBox(AutoScroll, tk.Listbox):
     '''A standard Tkinter Text widget with scrollbars that will
     automatically show/hide as needed.'''
+
     @_create_container
     def __init__(self, master, **kw):
         tk.Listbox.__init__(self, master, **kw)
         AutoScroll.__init__(self, master)
 
+
 import platform
+
+
 def _bound_to_mousewheel(event, widget):
     child = widget.winfo_children()[0]
     if platform.system() == 'Windows' or platform.system() == 'Darwin':
@@ -596,6 +397,7 @@ def _bound_to_mousewheel(event, widget):
         child.bind_all('<Shift-Button-4>', lambda e: _on_shiftmouse(e, child))
         child.bind_all('<Shift-Button-5>', lambda e: _on_shiftmouse(e, child))
 
+
 def _unbound_to_mousewheel(event, widget):
     if platform.system() == 'Windows' or platform.system() == 'Darwin':
         widget.unbind_all('<MouseWheel>')
@@ -606,32 +408,30 @@ def _unbound_to_mousewheel(event, widget):
         widget.unbind_all('<Shift-Button-4>')
         widget.unbind_all('<Shift-Button-5>')
 
+
 def _on_mousewheel(event, widget):
     if platform.system() == 'Windows':
-        widget.yview_scroll(-1*int(event.delta/120),'units')
+        widget.yview_scroll(-1 * int(event.delta / 120), 'units')
     elif platform.system() == 'Darwin':
-        widget.yview_scroll(-1*int(event.delta),'units')
+        widget.yview_scroll(-1 * int(event.delta), 'units')
     else:
         if event.num == 4:
             widget.yview_scroll(-1, 'units')
         elif event.num == 5:
             widget.yview_scroll(1, 'units')
 
+
 def _on_shiftmouse(event, widget):
     if platform.system() == 'Windows':
-        widget.xview_scroll(-1*int(event.delta/120), 'units')
+        widget.xview_scroll(-1 * int(event.delta / 120), 'units')
     elif platform.system() == 'Darwin':
-        widget.xview_scroll(-1*int(event.delta), 'units')
+        widget.xview_scroll(-1 * int(event.delta), 'units')
     else:
         if event.num == 4:
             widget.xview_scroll(-1, 'units')
         elif event.num == 5:
             widget.xview_scroll(1, 'units')
 
+
 if __name__ == '__main__':
     vp_start_gui()
-
-
-
-
-

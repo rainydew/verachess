@@ -7,79 +7,75 @@
 
 import sys
 
-try:
-    import Tkinter as tk
-except ImportError:
-    import tkinter as tk
+import tkinter as tk
+import tkinter.ttk as ttk
+from tkinter import CallWrapper
 
-try:
-    import ttk
-    py3 = False
-except ImportError:
-    import tkinter.ttk as ttk
-    py3 = True
+WhiteEngineChoosen = BlackEngineChoosen = ListSelect = EngCountryVar = EngNameVar = EngCommandVar = EngEndingVar = \
+    EngPriorityVar = CHashVar = CCpuVar = CpuTempVar = MemLimitVar = None  # type: tk.StringVar
+FlagImg = None  # type: tk.PhotoImage
+WatchMemLeak = UseWb2Uci = UseHash = UseCpu = WatchTemp = WatchMem = None     # type: tk.BooleanVar
+
 
 def set_Tk_var():
-    global WhiteEngineChoosen
-    WhiteEngineChoosen = tk.StringVar()
-    global BlackEngineChoosen
-    BlackEngineChoosen = tk.StringVar()
-    global ListSelect
-    ListSelect = tk.StringVar(value=" ".join(map(str, range(100))))
-    global EngCountryVar
-    EngCountryVar = tk.StringVar()
-    global EngNameVar
-    EngNameVar = tk.StringVar()
-    global EngCommandVar
-    EngCommandVar = tk.StringVar()
-    global EngEndingVar
-    EngEndingVar = tk.StringVar()
-    global EngPriorityVar
-    EngPriorityVar = tk.StringVar()
-    global UseHash
-    UseHash = tk.StringVar()
-    global CHashVar
-    CHashVar = tk.StringVar()
-    global UseCpu
-    UseCpu = tk.StringVar()
-    global CCpuVar
-    CCpuVar = tk.StringVar()
-    global WatchTemp
-    WatchTemp = tk.StringVar()
-    global CpuTempVar
-    CpuTempVar = tk.StringVar()
-    global WatchMem
-    WatchMem = tk.StringVar()
-    global MemLimitVar
-    MemLimitVar = tk.StringVar()
-    global WatchMemLeak
-    WatchMemLeak = tk.StringVar()
-    global UseWb2Uci
-    UseWb2Uci = tk.StringVar()
+    global WhiteEngineChoosen, BlackEngineChoosen, ListSelect, EngCountryVar, EngNameVar, EngCommandVar, EngEndingVar, \
+        EngPriorityVar, UseHash, CHashVar, UseCpu, CCpuVar, WatchTemp, CpuTempVar, WatchMem, MemLimitVar, \
+        WatchMemLeak, UseWb2Uci, FlagImg
+    WhiteEngineChoosen = tk.StringVar(value='')
+    BlackEngineChoosen = tk.StringVar(value='')
+    ListSelect = tk.StringVar(value='')  # use {a b} to support tcl space
+    EngCountryVar = tk.StringVar(value='')
+    EngNameVar = tk.StringVar(value='')
+    EngCommandVar = tk.StringVar(value='')
+    EngEndingVar = tk.StringVar(value=r'\r\n')
+    EngPriorityVar = tk.StringVar(value='中')
+    UseHash = tk.BooleanVar(value=True)
+    CHashVar = tk.StringVar(value='')
+    UseCpu = tk.BooleanVar(value=True)
+    CCpuVar = tk.StringVar(value='')
+    WatchTemp = tk.BooleanVar(value=True)
+    CpuTempVar = tk.StringVar(value='')
+    WatchMem = tk.BooleanVar(value=True)
+    MemLimitVar = tk.StringVar(value='')
+    WatchMemLeak = tk.BooleanVar(value=True)
+    UseWb2Uci = tk.BooleanVar(value=False)
+    FlagImg = tk.PhotoImage()
+
+
+def view():
+    print('EngineView_support.view')
+    sys.stdout.flush()
+
 
 def c_close():
     print('EngineView_support.c_close')
     sys.stdout.flush()
 
+
 def c_copy():
     print('EngineView_support.c_copy')
     sys.stdout.flush()
+
 
 def configure():
     print('EngineView_support.configure')
     sys.stdout.flush()
 
+
 def delete():
     print('EngineView_support.delete')
     sys.stdout.flush()
+
 
 def new():
     print('EngineView_support.new')
     sys.stdout.flush()
 
+
 def stash():
     print('EngineView_support.stash')
     sys.stdout.flush()
+
 
 def init(top, gui, *args, **kwargs):
     global w, top_level, root
@@ -87,16 +83,23 @@ def init(top, gui, *args, **kwargs):
     top_level = top
     root = top
 
+
 def destroy_window():
     # Function which closes the window.
     global top_level
     top_level.destroy()
     top_level = None
 
+
+def destruct(event: CallWrapper) -> None:
+    global FlagImg
+    try:
+        del FlagImg
+    except NameError:
+        pass
+
+
 if __name__ == '__main__':
     import EngineView
+
     EngineView.vp_start_gui()
-
-
-
-
