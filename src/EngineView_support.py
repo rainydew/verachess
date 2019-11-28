@@ -6,9 +6,9 @@
 #    Nov 25, 2019 11:32:04 PM CST  platform: Windows NT
 
 import sys
-
 import tkinter as tk
-import tkinter.ttk as ttk
+import easygui
+from consts import Paths
 from tkinter import CallWrapper
 
 WhiteEngineChoosen = BlackEngineChoosen = ListSelect = EngCountryVar = EngNameVar = EngCommandVar = EngEndingVar = \
@@ -68,9 +68,9 @@ def delete():
 
 
 def new():
-    print('EngineView_support.new')
-    sys.stdout.flush()
-
+    filepath = easygui.fileopenbox("选择引擎文件", "添加引擎", Paths.binpath + "/../engines/*.exe")
+    if filepath:
+        print(filepath)
 
 def stash():
     print('EngineView_support.stash')

@@ -22,6 +22,8 @@ except ImportError:
     py3 = True
 
 import EngineView_support
+from tooltip import ToolTip
+from consts import Color
 
 
 def vp_start_gui():
@@ -149,6 +151,8 @@ class Toplevel1:
         self.Label1_7.place(x=310, y=230, height=28)
         self.Label1_7.configure(background="#d9d9d9")
         self.Label1_7.configure(text='''引擎控制台换行符''')
+        self.Label1_7.configure(foreground=Color.blue)
+        ToolTip(self.Label1_7, "点击 编辑UCI选项 可以自动识别换行符。除非引擎不能响应命令，不应修改此项")
 
         self.EngEnding = ttk.Combobox(top)
         self.EngEnding.place(x=310, y=260, height=28, width=225)

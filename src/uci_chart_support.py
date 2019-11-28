@@ -6,7 +6,7 @@
 #    Nov 13, 2019 05:32:12 PM CST  platform: Windows NT
 from typing import Dict, Union, List
 from tooltip import alert
-from consts import Color
+from consts import Color, Paths
 import tkinter as tk
 import easygui
 
@@ -95,7 +95,7 @@ def m_string(x, y, item, default, current_val):
         tempvar.set(easygui.diropenbox("选择一个文件夹", "路径选择") or "")
 
     def file_open():
-        tempvar.set(easygui.fileopenbox("选择一个文件", "文件选择") or "")
+        tempvar.set(easygui.fileopenbox("选择一个文件", "文件选择", Paths.binpath) or "")
 
     w.Editing = True
     tempvar.set(current_val)
