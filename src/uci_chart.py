@@ -22,15 +22,19 @@ except ImportError:
     py3 = True
 
 import uci_chart_support
+from consts import Color
+from tooltip import ToolTip
 
 
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
+    from consts import Paths
     print("test mode")
     root = tk.Tk()
     uci_chart_support.set_Tk_var()
     top = Toplevel1(root)
+    top.BinFile = Paths.engines + "stockfish191114_x64.exe"
     uci_chart_support.init(root, top, [])
     root.mainloop()
     print("Result:", top.Result)
@@ -39,12 +43,14 @@ def vp_start_gui():
 w = None
 
 
-def create_Toplevel1(root, *args, **kwargs):
+def create_Toplevel1(root, binfile, auto_detect=False,*args, **kwargs):
     '''Starting point when module is imported by another program.'''
     global w, w_win, rt
     rt = root
     w = tk.Toplevel(root)
     top = Toplevel1(w)
+    top.AutoDetect = auto_detect
+    top.BinFile = binfile
     uci_chart_support.init(w, top, *args, **kwargs)
     return w, top
 
@@ -113,29 +119,40 @@ class Toplevel1:
                     self.Scrolledtreeview1.insert("", "end", text=str(i), values=[
                         "UseBook", "combo", "anywhere", "none|analyze only|anywhere", "anywhere"])
 
-        self.Confirm = tk.Button(top)
-        self.Confirm.place(x=410, y=490, height=31, width=58)
-        self.Confirm.configure(command=uci_chart_support.confirm)
-        self.Confirm.configure(background="#d9d9d9")
-        self.Confirm.configure(text='''确定''')
+        self.Redetect = tk.Button(top)
+        self.Redetect.place(x=250, y=490, height=31, width=64)
+        self.Redetect.configure(command=uci_chart_support.detect)
+        self.Redetect.configure(background="#d9d9d9")
+        self.Redetect.configure(foreground=Color.blue)
+        self.Redetect.configure(text='''重新检测''')
+        ToolTip(self.Redetect, "再次打开引擎，以检查引擎uci选项是否改动。新引擎会自动检测，"
+                               "在引擎升级变更的时候需要重新检测")
 
         self.Default = tk.Button(top)
-        self.Default.place(x=290, y=490, height=31, width=58)
+        self.Default.place(x=360, y=490, height=31, width=64)
         self.Default.configure(command=uci_chart_support.default)
         self.Default.configure(background="#d9d9d9")
         self.Default.configure(text='''重置''')
 
+        self.Confirm = tk.Button(top)
+        self.Confirm.place(x=470, y=490, height=31, width=64)
+        self.Confirm.configure(command=uci_chart_support.confirm)
+        self.Confirm.configure(background="#d9d9d9")
+        self.Confirm.configure(text='''确定''')
+
         self.Cancel = tk.Button(top)
-        self.Cancel.place(x=530, y=490, height=31, width=58)
+        self.Cancel.place(x=580, y=490, height=31, width=64)
         self.Cancel.configure(command=uci_chart_support.cancel)
         self.Cancel.configure(background="#d9d9d9")
         self.Cancel.configure(text='''取消''')
 
         self.Label1 = tk.Label(top)
-        self.Label1.place(x=120, y=490, height=26)
+        self.Label1.place(x=100, y=490, height=26)
         self.Label1.configure(background="#d9d9d9")
         self.Label1.configure(text='''双击选项编辑''')
 
+        self.BinFile = ""
+        self.AutoDetect = False
         self.Result = None
 
 

@@ -21,18 +21,18 @@ except ImportError:
 
     py3 = True
 
-import EngineView_support
+import engineview_support
 from tooltip import ToolTip
-from consts import Color
+from consts import Color, Countries
 
 
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = tk.Tk()
-    EngineView_support.set_Tk_var()
+    engineview_support.set_Tk_var()
     top = Toplevel1(root)
-    EngineView_support.init(root, top)
+    engineview_support.init(root, top)
     root.mainloop()
 
 
@@ -44,9 +44,9 @@ def create_Toplevel1(root, *args, **kwargs):
     global w, w_win, rt
     rt = root
     w = tk.Toplevel(root)
-    EngineView_support.set_Tk_var()
+    engineview_support.set_Tk_var()
     top = Toplevel1(w)
-    EngineView_support.init(w, top, *args, **kwargs)
+    engineview_support.init(w, top, *args, **kwargs)
     return (w, top)
 
 
@@ -87,7 +87,7 @@ class Toplevel1:
 
         self.WhiteEngine = ttk.Combobox(top)
         self.WhiteEngine.place(x=50, y=50, height=28, width=205)
-        self.WhiteEngine.configure(textvariable=EngineView_support.WhiteEngineChoosen)
+        self.WhiteEngine.configure(textvariable=engineview_support.WhiteEngineChoosen)
         self.WhiteEngine.configure(state="readonly")
 
         self.Label1_1 = tk.Label(top)
@@ -97,7 +97,7 @@ class Toplevel1:
 
         self.BlackEngine = ttk.Combobox(top)
         self.BlackEngine.place(x=50, y=130, height=28, width=205)
-        self.BlackEngine.configure(textvariable=EngineView_support.BlackEngineChoosen)
+        self.BlackEngine.configure(textvariable=engineview_support.BlackEngineChoosen)
         self.BlackEngine.configure(state="readonly")
 
         self.Label1_2 = tk.Label(top)
@@ -107,16 +107,19 @@ class Toplevel1:
 
         self.EngineSpinBox = ScrolledListBox(top)
         self.EngineSpinBox.place(x=50, y=200, height=300, width=205)
-        self.EngineSpinBox.configure(listvariable=EngineView_support.ListSelect)
+        self.EngineSpinBox.configure(listvariable=engineview_support.ListSelect)
+        self.EngineSpinBox.configure(selectmode="single")    # disable keys and scrolls, ensure binding ok
+        self.EngineSpinBox.bind('<Button-1>', lambda e: engineview_support.choose(e))
 
         self.EngCountry = ttk.Combobox(top)
         self.EngCountry.place(x=310, y=130, height=28, width=170)
-        self.EngCountry.configure(textvariable=EngineView_support.EngCountryVar)
+        self.EngCountry.configure(values=Countries)
+        self.EngCountry.configure(textvariable=engineview_support.EngCountryVar)
         self.EngCountry.configure(state="readonly")
 
         self.EngFlag = tk.Label(top)
         self.EngFlag.place(x=481, y=127, height=34, width=54)
-        self.EngFlag.configure(image=EngineView_support.FlagImg)
+        self.EngFlag.configure(image=engineview_support.FlagImg)
 
         self.Label1_3 = tk.Label(top)
         self.Label1_3.place(x=310, y=100, height=28)
@@ -130,7 +133,7 @@ class Toplevel1:
 
         self.EngName = tk.Entry(top)
         self.EngName.place(x=310, y=50, height=29, width=225)
-        self.EngName.configure(textvariable=EngineView_support.EngNameVar)
+        self.EngName.configure(textvariable=engineview_support.EngNameVar)
 
         self.Label1_5 = tk.Label(top)
         self.Label1_5.place(x=310, y=170, height=28)
@@ -141,11 +144,11 @@ class Toplevel1:
         self.OpenExe.place(x=480, y=170, height=28, width=55)
         self.OpenExe.configure(background="#d9d9d9")
         self.OpenExe.configure(text='''浏览''')
-        self.OpenExe.configure(command=EngineView_support.view)
+        self.OpenExe.configure(command=engineview_support.view)
 
         self.EngCommand = tk.Entry(top)
         self.EngCommand.place(x=310, y=200, height=28, width=225)
-        self.EngCommand.configure(textvariable=EngineView_support.EngCommandVar)
+        self.EngCommand.configure(textvariable=engineview_support.EngCommandVar)
 
         self.Label1_7 = tk.Label(top)
         self.Label1_7.place(x=310, y=230, height=28)
@@ -156,51 +159,51 @@ class Toplevel1:
 
         self.EngEnding = ttk.Combobox(top)
         self.EngEnding.place(x=310, y=260, height=28, width=225)
-        self.EngEnding.configure(textvariable=EngineView_support.EngEndingVar)
+        self.EngEnding.configure(textvariable=engineview_support.EngEndingVar)
         self.EngEnding.configure(state="readonly")
         self.EngEnding.configure(values=r"\\r\\n \\n")
 
         self.UciSet = tk.Button(top)
         self.UciSet.place(x=310, y=350, height=33, width=92)
         self.UciSet.configure(background="#d9d9d9")
-        self.UciSet.configure(command=EngineView_support.configure)
+        self.UciSet.configure(command=engineview_support.configure)
         self.UciSet.configure(text='''编辑UCI选项''')
 
         self.UciReset = tk.Button(top)
         self.UciReset.place(x=310, y=400, height=33, width=92)
         self.UciReset.configure(background="#d9d9d9")
-        self.UciReset.configure(command=EngineView_support.stash)
+        self.UciReset.configure(command=engineview_support.stash)
         self.UciReset.configure(text='''重置UCI配置''')
 
         self.Quit = tk.Button(top)
         self.Quit.place(x=310, y=450, height=33, width=92)
         self.Quit.configure(background="#d9d9d9")
-        self.Quit.configure(command=EngineView_support.c_close)
+        self.Quit.configure(command=engineview_support.c_close)
         self.Quit.configure(text='''关闭窗口''')
 
         self.UciNew = tk.Button(top)
         self.UciNew.place(x=443, y=350, height=33, width=92)
         self.UciNew.configure(background="#d9d9d9")
-        self.UciNew.configure(command=EngineView_support.new)
+        self.UciNew.configure(command=engineview_support.new)
         self.UciNew.configure(text='''新增引擎''')
 
         self.Copy = tk.Button(top)
         self.Copy.place(x=443, y=400, height=33, width=92)
         self.Copy.configure(background="#d9d9d9")
-        self.Copy.configure(command=EngineView_support.c_copy)
+        self.Copy.configure(command=engineview_support.c_copy)
         self.Copy.configure(text='''复制引擎''')
 
         self.UciDel = tk.Button(top)
         self.UciDel.place(x=443, y=450, height=33, width=92)
         self.UciDel.configure(background="#d9d9d9")
-        self.UciDel.configure(command=EngineView_support.delete)
+        self.UciDel.configure(command=engineview_support.delete)
         self.UciDel.configure(text='''移除引擎''')
 
         self.WB2UCI = tk.Checkbutton(top)
         self.WB2UCI.place(x=300, y=300, height=28)
         self.WB2UCI.configure(background="#d9d9d9")
         self.WB2UCI.configure(text='''使用Winboard协议转换器(待开发)''')
-        self.WB2UCI.configure(variable=EngineView_support.UseWb2Uci)
+        self.WB2UCI.configure(variable=engineview_support.UseWb2Uci)
         self.WB2UCI.configure(state="disabled")
 
         self.TSeparator1 = ttk.Separator(top)
@@ -219,7 +222,7 @@ class Toplevel1:
 
         self.EngPriority = ttk.Combobox(top)
         self.EngPriority.place(x=610, y=80, height=28, width=155)
-        self.EngPriority.configure(textvariable=EngineView_support.EngPriorityVar)
+        self.EngPriority.configure(textvariable=engineview_support.EngPriorityVar)
         self.EngPriority.configure(state="readonly")
         self.EngPriority.configure(values="中 中低")
 
@@ -227,11 +230,11 @@ class Toplevel1:
         self.CommonHash.place(x=600, y=120, height=28)
         self.CommonHash.configure(background="#d9d9d9")
         self.CommonHash.configure(text='''统一内存(哈希表)用量''')
-        self.CommonHash.configure(variable=EngineView_support.UseHash)
+        self.CommonHash.configure(variable=engineview_support.UseHash)
 
         self.CHash = tk.Entry(top)
         self.CHash.place(x=610, y=150, height=28, width=105)
-        self.CHash.configure(textvariable=EngineView_support.CHashVar)
+        self.CHash.configure(textvariable=engineview_support.CHashVar)
 
         self.Label2 = tk.Label(top)
         self.Label2.place(x=730, y=150, height=28)
@@ -242,11 +245,11 @@ class Toplevel1:
         self.CommonCpus.place(x=600, y=190, height=28)
         self.CommonCpus.configure(background="#d9d9d9")
         self.CommonCpus.configure(text='''统一CPU核心/线程数''')
-        self.CommonCpus.configure(variable=EngineView_support.UseCpu)
+        self.CommonCpus.configure(variable=engineview_support.UseCpu)
 
         self.CCpu = tk.Entry(top)
         self.CCpu.place(x=610, y=220, height=28, width=105)
-        self.CCpu.configure(textvariable=EngineView_support.CCpuVar)
+        self.CCpu.configure(textvariable=engineview_support.CCpuVar)
 
         self.Label2_1 = tk.Label(top)
         self.Label2_1.place(x=730, y=220, height=28)
@@ -262,11 +265,11 @@ class Toplevel1:
         self.TempConfine.place(x=600, y=290, height=28)
         self.TempConfine.configure(background="#d9d9d9")
         self.TempConfine.configure(text='''启用并限制到''')
-        self.TempConfine.configure(variable=EngineView_support.WatchTemp)
+        self.TempConfine.configure(variable=engineview_support.WatchTemp)
 
         self.CpuTempLine = tk.Entry(top)
         self.CpuTempLine.place(x=610, y=320, height=28, width=105)
-        self.CpuTempLine.configure(textvariable=EngineView_support.CpuTempVar)
+        self.CpuTempLine.configure(textvariable=engineview_support.CpuTempVar)
 
         self.Label2_2 = tk.Label(top)
         self.Label2_2.place(x=730, y=320, height=28)
@@ -282,11 +285,11 @@ class Toplevel1:
         self.MemConfine.place(x=600, y=390, height=28)
         self.MemConfine.configure(background="#d9d9d9")
         self.MemConfine.configure(text='''启动并至少保留''')
-        self.MemConfine.configure(variable=EngineView_support.WatchMem)
+        self.MemConfine.configure(variable=engineview_support.WatchMem)
 
         self.MemKeepLine = tk.Entry(top)
         self.MemKeepLine.place(x=610, y=420, height=28, width=105)
-        self.MemKeepLine.configure(textvariable=EngineView_support.MemLimitVar)
+        self.MemKeepLine.configure(textvariable=engineview_support.MemLimitVar)
 
         self.Label4 = tk.Label(top)
         self.Label4.place(x=730, y=420, height=28)
@@ -297,9 +300,9 @@ class Toplevel1:
         self.MemLeakConfine.place(x=600, y=460, height=28)
         self.MemLeakConfine.configure(background="#d9d9d9")
         self.MemLeakConfine.configure(text='''监测引擎内存泄漏''')
-        self.MemLeakConfine.configure(variable=EngineView_support.WatchMemLeak)
+        self.MemLeakConfine.configure(variable=engineview_support.WatchMemLeak)
 
-        top.bind('<Destroy>', lambda e: EngineView_support.destruct(e))
+        top.bind('<Destroy>', lambda e: engineview_support.destruct(e))
 
 
 # The following code is added to facilitate the Scrolled widgets you specified.

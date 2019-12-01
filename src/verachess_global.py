@@ -69,6 +69,7 @@ class Globals:
     MoveSlider = -1  # the last one
     GameInfo = gen_init_game_info()
     MonitorStatVar = None  # type: tk.StringVar
+    Engines = []    # type: List[Dict[str, Union[str, List[Dict[str, Union[str, int, bool, List[str]]]]]]]
 
 
 @Singleton

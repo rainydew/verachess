@@ -23,7 +23,7 @@ def _get_bin_path():
 def _gen_eco_dict() -> Dict[str, str]:
     eco = {" ".join(Positions.common_start_fen.split()[:4]): "A00 Start Position"}
     try:
-        f = open("verachess.eco", encoding="utf-8")
+        f = open("verachess.eco", encoding="utf-8")     # this file will be bounded into verachess.exe
     except:
         easygui.msgbox("开局库文件verachess.eco被损坏，请从https://github.com/rainydew/verachess下载文件")
     else:
@@ -295,8 +295,9 @@ class CpuMoveConf:
 
 class Paths:
     binpath = _get_bin_path()
-    flag = "flags/"
-    music = "music/"
+    flag = binpath + "/flags/"
+    music = binpath + "/music/"
+    engines = binpath + "/../engines/"
 
 
 class InfoTypes:
@@ -309,6 +310,8 @@ class InfoTypes:
     score = "score"
     main_pv = "pv"
 
+
+Countries = ["Unknown"] + sorted(map(lambda x: x[:-4].capitalize(), os.listdir(Paths.flag)))
 
 EcoBook = _gen_eco_dict()  # type: Dict[str, str]
 

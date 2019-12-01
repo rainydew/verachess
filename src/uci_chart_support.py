@@ -24,6 +24,10 @@ def set_Tk_var():
     tempvar = tk.StringVar(value="")
 
 
+def detect():
+    pass    # todo
+
+
 def cancel():
     destroy_window()
 
