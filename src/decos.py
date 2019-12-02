@@ -36,3 +36,14 @@ def none_trier(func):
             logging.warning(format_exc())
             return None
     return inner_func
+
+
+def raise_trier(func):
+    @wraps(func)
+    def inner_func(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except:
+            logging.warning(format_exc())
+            raise
+    return inner_func

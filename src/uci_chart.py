@@ -43,7 +43,7 @@ def vp_start_gui():
 w = None
 
 
-def create_Toplevel1(root, binfile, auto_detect=False,*args, **kwargs):
+def create_Toplevel1(root, binfile, auto_detect=False, *args, **kwargs):
     '''Starting point when module is imported by another program.'''
     global w, w_win, rt
     rt = root
