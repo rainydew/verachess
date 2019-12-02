@@ -10,11 +10,16 @@ import tkinter as tk
 import easygui
 import os
 import json
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 from verachess_global import Globals
-from consts import Paths
+from consts import Paths, UciAbout
 from tkinter import CallWrapper
 from tooltip import alert
+from engineview_global import Globals as engGlobals
+
+if (lambda: None)():
+    import engine_view
+
 
 WhiteEngineChoosen = BlackEngineChoosen = ListSelect = EngCountryVar = EngNameVar = EngCommandVar = EngEndingVar = \
     EngPriorityVar = CHashVar = CCpuVar = CpuTempVar = MemLimitVar = None  # type: tk.StringVar
@@ -37,13 +42,13 @@ def set_Tk_var():
     EngEndingVar = tk.StringVar(value=r'\r\n')
     EngPriorityVar = tk.StringVar(value='中')
     UseHash = tk.BooleanVar(value=True)
-    CHashVar = tk.StringVar(value='')
+    CHashVar = tk.StringVar(value='512')
     UseCpu = tk.BooleanVar(value=True)
-    CCpuVar = tk.StringVar(value='')
+    CCpuVar = tk.StringVar(value='4')
     WatchTemp = tk.BooleanVar(value=True)
-    CpuTempVar = tk.StringVar(value='')
+    CpuTempVar = tk.StringVar(value='80')
     WatchMem = tk.BooleanVar(value=True)
-    MemLimitVar = tk.StringVar(value='')
+    MemLimitVar = tk.StringVar(value='512')
     WatchMemLeak = tk.BooleanVar(value=True)
     UseWb2Uci = tk.BooleanVar(value=False)
     FlagImg = tk.PhotoImage()
@@ -58,7 +63,7 @@ def flush_flag(*args):
         FlagImg.configure(file=Paths.flag + country + ".gif")
 
 
-def get_selection():
+def get_selection() -> Optional[int]:
     selection = w.EngineSpinBox.curselection()
     if not selection:
         return None
@@ -73,15 +78,16 @@ def stash_cell():
     EngEndingVar.set(r'\r\n')
     EngPriorityVar.set('中')
     UseHash.set(True)
-    CHashVar.set('')
+    CHashVar.set('512')
     UseCpu.set(True)
-    CCpuVar.set('')
+    CCpuVar.set('4')
     WatchTemp.set(True)
-    CpuTempVar.set('')
+    CpuTempVar.set('80')
     WatchMem.set(True)
-    MemLimitVar.set('')
+    MemLimitVar.set('512')
     WatchMemLeak.set(True)
     UseWb2Uci.set(False)
+    w.InfoVar.set(UciAbout.no_info)
 
 
 def init_engines_list():
@@ -147,7 +153,7 @@ def new():
     if not name:
         name = sub_name
     argdict = {
-
+        # todo
     }
 
 
@@ -170,11 +176,15 @@ def destroy_window():
     top_level = None
 
 
-def choose(event: CallWrapper) -> None:
-    if get_selection() is None:
+def choose(event: Optional[CallWrapper] = None) -> None:
+    selection = get_selection()
+    if selection is None:
         stash_cell()
+        engGlobals.current_selection = None
     else:
-        pass    # todo
+        info_dict = Globals.Engines[selection]
+        engGlobals.current_selection = info_dict.get("name")
+        w.InfoVar.set(json.dumps({x.get("name"): x.get("value") for x in info_dict.get("options")}, indent=2))
 
 
 def destruct(event: CallWrapper) -> None:

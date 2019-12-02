@@ -23,7 +23,7 @@ except ImportError:
 
 import engineview_support
 from tooltip import ToolTip
-from consts import Color, Countries
+from consts import Color, Countries, UciAbout
 
 
 def vp_start_gui():
@@ -81,12 +81,12 @@ class Toplevel1:
         top.configure(highlightcolor="black")
 
         self.Label1 = tk.Label(top)
-        self.Label1.place(x=50, y=20, height=28)
+        self.Label1.place(x=50, y=40, height=28)
         self.Label1.configure(background="#d9d9d9")
         self.Label1.configure(text='''白方引擎''')
 
         self.WhiteEngine = ttk.Combobox(top)
-        self.WhiteEngine.place(x=50, y=50, height=28, width=205)
+        self.WhiteEngine.place(x=50, y=70, height=28, width=205)
         self.WhiteEngine.configure(textvariable=engineview_support.WhiteEngineChoosen)
         self.WhiteEngine.configure(state="readonly")
 
@@ -109,7 +109,7 @@ class Toplevel1:
         self.EngineSpinBox.place(x=50, y=200, height=300, width=205)
         self.EngineSpinBox.configure(listvariable=engineview_support.ListSelect)
         self.EngineSpinBox.configure(selectmode="single")    # disable keys and scrolls, ensure binding ok
-        self.EngineSpinBox.bind('<Button-1>', lambda e: engineview_support.choose(e))
+        self.EngineSpinBox.bind('<ButtonRelease-1>', lambda e: engineview_support.choose(e))
 
         self.EngCountry = ttk.Combobox(top)
         self.EngCountry.place(x=310, y=130, height=28, width=170)
@@ -121,19 +121,27 @@ class Toplevel1:
         self.EngFlag.place(x=481, y=127, height=34, width=54)
         self.EngFlag.configure(image=engineview_support.FlagImg)
 
+        self.Label3_1 = tk.Label(top)
+        self.Label3_1.place(x=200, y=10, height=28)
+        self.Label3_1.configure(background="#d9d9d9")
+        self.Label3_1.configure(text='''引擎信息(悬停预览uci信息)''')
+        self.Label3_1.configure(foreground=Color.blue)
+        engine_tooltip = ToolTip(self.Label3_1, UciAbout.no_info)
+        self.InfoVar = engine_tooltip.msgVar
+
+        self.Label1_4 = tk.Label(top)
+        self.Label1_4.place(x=310, y=40, height=28)
+        self.Label1_4.configure(background="#d9d9d9")
+        self.Label1_4.configure(text='''引擎名称''')
+
+        self.EngName = tk.Entry(top)
+        self.EngName.place(x=310, y=70, height=29, width=225)
+        self.EngName.configure(textvariable=engineview_support.EngNameVar)
+
         self.Label1_3 = tk.Label(top)
         self.Label1_3.place(x=310, y=100, height=28)
         self.Label1_3.configure(background="#d9d9d9")
         self.Label1_3.configure(text='''所属国家''')
-
-        self.Label1_4 = tk.Label(top)
-        self.Label1_4.place(x=310, y=20, height=28)
-        self.Label1_4.configure(background="#d9d9d9")
-        self.Label1_4.configure(text='''名称''')
-
-        self.EngName = tk.Entry(top)
-        self.EngName.place(x=310, y=50, height=29, width=225)
-        self.EngName.configure(textvariable=engineview_support.EngNameVar)
 
         self.Label1_5 = tk.Label(top)
         self.Label1_5.place(x=310, y=170, height=28)
