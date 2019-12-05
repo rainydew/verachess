@@ -102,6 +102,9 @@ class UciEngine:
                 opt["options"].append(info)
         self.options = opt
 
+        if setting:
+            pass
+
     def send(self, cmd: str):
         if self.log_file:
             self.log_file.write(">{}\t{}\n".format(cmd, time_stamp()))

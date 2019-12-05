@@ -153,7 +153,10 @@ def new():
     if not name:
         name = sub_name
     argdict = {
-        # todo
+        "name": name,
+        "command": filepath,
+        "country": "Unknown",
+        "protocol": "uci"
     }
 
 
