@@ -1,1 +1,165 @@
-[]
+[
+    {
+        "name": "stockfish",
+        "ending": "\r\n",
+        "command": "../engines/stockfish/stockfish191114_x64.exe",
+        "country": "Italy",
+		"protocol" : "uci",
+        "options": [
+            {
+                "name": "Debug Log File",
+                "type": "string",
+                "default": "",
+                "value": ""
+            },
+            {
+                "name": "Contempt",
+                "type": "spin",
+                "default": 24,
+                "min": -100,
+                "max": 100,
+                "value": 24
+            },
+            {
+                "name": "Analysis Contempt",
+                "type": "combo",
+                "default": "Both",
+                "value": "Both",
+                "choices": [
+                    "Off",
+                    "White",
+                    "Black",
+                    "Both"
+                ]
+            },
+            {
+                "name": "Threads",
+                "type": "spin",
+                "default": 1,
+                "min": 1,
+                "max": 512,
+                "value": 1
+            },
+            {
+                "name": "Hash",
+                "type": "spin",
+                "default": 16,
+                "min": 1,
+                "max": 131072,
+                "value": 16
+            },
+            {
+                "name": "Clear Hash",
+                "type": "button"
+            },
+            {
+                "name": "Ponder",
+                "type": "check",
+                "default": false,
+                "value": false
+            },
+            {
+                "name": "MultiPV",
+                "type": "spin",
+                "default": 1,
+                "min": 1,
+                "max": 500,
+                "value": 1
+            },
+            {
+                "name": "Skill Level",
+                "type": "spin",
+                "default": 20,
+                "min": 0,
+                "max": 20,
+                "value": 20
+            },
+            {
+                "name": "Move Overhead",
+                "type": "spin",
+                "default": 30,
+                "min": 0,
+                "max": 5000,
+                "value": 30
+            },
+            {
+                "name": "Minimum Thinking Time",
+                "type": "spin",
+                "default": 20,
+                "min": 0,
+                "max": 5000,
+                "value": 20
+            },
+            {
+                "name": "Slow Mover",
+                "type": "spin",
+                "default": 84,
+                "min": 10,
+                "max": 1000,
+                "value": 84
+            },
+            {
+                "name": "nodestime",
+                "type": "spin",
+                "default": 0,
+                "min": 0,
+                "max": 10000,
+                "value": 0
+            },
+            {
+                "name": "UCI_Chess960",
+                "type": "check",
+                "default": false,
+                "value": false
+            },
+            {
+                "name": "UCI_AnalyseMode",
+                "type": "check",
+                "default": false,
+                "value": false
+            },
+            {
+                "name": "UCI_LimitStrength",
+                "type": "check",
+                "default": false,
+                "value": false
+            },
+            {
+                "name": "UCI_Elo",
+                "type": "spin",
+                "default": 1350,
+                "min": 1350,
+                "max": 2850,
+                "value": 1350
+            },
+            {
+                "name": "SyzygyPath",
+                "type": "string",
+                "default": "<empty>",
+                "value": "<empty>"
+            },
+            {
+                "name": "SyzygyProbeDepth",
+                "type": "spin",
+                "default": 1,
+                "min": 1,
+                "max": 100,
+                "value": 1
+            },
+            {
+                "name": "Syzygy50MoveRule",
+                "type": "check",
+                "default": true,
+                "value": true
+            },
+            {
+                "name": "SyzygyProbeLimit",
+                "type": "spin",
+                "default": 7,
+                "min": 0,
+                "max": 7,
+                "value": 7
+            }
+        ]
+    }
+]
