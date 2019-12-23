@@ -89,6 +89,7 @@ class Toplevel1:
         self.WhiteEngine.place(x=50, y=70, height=28, width=205)
         self.WhiteEngine.configure(textvariable=engineview_support.WhiteEngineChoosen)
         self.WhiteEngine.configure(state="readonly")
+        self.WhiteEngine.configure(values=engineview_support.EngineLists)
 
         self.Label1_1 = tk.Label(top)
         self.Label1_1.place(x=50, y=100, height=28)
@@ -99,6 +100,7 @@ class Toplevel1:
         self.BlackEngine.place(x=50, y=130, height=28, width=205)
         self.BlackEngine.configure(textvariable=engineview_support.BlackEngineChoosen)
         self.BlackEngine.configure(state="readonly")
+        self.BlackEngine.configure(values=engineview_support.EngineLists)
 
         self.Label1_2 = tk.Label(top)
         self.Label1_2.place(x=50, y=170, height=28)

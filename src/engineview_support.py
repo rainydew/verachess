@@ -18,14 +18,15 @@ from tooltip import alert
 from engineview_global import Globals as engGlobals
 
 if (lambda: None)():
-    import engine_view
+    import engineview
 
 
 WhiteEngineChoosen = BlackEngineChoosen = ListSelect = EngCountryVar = EngNameVar = EngCommandVar = EngEndingVar = \
     EngPriorityVar = CHashVar = CCpuVar = CpuTempVar = MemLimitVar = None  # type: tk.StringVar
 FlagImg = None  # type: tk.PhotoImage
 WatchMemLeak = UseWb2Uci = UseHash = UseCpu = WatchTemp = WatchMem = None     # type: tk.BooleanVar
-w = None  # type: engine_view.Toplevel1
+w = None  # type: engineview.Toplevel1
+EngineLists = [""]
 
 
 def set_Tk_var():
@@ -91,6 +92,7 @@ def stash_cell():
 
 
 def init_engines_list():
+    global EngineLists
     file = Paths.binpath + "/../engines/engines.json"
     if not os.path.exists(file):
         with open(file, "w") as f:
@@ -104,19 +106,18 @@ def init_engines_list():
             alert("储存引擎信息的文件engines.json格式被损坏，无法识别", "警告")
             Globals.Engines = []
     errored_list = []
-    engine_list = []
     for i, engine in enumerate(Globals.Engines):
         try:
             name = engine.get("name")
             assert type(name) == str
-            engine_list.append("{%s}"%name)
+            EngineLists.append(name)
         except:
             errored_list.append(i)
             continue
     if errored_list:
         alert("部分引擎信息解析错误，这些引擎将被忽略。引擎信息文件会自动修复，并剔除这些不可解析的引擎", "警告")
         Globals.Engines = [x for i, x in enumerate(Globals.Engines) if i not in errored_list]
-    ListSelect.set(" ".join(engine_list))
+    ListSelect.set(" ".join(EngineLists))
 
 
 # events here
