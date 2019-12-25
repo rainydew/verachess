@@ -12,7 +12,7 @@ import os
 import json
 from typing import List, Dict, Union, Optional
 from verachess_global import Globals
-from consts import Paths, UciAbout
+from consts import Paths, UciAbout, EngineConfigs
 from tkinter import CallWrapper
 from tooltip import alert
 from engineview_global import Globals as engGlobals
@@ -41,6 +41,7 @@ def set_Tk_var():
     EngNameVar = tk.StringVar(value='')
     EngCommandVar = tk.StringVar(value='')
     EngEndingVar = tk.StringVar(value=r'\r\n')
+    EngEndingVar.trace_variable(mode="w", callback=validate_ending)
     EngPriorityVar = tk.StringVar(value='中')
     UseHash = tk.BooleanVar(value=True)
     CHashVar = tk.StringVar(value='512')
@@ -61,7 +62,18 @@ def flush_flag(*args):
     if country == "Unknown":
         FlagImg.blank()
     else:
-        FlagImg.configure(file=Paths.flag + country + ".gif")
+        FlagImg.configure(file=Paths.flag + country.lower() + ".gif")
+
+
+def validate_ending(*args):
+    ending = EngEndingVar.get()
+    if ending in [r"\r\n", r"\n"]:
+        return
+    elif ending in ["\r\n", "\n"]:
+        EngEndingVar.set(ending.encode('unicode-escape').decode())
+    else:
+        alert("引擎的ending类型解析错误，采用默认值代替", "提示")
+        EngEndingVar.set(r"\r\n")
 
 
 def get_selection() -> Optional[int]:
@@ -70,6 +82,10 @@ def get_selection() -> Optional[int]:
         return None
     else:
         return selection[0]
+
+
+def info_get(d: dict, k: str, default_type: Optional[type] = None, default_value=None):
+    return d.get(k) or default_type() or default_value
 
 
 def stash_cell():
@@ -159,6 +175,7 @@ def new():
         "country": "Unknown",
         "protocol": "uci"
     }
+    # todo:
 
 
 def stash():
@@ -189,6 +206,11 @@ def choose(event: Optional[CallWrapper] = None) -> None:
         info_dict = Globals.Engines[selection]
         engGlobals.current_selection = info_dict.get("name")
         w.InfoVar.set(json.dumps({x.get("name"): x.get("value") for x in info_dict.get("options")}, indent=2))
+        EngNameVar.set(info_get(info_dict, EngineConfigs.name))
+        EngCountryVar.set(info_get(info_dict, EngineConfigs.country))
+        EngCommandVar.set(info_get(info_dict, EngineConfigs.command))
+        EngEndingVar.set(info_get(info_dict, EngineConfigs.ending))
+
 
 
 def destruct(event: CallWrapper) -> None:

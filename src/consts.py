@@ -315,6 +315,14 @@ class UciAbout:
     no_info = "暂无信息，请选择或新增一个引擎"
 
 
+class EngineConfigs:
+    name = "name"
+    ending = "ending"
+    country = "country"
+    command = "command"
+
+
+
 Countries = ["Unknown"] + sorted(map(lambda x: x[:-4].capitalize(), os.listdir(Paths.flag)))
 
 EcoBook = _gen_eco_dict()  # type: Dict[str, str]
