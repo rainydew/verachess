@@ -212,7 +212,6 @@ def choose(event: Optional[CallWrapper] = None) -> None:
         EngEndingVar.set(info_get(info_dict, EngineConfigs.ending))
 
 
-
 def destruct(event: CallWrapper) -> None:
     global FlagImg
     try:

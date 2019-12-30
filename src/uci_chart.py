@@ -22,12 +22,14 @@ except ImportError:
     py3 = True
 
 import uci_chart_support
-from consts import Color
+from consts import Color, EngineConfigs
 from tooltip import ToolTip
+from typing import Optional, Dict, Union, List
 
 
 def vp_start_gui():
-    '''Starting point when module is the main routine.'''
+    """Starting point when module is the main routine."""
+    # test only
     global val, w, root
     from consts import Paths
     print("test mode")
@@ -35,7 +37,173 @@ def vp_start_gui():
     uci_chart_support.set_Tk_var()
     top = Toplevel1(root)
     top.BinFile = Paths.engines + "stockfish191114_x64.exe"
-    uci_chart_support.init(root, top, [])
+    top.AutoDetect = False
+
+    test_json = {
+        "name": "stockfish",
+        "ending": "\\r\\n",
+        "command": "../engines/stockfish/stockfish191114_x64.exe",
+        "country": "Italy",
+        "protocol": "uci",
+        "options": [
+            {
+                "name": "Debug Log File",
+                "type": "string",
+                "default": "",
+                "value": ""
+            },
+            {
+                "name": "Contempt",
+                "type": "spin",
+                "default": 24,
+                "min": -100,
+                "max": 100,
+                "value": 24
+            },
+            {
+                "name": "Analysis Contempt",
+                "type": "combo",
+                "default": "Both",
+                "value": "Both",
+                "choices": [
+                    "Off",
+                    "White",
+                    "Black",
+                    "Both"
+                ]
+            },
+            {
+                "name": "Threads",
+                "type": "spin",
+                "default": 1,
+                "min": 1,
+                "max": 512,
+                "value": 1
+            },
+            {
+                "name": "Hash",
+                "type": "spin",
+                "default": 16,
+                "min": 1,
+                "max": 131072,
+                "value": 16
+            },
+            {
+                "name": "Clear Hash",
+                "type": "button"
+            },
+            {
+                "name": "Ponder",
+                "type": "check",
+                "default": False,
+                "value": False
+            },
+            {
+                "name": "MultiPV",
+                "type": "spin",
+                "default": 1,
+                "min": 1,
+                "max": 500,
+                "value": 1
+            },
+            {
+                "name": "Skill Level",
+                "type": "spin",
+                "default": 20,
+                "min": 0,
+                "max": 20,
+                "value": 20
+            },
+            {
+                "name": "Move Overhead",
+                "type": "spin",
+                "default": 30,
+                "min": 0,
+                "max": 5000,
+                "value": 30
+            },
+            {
+                "name": "Minimum Thinking Time",
+                "type": "spin",
+                "default": 20,
+                "min": 0,
+                "max": 5000,
+                "value": 20
+            },
+            {
+                "name": "Slow Mover",
+                "type": "spin",
+                "default": 84,
+                "min": 10,
+                "max": 1000,
+                "value": 84
+            },
+            {
+                "name": "nodestime",
+                "type": "spin",
+                "default": 0,
+                "min": 0,
+                "max": 10000,
+                "value": 0
+            },
+            {
+                "name": "UCI_Chess960",
+                "type": "check",
+                "default": False,
+                "value": False
+            },
+            {
+                "name": "UCI_AnalyseMode",
+                "type": "check",
+                "default": False,
+                "value": False
+            },
+            {
+                "name": "UCI_LimitStrength",
+                "type": "check",
+                "default": False,
+                "value": False
+            },
+            {
+                "name": "UCI_Elo",
+                "type": "spin",
+                "default": 1350,
+                "min": 1350,
+                "max": 2850,
+                "value": 1350
+            },
+            {
+                "name": "SyzygyPath",
+                "type": "string",
+                "default": "<empty>",
+                "value": "<empty>"
+            },
+            {
+                "name": "SyzygyProbeDepth",
+                "type": "spin",
+                "default": 1,
+                "min": 1,
+                "max": 100,
+                "value": 1
+            },
+            {
+                "name": "Syzygy50MoveRule",
+                "type": "check",
+                "default": True,
+                "value": True
+            },
+            {
+                "name": "SyzygyProbeLimit",
+                "type": "spin",
+                "default": 7,
+                "min": 0,
+                "max": 7,
+                "value": 7
+            }
+        ]
+    }
+
+    uci_chart_support.init(root, top, test_json)
     root.mainloop()
     print("Result:", top.Result)
 
@@ -43,15 +211,18 @@ def vp_start_gui():
 w = None
 
 
-def create_Toplevel1(root, binfile, auto_detect=False, *args, **kwargs):
-    '''Starting point when module is imported by another program.'''
+def create_Toplevel1(root, test_json: Optional[Dict[str, Union[str, List[Dict[str, Union[str, int, bool, List[str]]]]]]]
+                     = None):
+    """Starting point when module is imported by another program."""
     global w, w_win, rt
     rt = root
     w = tk.Toplevel(root)
     top = Toplevel1(w)
+    auto_detect = test_json is None
     top.AutoDetect = auto_detect
-    top.BinFile = binfile
-    uci_chart_support.init(w, top, *args, **kwargs)
+    top.BinFile = test_json.get(EngineConfigs.command)
+    assert top.BinFile, "no execute path provided"
+    uci_chart_support.init(w, top, test_json)
     return w, top
 
 
