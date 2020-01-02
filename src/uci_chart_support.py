@@ -190,7 +190,8 @@ def init(top, gui, test_json: Optional[Dict[str, Union[str, List[Dict[str, Union
     top_level = top
     root = top
     columns = w.Columns
-    # todo: init data
+    w.AutoDetect = test_json is None
+
     if w.AutoDetect:
         detect()
 
