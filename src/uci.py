@@ -161,6 +161,7 @@ class _Engines:
 
     @property
     def anly_engine(self):
+        # also be used in setting box
         if self._anly_engine and self._anly_engine.poll() is not None:
             self._anly_engine = None
         return self._anly_engine

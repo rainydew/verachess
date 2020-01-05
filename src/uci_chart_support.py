@@ -10,6 +10,7 @@ from consts import Color, Paths
 from uci import UciEngine, Engines
 import tkinter as tk
 import easygui
+import traceback
 
 
 if (lambda: None)():
@@ -25,7 +26,7 @@ def set_Tk_var():
     tempvar = tk.StringVar(value="")
 
 
-def detect():
+def detect() -> List[Dict[str, Union[str, int, bool, List[str]]]]:
     pass
 
 
@@ -74,7 +75,7 @@ def choose(event: tk.Event):
             pre_var = vars.index(v_default)
         except:
             pre_var = 0
-        res = easygui.choicebox("选择一个值", "单选类型", vars, pre_var)
+        res = easygui.choicebox("选择一个值", "编辑单选变量", vars, pre_var)
         if res:
             tree.set(item, column="Value", value=res)
         w.Editing = False
@@ -193,7 +194,16 @@ def init(top, gui, test_json: Optional[Dict[str, Union[str, List[Dict[str, Union
     w.AutoDetect = test_json is None
 
     if w.AutoDetect:
-        detect()
+        options = detect()
+    else:
+        options = test_json.get("options") or []  # type: List[Dict[str, Union[str, int, bool, List[str]]]]
+    try:
+        for opt in options:
+            assert type(opt) == dict
+            assert opt.get("name")
+            # todo
+    except:
+        easygui.msgbox("解析配置项失败，报错信息如下：\r\n" + traceback.format_exc())
 
 
 def destroy_window():
