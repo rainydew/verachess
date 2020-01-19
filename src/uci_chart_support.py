@@ -6,19 +6,17 @@
 #    Nov 13, 2019 05:32:12 PM CST  platform: Windows NT
 from typing import Dict, Union, List, Optional
 from tooltip import alert
-from consts import Color, Paths
+from consts import Color, Paths, EngineConfigTypes, EngineConfigs
 from uci import UciEngine, Engines
 import tkinter as tk
 import easygui
 import traceback
 
-
 if (lambda: None)():
     import uci_chart
 
-
 w = ...  # type: uci_chart.Toplevel1
-tempvar = ...   # type: tk.StringVar
+tempvar = ...  # type: tk.StringVar
 
 
 def set_Tk_var():
@@ -35,7 +33,6 @@ def cancel():
 
 
 def confirm():
-
     destroy_window()
 
 
@@ -49,26 +46,26 @@ def choose(event: tk.Event):
         return
     x, y = event.x, event.y
     item = tree.selection()
-    v = tree.item(item[0])['values']    # type: List[str]
+    v = tree.item(item[0])['values']  # type: List[str]
     v_type = v[1]
     v_default = v[2]
     v_require = v[3]
     v_cur_val = v[4]
-    if v_type == "spin":
+    if v_type == EngineConfigTypes.spin:
         m_spin(x, y, item, v_default, v_cur_val, v_require)
-    elif v_type == "check" and not w.Editing:
+    elif v_type == EngineConfigTypes.check and not w.Editing:
         if v_cur_val == "false":
             tree.set(item, column="Value", value="true")
         else:
             tree.set(item, column="Value", value="false")
-    elif v_type == "string":
+    elif v_type == EngineConfigTypes.text:
         m_string(x, y, item, v_default, v_cur_val)
-    elif v_type == "button" and not w.Editing:
+    elif v_type == EngineConfigTypes.button and not w.Editing:
         if v_cur_val == "":
             tree.set(item, column="Value", value="will push")
         else:
             tree.set(item, column="Value", value="")
-    elif v_type == "combo" and not w.Editing:
+    elif v_type == EngineConfigTypes.combo and not w.Editing:
         w.Editing = True
         vars = v_require.split("|")
         try:
@@ -196,14 +193,29 @@ def init(top, gui, test_json: Optional[Dict[str, Union[str, List[Dict[str, Union
     if w.AutoDetect:
         options = detect()
     else:
-        options = test_json.get("options") or []  # type: List[Dict[str, Union[str, int, bool, List[str]]]]
+        options = test_json.get(EngineConfigs.options) or []  # type: List[Dict[str, Union[str, int, bool, List[str]]]]
     try:
-        for opt in options:
+        for i, opt in enumerate(options):
             assert type(opt) == dict
-            assert opt.get("name")
-            # todo
+            assert type(opt['name']) == str
+            assert opt["type"] in EngineConfigTypes.__dict__.values()
+            clear_chart()
+            opt_name, opt_type = opt[EngineConfigs.name], opt[EngineConfigs.type]
+            if opt_type == EngineConfigTypes.text:
+                opt_value = opt[EngineConfigs.value]
+                opt_default = opt[EngineConfigs.default]
+                opt_require = ""
+            elif opt_type == EngineConfigTypes.spin:
+                opt_value = str(opt[EngineConfigs.value])
+                opt_default = str(opt[EngineConfigs.default])
+
+            w.Scrolledtreeview1.insert("", "end", text=str(i), values=[])
     except:
         easygui.msgbox("解析配置项失败，报错信息如下：\r\n" + traceback.format_exc())
+
+
+def clear_chart():
+    [w.Scrolledtreeview1.delete(child) for child in w.Scrolledtreeview1.get_children()]
 
 
 def destroy_window():

@@ -320,7 +320,21 @@ class EngineConfigs:
     ending = "ending"
     country = "country"
     command = "command"
+    options = "options"
+    value = "value"
+    type = "type"
+    default = "default"
+    min = "min"
+    max = "max"
+    choices = "choices"
 
+
+class EngineConfigTypes:
+    text = "string"     # different here to consider cutechess compact
+    spin = "spin"
+    combo = "combo"
+    check = "check"
+    button = "button"
 
 
 Countries = ["Unknown"] + sorted(map(lambda x: x[:-4].capitalize(), os.listdir(Paths.flag)))
