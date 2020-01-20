@@ -160,14 +160,14 @@ class _Engines:
         self._anly_engine = None   # type: UciEngine
 
     @property
-    def anly_engine(self):
+    def anly_engine(self) -> Optional[UciEngine]:
         # also be used in setting box
         if self._anly_engine and self._anly_engine.poll() is not None:
             self._anly_engine = None
         return self._anly_engine
 
     @anly_engine.setter
-    def anly_engine(self, value):
+    def anly_engine(self, value: Optional[UciEngine]):
         if self._anly_engine:
             self._anly_engine.quit()
             del self._anly_engine
@@ -181,7 +181,7 @@ class _Engines:
         return self._white_engine
 
     @white_engine.setter
-    def white_engine(self, value: UciEngine):
+    def white_engine(self, value: Optional[UciEngine]):
         if self._white_engine:
             self._white_engine.quit()
             del self._white_engine
@@ -195,7 +195,7 @@ class _Engines:
         return self._black_engine
 
     @black_engine.setter
-    def black_engine(self, value: UciEngine):
+    def black_engine(self, value: Optional[UciEngine]):
         if self.black_engine:
             self._black_engine.quit()
             del self._black_engine
@@ -208,6 +208,6 @@ Engines = _Engines.instance()   # type: _Engines
 
 if __name__ == '__main__':
     Engines.white_engine = UciEngine('../engines/stockfish/stockfish191114_x64.exe', 'stockfish',
-                                     '../engines/stockfish/debug.log')
+                                     '../engines/stockfish/stockfish191114_x64.exe/../debug.log')
     print(json.dumps(Engines.white_engine.options, indent=4))
     Engines.white_engine.quit()

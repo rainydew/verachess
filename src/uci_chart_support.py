@@ -17,6 +17,7 @@ if (lambda: None)():
 
 w = ...  # type: uci_chart.Toplevel1
 tempvar = ...  # type: tk.StringVar
+conf_json = None    # type: Optional[Dict[str, Union[str, List[Dict[str, Union[str, int, bool, List[str]]]]]]]
 
 
 def set_Tk_var():
@@ -24,8 +25,27 @@ def set_Tk_var():
     tempvar = tk.StringVar(value="")
 
 
-def detect() -> List[Dict[str, Union[str, int, bool, List[str]]]]:
-    pass
+def detect_again():
+    before_options = conf_json[EngineConfigs.options]
+    options = detect(conf_json[EngineConfigs.command])
+
+    # todo: check old options compact with new, if so, async it. remove the option from before_options. finally msgbox user the rest incompactible options
+
+    refresh_chart(options)
+
+
+def detect(engine_path: Optional[str] = None) -> List[Dict[str, Union[str, int, bool, List[str]]]]:
+    global conf_json
+    if conf_json is None:
+        assert engine_path, "no engine file provided"
+    else:
+        engine_path = conf_json[EngineConfigs.command]
+    try:
+        Engines.anly_engine = UciEngine(engine_path, log_path=engine_path + "/../debug.log")
+        conf_json = Engines.anly_engine.options
+    finally:
+        Engines.anly_engine = None  # close it
+    return conf_json[EngineConfigs.options]
 
 
 def cancel():
@@ -80,13 +100,20 @@ def choose(event: tk.Event):
         alert("类型{}不被支持".format(v_type))
 
 
+def tip(event: tk.Event):
+    tree = w.Scrolledtreeview1
+    item = tree.identify_row(event.y)   # 很重要
+    v = tree.item(item)['values']
+    v_name, v_cur_val = v[0], v[4]
+    alert(v_name + "的值：", '"{}"'.format(v_cur_val))
+
+
 def m_string(x, y, item, default, current_val):
     if w.Editing:
         return
 
     def string_conf():
-        tree = w.Scrolledtreeview1
-        tree.set(item, column="Value", value=tempvar.get())
+        w.Scrolledtreeview1.set(item, column="Value", value=tempvar.get())
         w.Temp.destroy()
         w.TempEntry = w.TempDefault = w.TempConfirm = w.TempUseDir = w.TempUseFile = None
         w.Editing = False
@@ -158,7 +185,7 @@ def m_spin(x, y, item, default, current_val, require):
         tempvar.set(default)
 
     w.Editing = True
-    min, max = require.split("-")
+    min, max = require.split("~")
     tempvar.set(current_val)
     w.Temp = tk.Frame(w.Top)
     w.Temp.place(x=x - 55, y=y, height=24, width=110)
@@ -182,24 +209,29 @@ def m_spin(x, y, item, default, current_val, require):
     w.TempDefault.configure(command=spin_default)
 
 
-def init(top, gui, test_json: Optional[Dict[str, Union[str, List[Dict[str, Union[str, int, bool, List[str]]]]]]]):
-    global w, top_level, root
+def init(top, gui, test_json: Optional[Dict[str, Union[str, List[Dict[str, Union[str, int, bool, List[str]]]]]]],
+         detect_command: Optional[str] = None):
+    global w, top_level, root, conf_json
     w = gui  # type: uci_chart.Toplevel1
     top_level = top
     root = top
-    columns = w.Columns
-    w.AutoDetect = test_json is None
 
-    if w.AutoDetect:
-        options = detect()
+    if test_json is None:
+        options = detect(detect_command)
     else:
+        conf_json = test_json
         options = test_json.get(EngineConfigs.options) or []  # type: List[Dict[str, Union[str, int, bool, List[str]]]]
+
+    refresh_chart(options)
+
+
+def refresh_chart(options: List[Dict[str, Union[str, int, bool, List[str]]]]):
+    clear_chart()
     try:
         for i, opt in enumerate(options):
             assert type(opt) == dict
             assert type(opt['name']) == str
             assert opt["type"] in EngineConfigTypes.__dict__.values()
-            clear_chart()
             opt_name, opt_type = opt[EngineConfigs.name], opt[EngineConfigs.type]
             if opt_type == EngineConfigTypes.text:
                 opt_value = opt[EngineConfigs.value]
@@ -208,8 +240,21 @@ def init(top, gui, test_json: Optional[Dict[str, Union[str, List[Dict[str, Union
             elif opt_type == EngineConfigTypes.spin:
                 opt_value = str(opt[EngineConfigs.value])
                 opt_default = str(opt[EngineConfigs.default])
-
-            w.Scrolledtreeview1.insert("", "end", text=str(i), values=[])
+                opt_require = "{}~{}".format(opt[EngineConfigs.min], opt[EngineConfigs.max])
+            elif opt_type == EngineConfigTypes.check:
+                opt_value = str(opt[EngineConfigs.value]).lower()
+                opt_default = str(opt[EngineConfigs.default]).lower()
+                opt_require = ""
+            elif opt_type == EngineConfigTypes.button:
+                opt_value = opt_default = opt_require = ""
+            elif opt_type == EngineConfigTypes.combo:
+                opt_value = opt[EngineConfigs.value]
+                opt_default = opt[EngineConfigs.default]
+                opt_require = "|".join(opt[EngineConfigs.choices])
+            else:
+                raise KeyError("不明配置类型")
+            w.Scrolledtreeview1.insert("", "end", text=str(i), values=[opt_name, opt_type, opt_default, opt_require,
+                                                                       opt_value])
     except:
         easygui.msgbox("解析配置项失败，报错信息如下：\r\n" + traceback.format_exc())
 

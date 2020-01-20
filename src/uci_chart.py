@@ -36,8 +36,6 @@ def vp_start_gui():
     root = tk.Tk()
     uci_chart_support.set_Tk_var()
     top = Toplevel1(root)
-    top.BinFile = Paths.engines + "stockfish191114_x64.exe"
-    top.AutoDetect = False
 
     test_json = {
         "name": "stockfish",
@@ -212,17 +210,13 @@ w = None
 
 
 def create_Toplevel1(root, test_json: Optional[Dict[str, Union[str, List[Dict[str, Union[str, int, bool, List[str]]]]]]]
-                     = None):
+                     = None, detect_command: Optional[str] = None):
     """Starting point when module is imported by another program."""
     global w, w_win, rt
     rt = root
     w = tk.Toplevel(root)
     top = Toplevel1(w)
-    auto_detect = test_json is None
-    top.AutoDetect = auto_detect
-    top.BinFile = test_json.get(EngineConfigs.command)
-    assert top.BinFile, "no execute path provided"
-    uci_chart_support.init(w, top, test_json)
+    uci_chart_support.init(w, top, test_json, detect_command)
     return w, top
 
 
@@ -267,6 +261,7 @@ class Toplevel1:
         self.Scrolledtreeview1.heading("#0", text="No.")
         self.Scrolledtreeview1.column("#0", width="50")
         self.Scrolledtreeview1.bind('<Double-ButtonRelease-1>', lambda e: uci_chart_support.choose(e))
+        self.Scrolledtreeview1.bind('<Button-3>', lambda e: uci_chart_support.tip(e))
 
         for col in columns:
             self.Scrolledtreeview1.heading(col, text=col)
@@ -276,7 +271,7 @@ class Toplevel1:
             for i in range(100):
                 if i % 5 == 0:
                     self.Scrolledtreeview1.insert("", "end", text=str(i), values=["Hash", "spin", "128",
-                                                                                  "64-1024", "128"])
+                                                                                  "64~1024", "128"])
                 elif i % 5 == 1:
                     self.Scrolledtreeview1.insert("", "end", text=str(i), values=["Ponder", "check", "false",
                                                                                   "", "false"])
@@ -292,7 +287,7 @@ class Toplevel1:
 
         self.Redetect = tk.Button(top)
         self.Redetect.place(x=250, y=490, height=31, width=64)
-        self.Redetect.configure(command=uci_chart_support.detect)
+        self.Redetect.configure(command=uci_chart_support.detect_again)
         self.Redetect.configure(background="#d9d9d9")
         self.Redetect.configure(foreground=Color.blue)
         self.Redetect.configure(text='''重新检测''')
@@ -318,12 +313,10 @@ class Toplevel1:
         self.Cancel.configure(text='''取消''')
 
         self.Label1 = tk.Label(top)
-        self.Label1.place(x=100, y=490, height=26)
+        self.Label1.place(x=25, y=490, height=26)
         self.Label1.configure(background="#d9d9d9")
-        self.Label1.configure(text='''双击选项编辑''')
+        self.Label1.configure(text='''双击选项编辑，右击查看详细值''')
 
-        self.BinFile = ""
-        self.AutoDetect = False
         self.Result = None
 
 

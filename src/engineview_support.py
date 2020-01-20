@@ -175,7 +175,7 @@ def new():
         "country": "Unknown",
         "protocol": "uci"
     }
-    # todo:
+    # todo: get autodetect dict and update argdict
 
 
 def stash():
