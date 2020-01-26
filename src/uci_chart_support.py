@@ -18,6 +18,7 @@ if (lambda: None)():
 w = ...  # type: uci_chart.Toplevel1
 tempvar = ...  # type: tk.StringVar
 conf_json = None    # type: Optional[Dict[str, Union[str, List[Dict[str, Union[str, int, bool, List[str]]]]]]]
+push_list = []  # type: List[str]
 
 
 def set_Tk_var():
@@ -29,7 +30,34 @@ def detect_again():
     before_options = conf_json[EngineConfigs.options]
     options = detect(conf_json[EngineConfigs.command])
 
-    # todo: check old options compact with new, if so, async it. remove the option from before_options. finally msgbox user the rest incompactible options
+    for opt in options:
+        for i, old_opt in enumerate(before_options):
+            if opt[EngineConfigs.name] == old_opt[EngineConfigs.name]:
+                if old_opt.get(EngineConfigs.default) != old_opt.get(EngineConfigs.value):
+                    if old_opt[EngineConfigs.type] != opt[EngineConfigs.type]:
+                        continue    # type changed, assume different option
+                    if opt[EngineConfigs.type] in [EngineConfigTypes.text, EngineConfigTypes.check]:
+                       opt[EngineConfigs.value] = old_opt[EngineConfigs.value]
+                    elif opt[EngineConfigs.type] == EngineConfigTypes.spin:
+                        new_min, new_max = opt[EngineConfigs.min], opt[EngineConfigs.max]
+                        if new_min <= old_opt[EngineConfigs.value] <= new_max:
+                            opt[EngineConfigs.value] = old_opt[EngineConfigs.value]
+                        else:
+                            continue
+                    elif opt[EngineConfigs.type] == EngineConfigTypes.combo:
+                        if old_opt[EngineConfigs.value] in opt[EngineConfigs.choices]:
+                            opt[EngineConfigs.value] = old_opt[EngineConfigs.value]
+                        else:
+                            continue
+                    elif opt[EngineConfigs.type] == EngineConfigTypes.button:
+                        pass    # keep blank with button
+                    else:
+                        raise TypeError("unrecognized option type in new configs")
+                del before_options[i]
+
+    rest = [opt[EngineConfigs.name] for opt in before_options]
+    if rest:
+        alert("提示：有一些旧配置项已经失效", " ".join(rest))
 
     refresh_chart(options)
 
@@ -60,6 +88,14 @@ def default():
     print("default")
 
 
+def m_item(key: str, val: Union[str, int, bool]):
+    for item in conf_json[EngineConfigs.options]:
+        if item[EngineConfigs.name] == key:
+            item[EngineConfigs.value] = val
+            return
+    raise KeyError("item {} not found".format(key))
+
+
 def choose(event: tk.Event):
     tree = w.Scrolledtreeview1
     if not tree.selection():
@@ -67,24 +103,29 @@ def choose(event: tk.Event):
     x, y = event.x, event.y
     item = tree.selection()
     v = tree.item(item[0])['values']  # type: List[str]
+    v_name = v[0]
     v_type = v[1]
     v_default = v[2]
     v_require = v[3]
     v_cur_val = v[4]
     if v_type == EngineConfigTypes.spin:
-        m_spin(x, y, item, v_default, v_cur_val, v_require)
+        m_spin(x, y, item, v_default, v_cur_val, v_require, v_name)
     elif v_type == EngineConfigTypes.check and not w.Editing:
         if v_cur_val == "false":
             tree.set(item, column="Value", value="true")
+            m_item(v_name, True)
         else:
             tree.set(item, column="Value", value="false")
+            m_item(v_name, False)
     elif v_type == EngineConfigTypes.text:
-        m_string(x, y, item, v_default, v_cur_val)
+        m_string(x, y, item, v_default, v_cur_val, v_name)
     elif v_type == EngineConfigTypes.button and not w.Editing:
         if v_cur_val == "":
             tree.set(item, column="Value", value="will push")
+            push_list.append(v_name)
         else:
             tree.set(item, column="Value", value="")
+            del push_list[push_list.index(v_name)]
     elif v_type == EngineConfigTypes.combo and not w.Editing:
         w.Editing = True
         vars = v_require.split("|")
@@ -95,6 +136,7 @@ def choose(event: tk.Event):
         res = easygui.choicebox("选择一个值", "编辑单选变量", vars, pre_var)
         if res:
             tree.set(item, column="Value", value=res)
+            m_item(v_name, res)
         w.Editing = False
     else:
         alert("类型{}不被支持".format(v_type))
@@ -108,12 +150,15 @@ def tip(event: tk.Event):
     alert(v_name + "的值：", '"{}"'.format(v_cur_val))
 
 
-def m_string(x, y, item, default, current_val):
+def m_string(x, y, item, default, current_val, item_name):
     if w.Editing:
         return
 
     def string_conf():
-        w.Scrolledtreeview1.set(item, column="Value", value=tempvar.get())
+        val = tempvar.get()
+        w.Scrolledtreeview1.set(item, column="Value", value=val)
+        m_item(item_name, val)
+
         w.Temp.destroy()
         w.TempEntry = w.TempDefault = w.TempConfirm = w.TempUseDir = w.TempUseFile = None
         w.Editing = False
@@ -163,7 +208,7 @@ def m_string(x, y, item, default, current_val):
     w.TempUseFile.configure(command=file_open)
 
 
-def m_spin(x, y, item, default, current_val, require):
+def m_spin(x, y, item, default, current_val, require, item_name):
     if w.Editing:
         return
 
@@ -177,6 +222,8 @@ def m_spin(x, y, item, default, current_val, require):
             return
         tree = w.Scrolledtreeview1
         tree.set(item, column="Value", value=int(val))
+        m_item(item_name, int(val))
+
         w.Temp.destroy()
         w.TempEntry = w.TempDefault = w.TempConfirm = None
         w.Editing = False
@@ -257,6 +304,7 @@ def refresh_chart(options: List[Dict[str, Union[str, int, bool, List[str]]]]):
                                                                        opt_value])
     except:
         easygui.msgbox("解析配置项失败，报错信息如下：\r\n" + traceback.format_exc())
+    conf_json[EngineConfigs.options] = options
 
 
 def clear_chart():
