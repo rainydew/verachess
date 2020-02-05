@@ -10,6 +10,7 @@ import tkinter as tk
 import easygui
 import os
 import json
+import uci_chart
 from typing import List, Dict, Union, Optional
 from verachess_global import Globals
 from consts import Paths, UciAbout, EngineConfigs
@@ -19,7 +20,6 @@ from engineview_global import Globals as engGlobals
 
 if (lambda: None)():
     import engineview
-
 
 WhiteEngineChoosen = BlackEngineChoosen = ListSelect = EngCountryVar = EngNameVar = EngCommandVar = EngEndingVar = \
     EngPriorityVar = CHashVar = CCpuVar = CpuTempVar = MemLimitVar = None  # type: tk.StringVar
@@ -136,6 +136,17 @@ def init_engines_list():
     ListSelect.set(" ".join(EngineLists))
 
 
+def engine_path_changed(newpath: str, argdict: Dict[str, str]) -> None:
+    main_window = engGlobals.Main.Top
+    sub_window, setboard_widget = uci_chart.create_Toplevel1(root=main_window, detect_command=newpath)
+    sub_window.transient(main_window)  # show only one window in taskbar
+    sub_window.grab_set()  # set as model window
+    main_window.wait_window(sub_window)  # wait for window return, to get return value
+    info = setboard_widget.Result
+    # todo argdict combine with info
+    print(info)
+
+
 # events here
 def view():
     print('EngineView_support.view')
@@ -162,20 +173,25 @@ def delete():
     sys.stdout.flush()
 
 
-def new():
-    filepath = easygui.fileopenbox("选择引擎文件", "添加引擎", Paths.engines + "*.exe")
+def new(filepath: Optional[str] = None):
+    if filepath is None:
+        filepath = easygui.fileopenbox("选择引擎文件", "添加引擎", Paths.engines + "*.exe")
     sub_name = filepath.replace("\\", "/").split("/")[-1].replace(".exe", "").split("_")[0].split("-")[0].split()[0]
     if filepath:
         name = easygui.enterbox("给你的引擎取一个名称(必填)，这个名称要和已有的名称不同", "引擎命名", sub_name)
+    else:
+        name = sub_name
     if not name:
         name = sub_name
+
     argdict = {
         "name": name,
         "command": filepath,
         "country": "Unknown",
         "protocol": "uci"
     }
-    # todo: get autodetect dict and update argdict
+
+    engine_path_changed(name, argdict)
 
 
 def stash():

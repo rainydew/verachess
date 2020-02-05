@@ -24,6 +24,7 @@ except ImportError:
 import engineview_support
 from tooltip import ToolTip
 from consts import Color, Countries, UciAbout
+from engineview_global import Globals as engGlobals
 
 
 def vp_start_gui():
@@ -32,6 +33,9 @@ def vp_start_gui():
     root = tk.Tk()
     engineview_support.set_Tk_var()
     top = Toplevel1(root)
+
+    engGlobals.Main = top
+
     engineview_support.init(root, top)
     root.mainloop()
 
@@ -46,6 +50,9 @@ def create_Toplevel1(root, *args, **kwargs):
     w = tk.Toplevel(root)
     engineview_support.set_Tk_var()
     top = Toplevel1(w)
+
+    engGlobals.Main = top
+
     engineview_support.init(w, top, *args, **kwargs)
     return (w, top)
 
@@ -60,6 +67,8 @@ class Toplevel1:
     def __init__(self, top=None):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
+        self.Top = top
+
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
         _fgcolor = '#000000'  # X11 color: 'black'
         _compcolor = '#d9d9d9'  # X11 color: 'gray85'

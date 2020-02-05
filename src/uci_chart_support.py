@@ -27,6 +27,7 @@ def set_Tk_var():
 
 
 def detect_again():
+    global push_list
     before_options = conf_json[EngineConfigs.options]
     options = detect(conf_json[EngineConfigs.command])
 
@@ -54,6 +55,7 @@ def detect_again():
                     else:
                         raise TypeError("unrecognized option type in new configs")
                 del before_options[i]
+    push_list = []
 
     rest = [opt[EngineConfigs.name] for opt in before_options]
     if rest:
@@ -81,11 +83,18 @@ def cancel():
 
 
 def confirm():
+    w.Result = (conf_json, push_list)
     destroy_window()
 
 
 def default():
-    print("default")
+    global push_list
+    push_list = []
+    options = conf_json[EngineConfigs.options]
+    for opt in options:
+        if opt[EngineConfigs.type] != EngineConfigTypes.button:
+            opt[EngineConfigs.value] = opt[EngineConfigs.default]
+    refresh_chart(options)
 
 
 def m_item(key: str, val: Union[str, int, bool]):

@@ -45,7 +45,7 @@ def create_Toplevel1(root, *args, **kwargs):
     gameinfo_support.set_Tk_var()
     top = Toplevel1(w)
     gameinfo_support.init(w, top, *args, **kwargs)
-    return (w, top)
+    return w, top
 
 
 def destroy_Toplevel1():
