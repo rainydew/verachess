@@ -215,6 +215,7 @@ def create_Toplevel1(root, test_json: Optional[Dict[str, Union[str, List[Dict[st
     global w, w_win, rt
     rt = root
     w = tk.Toplevel(root)
+    uci_chart_support.set_Tk_var()
     top = Toplevel1(w)
     uci_chart_support.init(w, top, test_json, detect_command)
     return w, top

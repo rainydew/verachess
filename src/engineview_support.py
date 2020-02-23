@@ -191,7 +191,7 @@ def new(filepath: Optional[str] = None):
         "protocol": "uci"
     }
 
-    engine_path_changed(name, argdict)
+    engine_path_changed(filepath, argdict)
 
 
 def stash():

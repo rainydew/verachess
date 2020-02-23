@@ -1,5 +1,6 @@
 # coding: utf-8
-import engineview
+if (lambda: 0)():
+    import engineview
 
 class Globals:
     current_selection = ...     # type: str
